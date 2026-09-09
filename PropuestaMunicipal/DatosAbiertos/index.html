@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja Datos Abiertos — Portal Municipal (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --red-dark:#7A1C29;
+    --blue:#3D6E93; --blue-dark:#2B5170;
+    --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF;
+    --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55; -webkit-text-size-adjust:100%;}
+  img,svg{max-width:100%;}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 32px;}
+
+  .flagbar{display:flex; height:6px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+
+  .protobadge{
+    background:var(--ink); color:#F3EEDD; text-align:center;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:8px;
+  }
+  .protobadge b{color:var(--gold);}
+
+  header{background:var(--paper); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1140px; margin:0 auto; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:18px;}
+  .brand .crest{width:30px; height:34px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand .crest svg{width:100%; height:100%;}
+  .brand .crest img{width:100%; height:100%; object-fit:contain;}
+  .navlinks{display:flex; gap:24px; list-style:none; align-items:center; flex-wrap:wrap;}
+  .navlinks a{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .navlinks a:hover{color:var(--red);}
+  .navlinks .lang{font-size:12px; color:var(--ink-soft); border-left:1px solid var(--line); padding-left:16px;}
+  .navlinks a.login{padding:7px 15px; border:1px solid var(--red); color:var(--red); border-radius:3px;}
+  .navlinks a.login:hover{background:var(--red); color:#fff;}
+
+  .hero{position:relative; overflow:hidden; background:#111C2E; padding:74px 0 0; text-align:center; border-bottom:1px solid var(--line); min-height:clamp(410px,30vw,540px); display:flex; flex-direction:column;}
+  .hero .photo{position:absolute; inset:0; z-index:1; background:url('loja-ciudad.jpg') center 46%/cover no-repeat;}
+  .hero .veil{position:absolute; inset:0; z-index:2; background:linear-gradient(180deg, rgba(10,16,28,0.8) 0%, rgba(10,16,28,0.56) 40%, rgba(10,16,28,0.72) 100%);}
+  .hero .wrap{position:relative; z-index:3; flex:1; display:flex; flex-direction:column;}
+  .hero h1{font-size:clamp(26px,3.6vw,36px); max-width:640px; margin:0 auto; line-height:1.2; color:#FFF6E4; text-shadow:0 2px 16px rgba(0,0,0,0.45);}
+  .hero p{color:#D6D0C2; margin:14px auto 0; max-width:460px; font-size:15px;}
+  .searchbar{margin:30px auto 46px; display:flex; width:100%; max-width:560px; border:2px solid var(--ink); background:var(--paper); box-shadow:0 12px 32px rgba(8,14,24,0.35);}
+  .searchbar input{flex:1; border:none; padding:14px 16px; font-size:15px; font-family:'Inter',sans-serif; background:transparent; color:var(--ink);}
+  .searchbar input:focus{outline:none;}
+  .searchbar button{background:var(--red); color:#fff; border:none; padding:0 22px; font-weight:500; cursor:pointer; font-size:14px;}
+  .searchbar button:hover{background:var(--red-dark);}
+  .count-badge{display:inline-flex; align-items:center; gap:10px; align-self:center; margin:auto 0 0; padding:14px 26px; background:var(--gold); color:#3A2A05; font-family:'Fraunces',serif; font-weight:600; font-size:19px; box-shadow:0 -6px 24px rgba(8,14,24,0.3);}
+  .count-badge .n{font-size:26px;}
+
+  .tags-sec{padding:44px 0; border-bottom:1px solid var(--line); text-align:center;}
+  .tags-sec .lbl{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:18px; display:block;}
+  .tags{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+  .tag{display:inline-flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--line); padding:8px 14px; font-size:13.5px; border-radius:20px; color:var(--ink);}
+  .tag:hover{border-color:var(--blue); color:var(--blue-dark);}
+  .tag .n{background:var(--cream); color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 7px; border-radius:10px;}
+
+  .featured{padding:56px 0; border-bottom:1px solid var(--line);}
+  .featured-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  .featured-head .lbl{font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold-dark);}
+  .featured-head h2{font-size:24px; margin-top:4px;}
+  .featured-head a{font-size:13px; color:var(--red); border-bottom:1px solid var(--red);}
+  .live-card{background:var(--paper); border:1px solid var(--line); border-top:4px solid var(--blue);}
+  .live-head{display:flex; justify-content:space-between; align-items:center; padding:16px 22px; border-bottom:1px solid var(--line); flex-wrap:wrap; gap:8px;}
+  .live-head .dot{width:8px; height:8px; border-radius:50%; background:#3E9B5C; display:inline-block; margin-right:6px; animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+  .live-head span.status{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
+  .table-scroll{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .scroll-hint{display:none; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); padding:10px 22px 12px; border-top:1px solid var(--line);}
+  table.live{width:100%; border-collapse:collapse; font-size:14px;}
+  table.live th{text-align:left; padding:12px 22px; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); letter-spacing:0.04em;}
+  table.live td{padding:14px 22px; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.live tr:last-child td{border-bottom:none;}
+  .lvl{display:inline-flex; align-items:center; gap:8px;}
+  .lvl .track{width:70px; height:6px; background:var(--line); position:relative;}
+  .lvl .track i{position:absolute; top:0; left:0; height:100%; background:var(--blue);}
+  .lvl.alert .track i{background:var(--red);}
+  .badge{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:3px 9px; border-radius:12px;}
+  .badge.normal{background:#E4EFE7; color:#2C6B44;}
+  .badge.atencion{background:#FBEAD3; color:var(--gold-dark);}
+
+  .lists{padding:56px 0; border-bottom:1px solid var(--line);}
+  .lists .wrap{display:grid; grid-template-columns:1fr 1fr; gap:56px; max-width:1000px;}
+  .lists h3{font-size:18px; margin-bottom:18px; display:flex; align-items:center; gap:8px;}
+  .lists h3 .sq{width:8px; height:8px; background:var(--red); display:inline-block;}
+  .lists ul{list-style:none;}
+  .lists li{border-top:1px solid var(--line); padding:14px 0;}
+  .lists li:first-child{border-top:none;}
+  .lists li a{font-size:14.5px; display:flex; justify-content:space-between; gap:10px;}
+  .lists li a:hover{color:var(--red);}
+  .lists li .fmt{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); background:var(--cream); padding:2px 7px; border-radius:3px; flex-shrink:0; height:fit-content;}
+  @media(max-width:760px){.lists .wrap{grid-template-columns:1fr; gap:36px;}}
+
+  .about{padding:56px 0; text-align:center;}
+  .about h2{font-size:22px;}
+  .about p{margin:16px auto 0; max-width:600px; color:var(--ink-soft); font-size:14.5px;}
+  .about .mail{display:inline-block; margin-top:14px; color:var(--red); font-family:'IBM Plex Mono',monospace; font-size:13.5px;}
+
+  footer{background:var(--paper); border-top:1px solid var(--line); padding:30px 0; font-size:12.5px; color:var(--ink-soft);}
+  footer .wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;}
+  footer .flinks{display:flex; gap:18px; flex-wrap:wrap;}
+  footer a:hover{color:var(--red);}
+  footer .credit b{color:var(--ink);}
+
+  @media(max-width:900px){
+    .wrap{padding:0 24px;}
+    nav{padding:16px 24px;}
+    .featured,.lists,.about{padding:44px 0;}
+    .lists .wrap{gap:40px;}
+  }
+  @media(max-width:640px){
+    .protobadge{font-size:11px; padding:9px 16px; line-height:1.5;}
+    nav{padding:14px 20px; gap:10px;}
+    .brand{font-size:16.5px;}
+    .navlinks{gap:12px 18px; width:100%;}
+    .navlinks a{font-size:13px;}
+    .navlinks .lang{border-left:none; padding-left:0;}
+    .wrap{padding:0 20px;}
+    .hero{padding:44px 0 0; min-height:0;}
+    .hero p{margin-top:12px;}
+    .searchbar{flex-direction:column; border:none; gap:8px; margin:24px 0 32px; box-shadow:none;}
+    .searchbar input{border:2px solid var(--ink);}
+    .searchbar button{padding:14px;}
+    .count-badge{width:100%; justify-content:center; margin-top:24px; font-size:17px; padding:13px 18px;}
+    .tags-sec,.featured,.lists,.about{padding:36px 0;}
+    .featured-head h2{font-size:21px;}
+    table.live{font-size:12.5px;}
+    table.live th,table.live td{padding:10px 14px; white-space:nowrap;}
+    .lvl .track{width:52px;}
+    .scroll-hint{display:block;}
+    footer .wrap{flex-direction:column; align-items:flex-start;}
+  }
+  @media(max-width:400px){
+    .brand{font-size:15.5px;}
+    .hero h1{font-size:23px;}
+    .tag{font-size:12.5px; padding:7px 12px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales. Página de referencia visual, no funcional.</div>
+
+<header>
+  <nav>
+    <div class="brand">
+      <div class="crest">
+        <svg viewBox="0 0 40 46" role="img" aria-label="Escudo del Municipio de Loja">
+          <path d="M20 2 L37 7 V24 C37 33.5 29.5 40.7 20 44 C10.5 40.7 3 33.5 3 24 V7 Z" fill="#A32638"/>
+          <path d="M4.2 26 H35.8 C35 33.8 28.4 40.3 20 43.4 C11.6 40.3 5 33.8 4.2 26 Z" fill="#F2E6C4"/>
+          <g fill="#D9A526">
+            <rect x="10.5" y="10.5" width="5" height="13.5"/>
+            <rect x="24.5" y="10.5" width="5" height="13.5"/>
+            <rect x="17.2" y="6" width="5.6" height="18"/>
+            <rect x="10.5" y="17" width="19" height="7"/>
+            <rect x="17.2" y="4.2" width="1.7" height="2"/>
+            <rect x="21.1" y="4.2" width="1.7" height="2"/>
+            <rect x="10.5" y="8.8" width="1.6" height="1.9"/>
+            <rect x="13.9" y="8.8" width="1.6" height="1.9"/>
+            <rect x="24.5" y="8.8" width="1.6" height="1.9"/>
+            <rect x="27.9" y="8.8" width="1.6" height="1.9"/>
+          </g>
+          <path d="M18.6 24 V21.2 A1.4 1.4 0 0 1 21.4 21.2 V24 Z" fill="#7A1C29"/>
+          <g stroke="#3D6E93" stroke-width="1.7" fill="none" stroke-linecap="round">
+            <path d="M9.5 31.5 q3.4 -2.2 6.8 0 t6.8 0 t6.8 0"/>
+            <path d="M10.5 36 q3 -2 6 0 t6 0 t6 0"/>
+          </g>
+          <path d="M20 2 L37 7 V24 C37 33.5 29.5 40.7 20 44 C10.5 40.7 3 33.5 3 24 V7 Z" fill="none" stroke="#D9A526" stroke-width="2.2"/>
+        </svg>
+      </div>
+      Loja Datos Abiertos
+    </div>
+    <ul class="navlinks">
+      <li><a href="#datasets">Conjuntos de datos</a></li>
+      <li><a href="#organismos">Direcciones municipales</a></li>
+      <li><a href="#acerca">Acerca de</a></li>
+      <li class="lang mono">ES&nbsp;/&nbsp;QU</li>
+
+    </ul>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="photo" aria-hidden="true"></div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="wrap">
+    <h1>Descubre los datos que gestiona el Municipio de Loja</h1>
+    <p>Tu guía a la información que recopila la administración municipal.</p>
+    <form class="searchbar" onsubmit="return false;">
+      <input type="text" placeholder="Buscar">
+      <button type="submit">Buscar</button>
+    </form>
+    <a href="#datasets" class="count-badge"><span class="n mono">11</span> Conjuntos de datos</a>
+  </div>
+</section>
+
+<section class="tags-sec">
+  <div class="wrap">
+    <span class="lbl">Explora nuestras etiquetas populares</span>
+    <div class="tags">
+      <a class="tag" href="#">Municipio de Loja <span class="n">6</span></a>
+      <a class="tag" href="loja-dataset-permisos-construccion.html">Planificación urbana <span class="n">3</span></a>
+      <a class="tag" href="#">Ambiente <span class="n">2</span></a>
+      <a class="tag" href="loja-dataset-mercados.html">Mercados <span class="n">1</span></a>
+      <a class="tag" href="#">Movilidad <span class="n">2</span></a>
+      <a class="tag" href="loja-dataset-recoleccion-basura.html">Residuos sólidos <span class="n">1</span></a>
+      <a class="tag" href="#">Patrimonio <span class="n">1</span></a>
+      <a class="tag" href="#">Presupuesto <span class="n">1</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="featured">
+  <div class="wrap">
+    <div class="featured-head">
+      <div>
+        <span class="lbl">Conjunto de datos destacado</span>
+        <h2>Nivel de los ríos Zamora y Malacatos</h2>
+      </div>
+      <a href="#">Ver conjunto de datos completo →</a>
+    </div>
+    <div class="live-card">
+      <div class="live-head">
+        <span class="mono status"><span class="dot"></span>Datos de ejemplo — actualizado hace 8 min</span>
+        <span class="mono status">Formato: CSV / API</span>
+      </div>
+      <div class="table-scroll">
+      <table class="live">
+        <thead><tr><th>Estación</th><th>Río</th><th>Nivel actual</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Puente Bolívar</td><td>Zamora</td><td><span class="lvl"><span class="track"><i style="width:38%"></i></span> 1.2 m</span></td><td><span class="badge normal">Normal</span></td></tr>
+          <tr><td>La Tebaida</td><td>Malacatos</td><td><span class="lvl"><span class="track"><i style="width:52%"></i></span> 1.6 m</span></td><td><span class="badge normal">Normal</span></td></tr>
+          <tr><td>Puente Sucre</td><td>Zamora</td><td><span class="lvl alert"><span class="track"><i style="width:81%"></i></span> 2.4 m</span></td><td><span class="badge atencion">Atención</span></td></tr>
+          <tr><td>El Valle</td><td>Malacatos</td><td><span class="lvl"><span class="track"><i style="width:29%"></i></span> 0.9 m</span></td><td><span class="badge normal">Normal</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="scroll-hint">Desliza la tabla para ver más columnas →</p>
+    </div>
+  </div>
+</section>
+
+<section class="lists" id="datasets">
+  <div class="wrap">
+    <div>
+      <h3><span class="sq"></span>Conjuntos de datos populares</h3>
+      <ul>
+        <li><a href="loja-dataset-mercados.html">Mercados municipales de Loja <span class="fmt">CSV · API</span></a></li>
+        <li><a href="loja-dataset-permisos-construccion.html">Permisos de construcción y planificación urbana <span class="fmt">CSV · API</span></a></li>
+        <li><a href="#">Límites cantonales y parroquiales <span class="fmt">GeoJSON</span></a></li>
+        <li><a href="#">Rutas de transporte urbano <span class="fmt">CSV</span></a></li>
+        <li><a href="#">Ejecución presupuestaria 2026 <span class="fmt">XLSX</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <h3><span class="sq" style="background:var(--gold);"></span>Conjuntos de datos recientes</h3>
+      <ul>
+        <li><a href="loja-dataset-recoleccion-basura.html">Rutas y horarios de recolección de residuos <span class="fmt">CSV · API</span></a></li>
+        <li><a href="#">Nivel de los ríos Zamora y Malacatos <span class="fmt">API</span></a></li>
+        <li><a href="#">Agenda cultural y musical 2026 <span class="fmt">CSV</span></a></li>
+        <li><a href="#">Catastro urbano — zonificación <span class="fmt">SHP</span></a></li>
+        <li><a href="#">Edificaciones patrimoniales protegidas <span class="fmt">GeoJSON</span></a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="acerca">
+  <div class="wrap">
+    <h2>El hogar de los datos abiertos de Loja</h2>
+    <p>Aquí encontrarás datos sobre Loja disponibles en formato abierto para descargar, investigar, desarrollar aplicaciones web y móviles, diseñar visualizaciones y más.</p>
+    <p>Si tienes preguntas o comentarios, contáctanos en</p>
+    <a class="mail" href="mailto:datosabiertos@loja.gob.ec">datosabiertos@loja.gob.ec</a>
+  </div>
+</section>
+
+<footer id="organismos">
+  <div class="wrap">
+    <div class="flinks">
+      <a href="#acerca">Acerca de</a>
+      <a href="mailto:datosabiertos@loja.gob.ec">datosabiertos@loja.gob.ec</a>
+      <a href="#">Política de cookies y privacidad</a>
+    </div>
+    <div class="credit">Prototipo estático · sin backend · <b>Municipio de Loja</b></div>
+  </div>
+</footer>
+
+</body>
+</html>

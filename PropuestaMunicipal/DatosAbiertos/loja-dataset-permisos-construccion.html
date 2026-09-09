@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Permisos de construcción y planificación urbana — Loja Datos Abiertos (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --blue:#3D6E93; --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF; --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55;}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 32px;}
+
+  .flagbar{display:flex; height:6px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+  .protobadge{background:var(--ink); color:#F3EEDD; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:8px;}
+  .protobadge b{color:var(--gold);}
+
+  header{background:var(--paper); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:17px;}
+  .brand .crest{width:26px; height:26px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand .crest svg{width:14px; height:14px;}
+  .navlinks{display:flex; gap:22px; list-style:none;}
+  .navlinks a{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .navlinks a:hover{color:var(--red);}
+
+  .crumbs{padding:18px 0; font-size:13px; color:var(--ink-soft);}
+  .crumbs a:hover{color:var(--red);}
+  .crumbs span{margin:0 6px;}
+
+  .dshead{padding:6px 0 34px; border-bottom:1px solid var(--line);}
+  .dshead .org{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--blue); text-transform:uppercase; letter-spacing:0.04em;}
+  .dshead h1{font-size:clamp(22px,3.2vw,30px); margin:10px 0 14px;}
+  .dshead p.desc{color:var(--ink-soft); max-width:700px; font-size:15px;}
+  .dstags{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .dstags span{background:var(--paper); border:1px solid var(--line); padding:5px 12px; font-size:12.5px; border-radius:14px; color:var(--ink-soft);}
+  .dsmeta{display:flex; gap:26px; margin-top:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft);}
+  .dsmeta b{color:var(--ink); font-weight:500;}
+
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:40px; padding:40px 0 70px;}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;}}
+
+  .resources h2{font-size:17px; margin-bottom:16px;}
+  .res-item{display:flex; align-items:center; justify-content:space-between; background:var(--paper); border:1px solid var(--line); padding:16px 18px; margin-bottom:10px;}
+  .res-item .l{display:flex; align-items:center; gap:12px;}
+  .res-item .fmt{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 9px; border-radius:3px; background:var(--cream); color:var(--gold-dark); font-weight:500;}
+  .res-item .name{font-size:14.5px; font-weight:500;}
+  .res-item .actions a{font-size:12.5px; color:var(--red); margin-left:14px;}
+  .res-item .actions a:hover{text-decoration:underline;}
+
+  .preview{margin-top:34px;}
+  .preview h2{font-size:17px; margin-bottom:14px;}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); background:var(--paper);}
+  table.pv{width:100%; border-collapse:collapse; font-size:13px; min-width:760px;}
+  table.pv th{text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); letter-spacing:0.03em; background:var(--cream);}
+  table.pv td{padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink); white-space:nowrap;}
+  table.pv tr:last-child td{border-bottom:none;}
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px; border-radius:10px;}
+  .pill.aprobado{background:#E4EFE7; color:#2C6B44;}
+  .pill.revision{background:#FBEAD3; color:var(--gold-dark);}
+  .pill.observado{background:#F7DEDD; color:var(--red);}
+
+  .res-item .fmt.api{background:#DDEAF3; color:var(--blue);}
+
+  .api{margin-top:38px;}
+  .api h2{font-size:17px; margin-bottom:6px;}
+  .api .hint{font-size:13px; color:var(--ink-soft); margin-bottom:16px; max-width:660px;}
+  .apibox{border:1px solid var(--line); background:var(--paper);}
+  .endpoint{display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--cream); border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .endpoint .verb{font-family:'IBM Plex Mono',monospace; font-size:11px; background:#2C6B44; color:#fff; padding:4px 9px; border-radius:3px;}
+  .endpoint code{font-family:'IBM Plex Mono',monospace; font-size:12.5px; flex:1; min-width:200px; word-break:break-all;}
+  .btn-mini{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); padding:6px 11px; border-radius:3px; cursor:pointer;}
+  .btn-mini:hover{border-color:var(--blue); color:var(--blue);}
+  .params{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; padding:16px;}
+  .params label{display:flex; flex-direction:column; gap:5px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft);}
+  .params select,.params input{font-family:'Inter',sans-serif; font-size:13.5px; padding:8px 10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); min-width:158px;}
+  .params select:focus,.params input:focus{outline:none; border-color:var(--blue);}
+  .btn-run{background:var(--red); color:#fff; border:none; padding:10px 20px; font-size:13.5px; font-weight:500; border-radius:3px; cursor:pointer;}
+  .btn-run:hover{background:#7A1C29;}
+  .btn-run[disabled]{opacity:0.55; cursor:progress;}
+  .resline{display:flex; gap:18px; flex-wrap:wrap; align-items:center; padding:10px 16px; border-top:1px solid var(--line); background:var(--cream); font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
+  .resline .st{color:#2C6B44;}
+  .resline .st.load{color:var(--gold-dark);}
+  .resline .grow{flex:1;}
+  pre.json{margin:0; padding:16px; background:#211F1C; color:#E9E3D5; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.62; overflow:auto; max-height:430px;}
+  pre.json .jk{color:#8FC3E6;}
+  pre.json .jstr{color:#DCC178;}
+  pre.json .jn{color:#C99BE0;}
+  pre.json .jb{color:#7FC49A;}
+  .apidocs{margin-top:16px; border:1px solid var(--line); background:var(--paper);}
+  .apidocs .row{display:grid; grid-template-columns:230px 1fr; gap:16px; padding:12px 16px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-soft);}
+  .apidocs .row:first-child{border-top:none;}
+  .apidocs code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--red);}
+  @media(max-width:640px){.apidocs .row{grid-template-columns:1fr; gap:4px;}}
+
+  aside{align-self:start;}
+  .infobox{background:var(--paper); border:1px solid var(--line); padding:20px;}
+  .infobox h3{font-size:13px; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:14px;}
+  .infobox table{width:100%; font-size:13px;}
+  .infobox td{padding:8px 0; border-top:1px solid var(--line); vertical-align:top;}
+  .infobox tr:first-child td{border-top:none;}
+  .infobox td:first-child{color:var(--ink-soft); width:44%;}
+  .infobox td:last-child{color:var(--ink); text-align:right;}
+
+  footer{background:var(--paper); border-top:1px solid var(--line); padding:26px 0; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales.</div>
+
+<header>
+  <nav>
+    <div class="brand">
+      <div class="crest"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L9 10 L13 15 L18 5 L22 12" stroke="#D9A526" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      Loja Datos Abiertos
+    </div>
+    <ul class="navlinks">
+      <li><a href="loja-portal-datos.html">Conjuntos de datos</a></li>
+      <li><a href="loja-portal-datos.html#organismos">Direcciones municipales</a></li>
+      <li><a href="loja-portal-datos.html#acerca">Acerca de</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs">
+    <a href="loja-portal-datos.html">Inicio</a><span>/</span>
+    <a href="loja-portal-datos.html#datasets">Conjuntos de datos</a><span>/</span>
+    Permisos de construcción y planificación urbana
+  </div>
+
+  <div class="dshead">
+    <span class="org">Publicado por: Dirección de Planificación Urbana — Municipio de Loja</span>
+    <h1>Permisos de construcción y planificación urbana</h1>
+    <p class="desc">Registro de permisos de construcción emitidos por el Municipio de Loja, con tipo de obra, zonificación, área y estado del trámite. Permite verificar compatibilidad de un proyecto con el uso de suelo antes de iniciar obra.</p>
+    <div class="dstags">
+      <span>Planificación urbana</span><span>Construcción</span><span>Municipio de Loja</span><span>Catastro</span>
+    </div>
+    <div class="dsmeta">
+      <div>Vistas: <b>567</b></div>
+      <div>Frecuencia de actualización: <b>Mensual</b></div>
+      <div>Última actualización: <b>20 ago 2026</b></div>
+      <div>Licencia: <b>CC-BY 4.0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="resources">
+        <h2>Recursos de datos (3)</h2>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">permisos_construccion.csv</span></div>
+          <div class="actions"><a href="#">Vista previa</a><a href="#">Descargar</a></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt">SHP</span><span class="name">zonificacion_urbana.shp</span></div>
+          <div class="actions"><a href="#">Vista previa</a><a href="#">Descargar</a></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt api">API</span><span class="name">/api/v1/permisos-construccion</span></div>
+          <div class="actions"><a href="#api">Probar consulta</a><a href="#api">Documentación</a></div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <h2>Vista previa — permisos_construccion.csv</h2>
+        <div class="tablewrap">
+          <table class="pv">
+            <thead>
+              <tr><th>N.º permiso</th><th>Fecha emisión</th><th>Tipo de obra</th><th>Parroquia</th><th>Zonificación</th><th>Área (m²)</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>PC-2026-0341</td><td>2026-03-04</td><td>Vivienda unifamiliar</td><td>El Valle</td><td>ZR-3</td><td>120</td><td><span class="pill aprobado">Aprobado</span></td></tr>
+              <tr><td>PC-2026-0342</td><td>2026-03-07</td><td>Edificio multifamiliar</td><td>Sucre</td><td>ZM-2</td><td>860</td><td><span class="pill revision">En revisión</span></td></tr>
+              <tr><td>PC-2026-0355</td><td>2026-03-19</td><td>Ampliación</td><td>San Sebastián</td><td>ZR-2</td><td>45</td><td><span class="pill aprobado">Aprobado</span></td></tr>
+              <tr><td>PC-2026-0361</td><td>2026-04-02</td><td>Remodelación</td><td>Sagrario</td><td>ZH-1 (histórica)</td><td>90</td><td><span class="pill observado">Observado</span></td></tr>
+              <tr><td>PC-2026-0378</td><td>2026-04-15</td><td>Local comercial</td><td>Punzara</td><td>ZC-1</td><td>210</td><td><span class="pill aprobado">Aprobado</span></td></tr>
+              <tr><td>PC-2026-0390</td><td>2026-04-28</td><td>Vivienda unifamiliar</td><td>El Valle</td><td>ZR-3</td><td>135</td><td><span class="pill revision">En revisión</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="api" id="api">
+        <h2>API — consulta en vivo</h2>
+        <p class="hint">Así se consultaría el registro de permisos desde una aplicación o desde un sistema interno. En este prototipo la respuesta se genera en el navegador con datos de prueba: no hay servidor detrás, pero la estructura de la respuesta y los parámetros son los que tendría la API real.</p>
+
+        <div class="apibox">
+          <div class="endpoint">
+            <span class="verb">GET</span>
+            <code id="api-url">https://datos.loja.gob.ec/api/v1/permisos-construccion</code>
+            <button class="btn-mini" id="api-copy-url" type="button">Copiar URL</button>
+          </div>
+
+          <div class="params">
+            <label>estado
+              <select id="f-estado">
+                <option value="">(todos)</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="En revisión">En revisión</option>
+                <option value="Observado">Observado</option>
+              </select>
+            </label>
+            <label>parroquia
+              <select id="f-parroquia">
+                <option value="">(todas)</option>
+                <option value="Sagrario">Sagrario</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="Sucre">Sucre</option>
+                <option value="El Valle">El Valle</option>
+                <option value="Punzara">Punzara</option>
+                <option value="Carigán">Carigán</option>
+              </select>
+            </label>
+            <label>area_min
+              <input type="number" id="f-area" min="0" max="1000" step="10" value="0">
+            </label>
+            <label>limit
+              <input type="number" id="f-limit" min="1" max="20" value="5">
+            </label>
+            <button class="btn-run" id="api-run" type="button">Ejecutar consulta</button>
+          </div>
+
+          <div class="resline">
+            <span class="st" id="api-status">200 OK</span>
+            <span id="api-meta"></span>
+            <span class="grow"></span>
+            <button class="btn-mini" id="api-copy-json" type="button">Copiar JSON</button>
+            <button class="btn-mini" id="api-download" type="button">Descargar .json</button>
+          </div>
+          <pre class="json" id="api-out"></pre>
+        </div>
+
+        <div class="apidocs">
+          <div class="row"><code>GET /api/v1/permisos-construccion</code><span>Lista los permisos de construcción emitidos.</span></div>
+          <div class="row"><code>GET /api/v1/permisos-construccion/{numero}</code><span>Devuelve un solo permiso por su número, por ejemplo <code>PC-2026-0341</code>.</span></div>
+          <div class="row"><code>?estado=</code><span>Filtra por <code>Aprobado</code>, <code>En revisión</code> u <code>Observado</code>.</span></div>
+          <div class="row"><code>?parroquia=</code><span>Filtra por parroquia urbana.</span></div>
+          <div class="row"><code>?area_min=</code><span>Devuelve solo permisos con área igual o mayor a los m² indicados.</span></div>
+          <div class="row"><code>?limit=</code><span>Número máximo de registros devueltos (1–20).</span></div>
+          <div class="row"><code>Formato</code><span>JSON (UTF-8). Fechas en ISO 8601. Licencia CC-BY 4.0.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="infobox">
+        <h3>Información adicional</h3>
+        <table>
+          <tr><td>Contacto</td><td>planificacion@loja.gob.ec</td></tr>
+          <tr><td>Formato</td><td>CSV, SHP, API JSON</td></tr>
+          <tr><td>Proyección espacial</td><td>WGS 84</td></tr>
+          <tr><td>Fecha de creación</td><td>2026-01-15</td></tr>
+          <tr><td>Cobertura temporal</td><td>2026</td></tr>
+          <tr><td>Idioma</td><td>Español</td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>Prototipo estático con datos de prueba · Municipio de Loja</footer>
+
+<script>
+(function(){
+  var BASE = 'https://datos.loja.gob.ec/api/v1/permisos-construccion';
+  var RECORDS = [
+    {numero:'PC-2026-0341', fecha_emision:'2026-03-04', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', zonificacion:'ZR-3', area_m2:120, pisos:2, estado:'Aprobado'},
+    {numero:'PC-2026-0342', fecha_emision:'2026-03-07', tipo_obra:'Edificio multifamiliar', parroquia:'Sucre', zonificacion:'ZM-2', area_m2:860, pisos:6, estado:'En revisión'},
+    {numero:'PC-2026-0355', fecha_emision:'2026-03-19', tipo_obra:'Ampliación', parroquia:'San Sebastián', zonificacion:'ZR-2', area_m2:45, pisos:1, estado:'Aprobado'},
+    {numero:'PC-2026-0361', fecha_emision:'2026-04-02', tipo_obra:'Remodelación', parroquia:'Sagrario', zonificacion:'ZH-1', area_m2:90, pisos:2, estado:'Observado'},
+    {numero:'PC-2026-0378', fecha_emision:'2026-04-15', tipo_obra:'Local comercial', parroquia:'Punzara', zonificacion:'ZC-1', area_m2:210, pisos:1, estado:'Aprobado'},
+    {numero:'PC-2026-0390', fecha_emision:'2026-04-28', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', zonificacion:'ZR-3', area_m2:135, pisos:2, estado:'En revisión'},
+    {numero:'PC-2026-0402', fecha_emision:'2026-05-11', tipo_obra:'Bodega industrial', parroquia:'Carigán', zonificacion:'ZI-1', area_m2:540, pisos:1, estado:'Aprobado'},
+    {numero:'PC-2026-0415', fecha_emision:'2026-05-22', tipo_obra:'Vivienda unifamiliar', parroquia:'Punzara', zonificacion:'ZR-2', area_m2:98, pisos:1, estado:'Aprobado'},
+    {numero:'PC-2026-0431', fecha_emision:'2026-06-08', tipo_obra:'Remodelación', parroquia:'Sagrario', zonificacion:'ZH-1', area_m2:76, pisos:2, estado:'Observado'},
+    {numero:'PC-2026-0448', fecha_emision:'2026-06-19', tipo_obra:'Edificio multifamiliar', parroquia:'San Sebastián', zonificacion:'ZM-1', area_m2:1240, pisos:8, estado:'En revisión'},
+    {numero:'PC-2026-0463', fecha_emision:'2026-07-03', tipo_obra:'Local comercial', parroquia:'Sucre', zonificacion:'ZC-2', area_m2:185, pisos:2, estado:'Aprobado'},
+    {numero:'PC-2026-0477', fecha_emision:'2026-07-16', tipo_obra:'Ampliación', parroquia:'Carigán', zonificacion:'ZR-3', area_m2:62, pisos:1, estado:'Aprobado'},
+    {numero:'PC-2026-0489', fecha_emision:'2026-07-29', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', zonificacion:'ZR-3', area_m2:112, pisos:2, estado:'Observado'},
+    {numero:'PC-2026-0501', fecha_emision:'2026-08-12', tipo_obra:'Equipamiento educativo', parroquia:'Punzara', zonificacion:'ZE-1', area_m2:730, pisos:3, estado:'En revisión'}
+  ];
+
+  var el = function(id){ return document.getElementById(id); };
+  var payload = null;
+
+  function params(){
+    var p = {};
+    if(el('f-estado').value) p.estado = el('f-estado').value;
+    if(el('f-parroquia').value) p.parroquia = el('f-parroquia').value;
+    if(Number(el('f-area').value) > 0) p.area_min = Number(el('f-area').value);
+    if(el('f-limit').value) p.limit = Number(el('f-limit').value);
+    return p;
+  }
+
+  function url(p){
+    var qs = Object.keys(p).map(function(k){ return k + '=' + encodeURIComponent(p[k]); }).join('&');
+    return BASE + (qs ? '?' + qs : '');
+  }
+
+  function highlight(obj){
+    var txt = JSON.stringify(obj, null, 2)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return txt.replace(/("(?:\\.|[^"\\])*"\s*:?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?)/g, function(m){
+      var cls = 'jn';
+      if(m.charAt(0) === '"') cls = /:\s*$/.test(m) ? 'jk' : 'jstr';
+      else if(/^(true|false|null)$/.test(m)) cls = 'jb';
+      return '<span class="' + cls + '">' + m + '</span>';
+    });
+  }
+
+  function refreshUrl(){ el('api-url').textContent = url(params()); }
+
+  function run(){
+    var p = params();
+    refreshUrl();
+    el('api-run').setAttribute('disabled', 'disabled');
+    el('api-status').textContent = 'Consultando…';
+    el('api-status').className = 'st load';
+    el('api-meta').textContent = '';
+
+    var started = Date.now();
+    window.setTimeout(function(){
+      var rows = RECORDS.filter(function(r){
+        return (!p.estado || r.estado === p.estado) &&
+               (!p.parroquia || r.parroquia === p.parroquia) &&
+               (!p.area_min || r.area_m2 >= p.area_min);
+      });
+      var coincidencias = rows.length;
+      if(p.limit) rows = rows.slice(0, p.limit);
+
+      payload = {
+        endpoint: '/api/v1/permisos-construccion',
+        generado: new Date().toISOString(),
+        licencia: 'CC-BY 4.0',
+        parametros: p,
+        total_dataset: RECORDS.length,
+        coincidencias: coincidencias,
+        devueltos: rows.length,
+        resultados: rows
+      };
+
+      el('api-out').innerHTML = highlight(payload);
+      el('api-status').textContent = '200 OK';
+      el('api-status').className = 'st';
+      el('api-meta').textContent = rows.length + ' de ' + coincidencias + ' registros · ' +
+        (Date.now() - started) + ' ms · respuesta simulada en el navegador';
+      el('api-run').removeAttribute('disabled');
+    }, 180 + Math.random() * 260);
+  }
+
+  function copy(text, btn){
+    var label = btn.textContent;
+    var done = function(){
+      btn.textContent = 'Copiado';
+      window.setTimeout(function(){ btn.textContent = label; }, 1400);
+    };
+    var manual = function(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ btn.textContent = 'No se pudo copiar'; }
+      document.body.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, manual);
+    } else {
+      manual();
+    }
+  }
+
+  el('api-run').addEventListener('click', run);
+  ['f-estado', 'f-parroquia', 'f-area', 'f-limit'].forEach(function(id){
+    el(id).addEventListener('change', refreshUrl);
+    el(id).addEventListener('input', refreshUrl);
+  });
+  el('api-copy-url').addEventListener('click', function(){ copy(url(params()), this); });
+  el('api-copy-json').addEventListener('click', function(){
+    if(payload) copy(JSON.stringify(payload, null, 2), this);
+  });
+  el('api-download').addEventListener('click', function(){
+    if(!payload) return;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var href = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = href;
+    a.download = 'permisos_construccion.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(function(){ URL.revokeObjectURL(href); }, 1000);
+  });
+
+  run();
+})();
+</script>
+
+</body>
+</html>

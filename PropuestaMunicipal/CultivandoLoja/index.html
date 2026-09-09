@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cultivando Futuro Loja — Big Data agropecuario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-veil" aria-hidden="true"></div>
+    <div class="hero-top">
+      <a class="btn btn-ghost" href="sistema.html#/registro">Quiero unirme a Cultivando Futuro</a>
+      <a class="btn btn-yellow" href="sistema.html#/login">Iniciar sesión</a>
+    </div>
+    <div class="hero-body">
+      <div class="brand-block">
+        <div class="brand-kicker">· Big Data ·</div>
+        <div class="brand-logo">
+          CULTIVANDO<svg class="sprout" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22V11M12 11C12 11 7 11 5 6C5 6 12 5 12 11ZM12 11C12 11 17 11 19 5C19 5 12 6 12 11Z" stroke="#7CF07A" stroke-width="1.8" stroke-linecap="round"/></svg>LOJA
+        </div>
+        <div class="brand-place">· Loja · Ecuador ·</div>
+      </div>
+      <div class="hero-copy">
+        <h1>El futuro del mundo depende de conocer las necesidades de los productores y entregar soluciones</h1>
+        <p>Planeamos juntos la inversión, la producción y la demanda. Únete a nuestra red para acceder a productos y servicios para tu finca y saber más sobre el campo lojano, su gente y su producción.</p>
+        <div class="hero-app">
+          Si eres agricultor(a) entra al sistema:
+          <div>
+            <a class="play-badge" href="sistema.html#/registro">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#34A853" d="M3 20.5V3.5L14 12 3 20.5z"/><path fill="#4285F4" d="M17.5 14.5 14 12 3 20.5l14.5-6z"/><path fill="#FBBC04" d="M3 3.5 14 12l3.5-2.5L3 3.5z"/><path fill="#EA4335" d="M17.5 9.5 21 12l-3.5 2.5L14 12l3.5-2.5z"/></svg>
+              <span><small>Disponible en el sistema</small><strong>Registro agricultor</strong></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="cta-split">
+    <div class="cta-copy">
+      <h2>¿Dónde están los cultivos y cómo se utiliza la tierra para cumplir con la demanda?</h2>
+      <p>Tu producción puede estar en este mapa. Regístrate en nuestro sistema para ser visible al cantón y al mercado.</p>
+      <a class="btn btn-yellow" href="sistema.html#/registro?rol=agricultor">Registro agricultor(a)</a>
+      <p>Somos el sistema municipal que permite mapear la demanda, creando datos precisos y proveyendo acceso a los detalles de cómo se necesitan los productos en el mercado. Así es posible alinear oferta y demanda en Loja.</p>
+      <a class="btn btn-yellow" href="sistema.html#/registro?rol=comprador">Registrar mi demanda</a>
+    </div>
+    <div class="treemap-wrap">
+      <img class="cultivos-img" src="img/cultivos.jpg" alt="Mosaico de café, aguacate, cacao, maíz, cítricos y otros productos del campo lojano">
+      <p class="cultivos-caption">Café, aguacate, cacao, maíz, cítricos y más — la tierra de Loja</p>
+    </div>
+  </section>
+
+  <section class="board-section">
+    <div class="page" id="tablero"></div>
+  </section>
+
+  <footer class="site-footer">
+    <span>Cultivando Futuro Loja · prototipo municipal de datos agropecuarios · sin backend</span>
+    <span><a href="sistema.html#/login">Entrar al sistema</a> · Municipio de Loja</span>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/landing.js"></script>
+</body>
+</html>

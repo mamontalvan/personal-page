@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0A192F">
+  <title>Loja bus — Ingresar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../SimertDigital/css/styles.css">
+  <style>
+    .app-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+    .app-tabs button {
+      background: none;
+      border: none;
+      padding: 8px 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      border-bottom: 2px solid transparent;
+    }
+    .app-tabs button.active {
+      color: var(--navy);
+      border-bottom-color: var(--navy);
+    }
+    .fare-opt {
+      text-align: left;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      width: 100%;
+    }
+    .fare-opt small { display: block; color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
+    .fare-opt.sel { border-color: var(--navy-2); background: var(--blue-soft); }
+    .fare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 10px; }
+    .total-box {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin: 14px 0;
+    }
+    .total-box .amount { font-family: var(--serif); font-size: 1.8rem; }
+    .hist-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .hist-card .row { display: flex; justify-content: space-between; gap: 8px; }
+    .ticket-view { text-align: center; padding: 12px 4px; }
+    .qr-grid {
+      width: 168px; height: 168px; margin: 14px auto;
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px; padding: 12px;
+    }
+    .err { color: var(--red); font-size: 12px; margin: 8px 0 0; min-height: 16px; }
+    .login-foot { margin-top: 16px; font-size: 12px; }
+    .login-foot a { color: var(--blue); font-weight: 600; }
+    .user-chip { font-size: 12px; color: var(--ink-soft); }
+    .modes-head {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: var(--navy);
+      color: #F7F3E8;
+      padding: 8px 8px 10px;
+      flex-shrink: 0;
+    }
+    .modes-head[hidden] { display: none; }
+    .mode-btn {
+      background: none;
+      border: none;
+      color: #D7D2C4;
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      min-width: 72px;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .mode-btn svg { width: 26px; height: 26px; }
+    .mode-btn.active {
+      background: rgba(218,165,32,.22);
+      color: var(--gold);
+    }
+    .soon-card { text-align: center; padding: 28px 12px 16px; }
+    .soon-card svg { width: 40px; height: 40px; color: var(--navy); margin-bottom: 10px; }
+    .home-hero {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      height: 290px;
+      margin: 4px 0 16px;
+      border: 1px solid var(--line);
+    }
+    .home-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .home-hero .hero-cap {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 36px 14px 14px;
+      background: linear-gradient(transparent, rgba(10,25,47,.82));
+      color: #F7F3E8;
+    }
+    .home-hero .hero-cap strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .home-hero .hero-cap span {
+      display: block;
+      font-size: 12px;
+      color: #E8D48A;
+      margin-top: 2px;
+    }
+    .home-actions { display: grid; gap: 10px; }
+  </style>
+</head>
+<body class="is-app">
+<div class="app-solo">
+  <div class="phone">
+    <span class="phone-btn btn-vol" aria-hidden="true"></span>
+    <span class="phone-btn btn-pwr" aria-hidden="true"></span>
+    <div class="phone-screen">
+      <div class="notch"></div>
+      <div class="status-bar"><span id="clock">--:--</span><span>Loja bus · 5G</span></div>
+
+      <header id="in-header" class="modes-head" hidden>
+        <button type="button" class="mode-btn active" data-mode="bus" onclick="selectMode('bus')" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 13h16v4.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2V13Z" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M6 13 7.4 8.6A2 2 0 0 1 9.3 7.2h5.4a2 2 0 0 1 1.9 1.4L18 13" stroke="currentColor" stroke-width="1.7"/>
+            <circle cx="7.2" cy="19.1" r="1.5" fill="currentColor"/>
+            <circle cx="16.8" cy="19.1" r="1.5" fill="currentColor"/>
+          </svg>
+          Bus
+        </button>
+        <button type="button" class="mode-btn" data-mode="metro" onclick="selectMode('metro')" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="5" y="3.5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M5 10.5h14" stroke="currentColor" stroke-width="1.7"/>
+            <circle cx="8.5" cy="14.2" r="1.2" fill="currentColor"/>
+            <circle cx="15.5" cy="14.2" r="1.2" fill="currentColor"/>
+            <path d="M8 17.5 6.5 20.5M16 17.5l1.5 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          Metro
+        </button>
+        <button type="button" class="mode-btn" data-mode="bici" onclick="selectMode('bici')" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="6.5" cy="16.5" r="3" stroke="currentColor" stroke-width="1.7"/>
+            <circle cx="17.5" cy="16.5" r="3" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M6.5 16.5 10 9.5h5.2M17.5 16.5 13.2 9.5H9.2M12.2 6.8h3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Bici
+        </button>
+      </header>
+
+      <div class="app-body">
+
+        <div id="view-login" class="login-screen">
+          <div class="logo-mark" style="margin:8px auto 12px">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 13h16v4.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2V13Z" stroke="#fff" stroke-width="1.7"/>
+              <path d="M6 13 7.4 8.6A2 2 0 0 1 9.3 7.2h5.4a2 2 0 0 1 1.9 1.4L18 13" stroke="#fff" stroke-width="1.7"/>
+              <circle cx="7.2" cy="19.1" r="1.5" fill="#DAA520"/>
+              <circle cx="16.8" cy="19.1" r="1.5" fill="#DAA520"/>
+            </svg>
+          </div>
+          <h2>Iniciar sesión</h2>
+          <p class="muted">Ingresa con tu cédula para comprar boletos</p>
+
+          <button class="btn btn-start" type="button" onclick="startFace()" style="margin-top:22px">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><ellipse cx="12" cy="9" rx="4.2" ry="5" stroke="currentColor" stroke-width="1.7"/><path d="M5 19c1.4-3.2 3.6-4.8 7-4.8s5.6 1.6 7 4.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M4 8.5c2-3 5-4 8-4M20 8.5c-2-3-5-4-8-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Desbloquear con el rostro
+          </button>
+
+          <p class="muted" style="margin:16px 0 10px;font-size:12px">o entra con tu clave</p>
+
+          <form id="login-form">
+            <div class="field">
+              <label for="login-user">Cédula o correo</label>
+              <input id="login-user" name="user" value="1104782216" autocomplete="username" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="login-pass">Contraseña</label>
+              <input id="login-pass" name="pass" type="password" value="loja2026" autocomplete="current-password">
+            </div>
+            <button class="btn btn-navy btn-full" type="submit">Entrar</button>
+            <p class="err" id="login-err"></p>
+          </form>
+          <p class="login-foot muted">La tarifa preferencial se verifica con tu cédula.<br><a href="index.html">Volver al inicio</a></p>
+        </div>
+
+        <div id="view-face" class="face-screen" hidden>
+          <p class="hello" id="face-hello">Escaneando tu rostro</p>
+          <div class="face-stage scanning" id="face-stage">
+            <svg class="face-art" viewBox="0 0 220 280" role="img" aria-label="Escáner facial">
+              <rect width="220" height="280" fill="#0A192F"/>
+              <ellipse cx="110" cy="118" rx="46" ry="56" fill="#1b3a5c"/>
+              <ellipse cx="110" cy="108" rx="28" ry="34" fill="#c9b08a"/>
+              <path d="M70 220c8-36 28-52 40-52s32 16 40 52" fill="#1b3a5c"/>
+              <rect class="scan-beam" x="28" y="40" width="164" height="3" fill="#DAA520" opacity=".85"/>
+              <rect class="scan-grid" x="28" y="36" width="164" height="208" fill="none" stroke="#DAA520" stroke-width="1.2" opacity=".35"/>
+            </svg>
+            <div class="face-ok" id="face-ok" hidden>✓</div>
+          </div>
+          <h2 id="face-title">Autenticación por rostro</h2>
+          <p class="muted" id="face-sub">Mantén la mirada al frente…</p>
+        </div>
+
+        <div id="view-home" hidden>
+          <div class="app-head">
+            <div>
+              <div class="hello">Hola, <span id="user-name">Ana</span></div>
+              <h2>Loja bus</h2>
+            </div>
+            <button class="btn-ghost btn-sm" type="button" onclick="logout()">Salir</button>
+          </div>
+
+          <div id="panel-main">
+            <div class="home-hero">
+              <img src="img/loja-bus.jpg" alt="Bus urbano frente a la Puerta de la Ciudad de Loja">
+              <div class="hero-cap">
+                <strong>Muévete por Loja</strong>
+                <span>Bus urbano · rutas del centro</span>
+              </div>
+            </div>
+            <div class="home-actions">
+              <button class="btn btn-start" type="button" onclick="goBuy()">Comprar</button>
+              <button class="btn-ghost btn-full" type="button" onclick="goHist()">Historial</button>
+            </div>
+          </div>
+
+          <div id="panel-soon" class="soon-card" hidden>
+            <svg id="soon-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"></svg>
+            <h3 id="soon-title" style="font-family:var(--serif);margin-bottom:6px">Próximamente</h3>
+            <p class="muted" id="soon-text"></p>
+          </div>
+        </div>
+
+        <div id="view-buy" hidden>
+          <div class="app-head">
+            <div>
+              <div class="hello">Boleto digital</div>
+              <h2>Comprar</h2>
+            </div>
+            <button class="btn-ghost btn-sm" type="button" onclick="goHome()">Volver</button>
+          </div>
+
+          <div class="app-tabs">
+            <button type="button" id="tab-buy" class="active" onclick="showTab('buy')">Comprar</button>
+            <button type="button" id="tab-hist" onclick="showTab('hist')">Historial</button>
+          </div>
+
+          <div id="panel-buy">
+            <div class="field">
+              <label for="route-select">Ruta</label>
+              <select id="route-select">
+                <option>Ruta 4 · Centro - UTPL</option>
+                <option>Ruta 7 · Terminal - Yaguarcocha</option>
+                <option>Ruta 2 · Sauces - Zamora Huayco</option>
+              </select>
+            </div>
+
+            <p class="muted" style="font-size:12px">Tarifa</p>
+            <div class="fare-grid">
+              <button type="button" class="fare-opt sel" data-price="0.30" onclick="selectFare(this)">General<small>$0.30</small></button>
+              <button type="button" class="fare-opt" data-price="0.15" onclick="selectFare(this)">Preferencial<small>$0.15</small></button>
+            </div>
+            <p class="muted" style="font-size:11px;margin-bottom:4px">Preferencial: adultos mayores, estudiantes o discapacidad, verificado con tu cédula.</p>
+
+            <div class="total-box">
+              <span class="muted">Total</span>
+              <span class="amount" id="total-price">$0.30</span>
+            </div>
+            <button class="btn btn-start" type="button" onclick="buyTicket()">Comprar boleto</button>
+          </div>
+
+          <div id="panel-hist" hidden></div>
+        </div>
+
+        <div id="view-ticket" class="ticket-view" hidden>
+          <span class="pill ok">Boleto activo</span>
+          <div class="qr-grid" id="qr-grid"></div>
+          <p style="font-weight:600;font-size:15px;margin:0 0 4px" id="ticket-route">Ruta 4</p>
+          <p class="muted" style="margin:0 0 1.25rem">Válido por <span id="countdown">15:00</span> min · muéstralo al chofer</p>
+          <button class="btn btn-ghost btn-full" type="button" onclick="resetApp()">Volver</button>
+        </div>
+
+      </div>
+      <div class="home-bar" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const USER = { nombre: "Ana Lucía Castillo", cedula: "1104782216", correo: "ana.castillo@correo.ec", pass: "loja2026" };
+let tickets = [
+  { route: "Ruta 2 · Sauces - Zamora Huayco", fare: "General", price: "$0.30", date: "Ayer, 7:12 am" },
+  { route: "Ruta 4 · Centro - UTPL", fare: "Preferencial", price: "$0.15", date: "Lun, 8:40 am" }
+];
+let timerId = null;
+let faceTimer = null;
+
+function tickClock() {
+  const d = new Date();
+  document.getElementById("clock").textContent =
+    String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+}
+tickClock();
+setInterval(tickClock, 15000);
+
+function showView(id) {
+  ["view-login", "view-face", "view-home", "view-buy", "view-ticket"].forEach(function (v) {
+    document.getElementById(v).hidden = v !== id;
+  });
+  document.getElementById("in-header").hidden = id === "view-login" || id === "view-face";
+}
+
+function enterApp() {
+  document.getElementById("user-name").textContent = USER.nombre.split(" ")[0];
+  selectMode("bus");
+}
+
+function goHome() {
+  selectMode("bus");
+}
+
+function goBuy() {
+  showView("view-buy");
+  showTab("buy");
+}
+
+function goHist() {
+  showView("view-buy");
+  showTab("hist");
+}
+
+function logout() {
+  clearInterval(timerId);
+  clearTimeout(faceTimer);
+  document.getElementById("login-err").textContent = "";
+  showView("view-login");
+}
+
+function selectMode(mode) {
+  document.querySelectorAll(".mode-btn").forEach(function (btn) {
+    const on = btn.getAttribute("data-mode") === mode;
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  showView("view-home");
+  if (mode === "bus") {
+    document.getElementById("panel-main").hidden = false;
+    document.getElementById("panel-soon").hidden = true;
+    return;
+  }
+  const copy = {
+    metro: {
+      title: "Metro",
+      text: "El servicio de metro estará disponible cuando se habilite en Loja.",
+      icon: '<rect x="5" y="3.5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M5 10.5h14" stroke="currentColor" stroke-width="1.7"/><circle cx="8.5" cy="14.2" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14.2" r="1.2" fill="currentColor"/><path d="M8 17.5 6.5 20.5M16 17.5l1.5 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'
+    },
+    bici: {
+      title: "Bicicleta",
+      text: "Próximamente podrás tomar una bici pública desde esta misma app.",
+      icon: '<circle cx="6.5" cy="16.5" r="3" stroke="currentColor" stroke-width="1.7"/><circle cx="17.5" cy="16.5" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M6.5 16.5 10 9.5h5.2M17.5 16.5 13.2 9.5H9.2M12.2 6.8h3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
+    }
+  };
+  const info = copy[mode];
+  document.getElementById("soon-icon").innerHTML = info.icon;
+  document.getElementById("soon-title").textContent = info.title;
+  document.getElementById("soon-text").textContent = info.text;
+  document.getElementById("panel-main").hidden = true;
+  document.getElementById("panel-soon").hidden = false;
+}
+
+document.getElementById("login-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const user = document.getElementById("login-user").value.trim().toLowerCase();
+  const pass = document.getElementById("login-pass").value;
+  const okUser = user === USER.cedula || user === USER.correo;
+  if (!okUser || pass !== USER.pass) {
+    document.getElementById("login-err").textContent = "Cédula o contraseña incorrecta.";
+    return;
+  }
+  enterApp();
+});
+
+function startFace() {
+  showView("view-face");
+  const stage = document.getElementById("face-stage");
+  const ok = document.getElementById("face-ok");
+  stage.className = "face-stage scanning";
+  ok.hidden = true;
+  document.getElementById("face-hello").textContent = "Escaneando tu rostro";
+  document.getElementById("face-title").textContent = "Autenticación por rostro";
+  document.getElementById("face-sub").textContent = "Mantén la mirada al frente…";
+  clearTimeout(faceTimer);
+  faceTimer = setTimeout(function () {
+    stage.className = "face-stage ok";
+    ok.hidden = false;
+    document.getElementById("face-hello").textContent = "Identidad confirmada";
+    document.getElementById("face-title").textContent = "Rostro reconocido";
+    document.getElementById("face-sub").textContent = USER.nombre;
+    faceTimer = setTimeout(enterApp, 900);
+  }, 1800);
+}
+
+function showTab(t) {
+  document.getElementById("tab-buy").classList.toggle("active", t === "buy");
+  document.getElementById("tab-hist").classList.toggle("active", t === "hist");
+  document.getElementById("panel-buy").hidden = t !== "buy";
+  document.getElementById("panel-hist").hidden = t !== "hist";
+  if (t === "hist") renderHist();
+}
+
+function renderHist() {
+  const el = document.getElementById("panel-hist");
+  if (!tickets.length) {
+    el.innerHTML = '<p class="empty">Aún no tienes boletos comprados.</p>';
+    return;
+  }
+  el.innerHTML = tickets.map(function (h) {
+    return '<div class="hist-card"><div class="row"><span style="font-size:13px;font-weight:600">' + h.route +
+      '</span><span style="font-size:13px;font-weight:600">' + h.price +
+      '</span></div><div class="row" style="margin-top:4px"><span class="muted" style="font-size:12px">' + h.fare +
+      '</span><span class="muted" style="font-size:12px">' + h.date + "</span></div></div>";
+  }).join("");
+}
+
+function selectFare(btn) {
+  document.querySelectorAll(".fare-opt").forEach(function (b) { b.classList.remove("sel"); });
+  btn.classList.add("sel");
+  document.getElementById("total-price").textContent = "$" + btn.dataset.price;
+}
+
+function buildQr() {
+  const g = document.getElementById("qr-grid");
+  g.innerHTML = "";
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement("div");
+    c.style.background = Math.random() > 0.45 ? "var(--navy)" : "transparent";
+    c.style.borderRadius = "2px";
+    g.appendChild(c);
+  }
+}
+
+function buyTicket() {
+  const route = document.getElementById("route-select").value;
+  const fareBtn = document.querySelector(".fare-opt.sel");
+  const price = document.getElementById("total-price").textContent;
+  const fareName = fareBtn.textContent.indexOf("Preferencial") !== -1 ? "Preferencial" : "General";
+  tickets.unshift({ route: route, fare: fareName, price: price, date: "Ahora" });
+  document.getElementById("ticket-route").textContent = route;
+  showView("view-ticket");
+  buildQr();
+  let secs = 900;
+  document.getElementById("countdown").textContent = "15:00";
+  clearInterval(timerId);
+  timerId = setInterval(function () {
+    secs--;
+    if (secs < 0) { secs = 0; clearInterval(timerId); }
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    document.getElementById("countdown").textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+  }, 1000);
+}
+
+function resetApp() {
+  clearInterval(timerId);
+  goHome();
+}
+</script>
+</body>
+</html>

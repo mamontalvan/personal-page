@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja Cerca — Servicios de mi barrio (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --red-dark:#7A1C29; --blue:#3D6E93; --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF; --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+    --green:#2C6B44;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.5; padding:34px 18px 60px;}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+
+  .protobadge{max-width:640px; margin:0 auto 26px; background:var(--ink); color:#F3EEDD; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:0.03em; padding:8px 14px;}
+  .protobadge b{color:var(--gold);}
+
+  /* ---------- MARCO DEL TELÉFONO ---------- */
+  .device{width:min(420px,100%); margin:0 auto; background:var(--paper); border:1px solid var(--line); border-radius:24px; overflow:hidden; box-shadow:0 26px 60px rgba(20,24,32,0.18);}
+  .flagbar{display:flex; height:5px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; background:var(--ink); color:#F3EEDD; font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:7px 16px;}
+
+  .appbar{display:flex; align-items:center; gap:11px; padding:16px; border-bottom:1px solid var(--line);}
+  .appbar .crest{width:28px; height:32px; flex-shrink:0;}
+  .appbar .crest svg{width:100%; height:100%;}
+  .appbar h1{font-size:18px; line-height:1.15;}
+  .appbar .sub{font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft);}
+
+  /* ---------- SELECTOR DE UBICACIÓN ---------- */
+  .picker{padding:16px; background:var(--cream); border-bottom:1px solid var(--line);}
+  .picker label{display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:6px;}
+  .picker select{width:100%; font-family:'Inter',sans-serif; font-size:15px; padding:11px 12px; border:1px solid var(--line); background:var(--paper); color:var(--ink);}
+  .picker select:focus{outline:none; border-color:var(--blue);}
+  .geo{display:flex; align-items:center; gap:7px; width:100%; margin-top:9px; padding:9px 12px; border:1px solid var(--line); background:var(--paper); color:var(--blue); font-family:'Inter',sans-serif; font-size:13px; cursor:pointer;}
+  .geo:hover{border-color:var(--blue);}
+  .geo svg{width:14px; height:14px; flex-shrink:0;}
+  .geonote{margin-top:8px; font-size:11.5px; color:var(--ink-soft); min-height:16px;}
+
+  /* ---------- TARJETAS ---------- */
+  .feed{padding:16px; display:flex; flex-direction:column; gap:14px;}
+  .card{border:1px solid var(--line); background:var(--paper);}
+  .card > header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 14px; background:var(--cream); border-bottom:1px solid var(--line);}
+  .card > header h2{font-size:13.5px;}
+  .card > header .tag{font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft);}
+  .card .body{padding:14px;}
+
+  .main-name{font-family:'Fraunces',serif; font-size:19px; font-weight:600; line-height:1.2;}
+  .row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .chip{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px; border-radius:11px; background:var(--cream); color:var(--ink-soft); border:1px solid var(--line);}
+  .chip.dist{background:#E9EFF5; color:var(--blue); border-color:#D3E0EA;}
+  .chip.open{background:#E4EFE7; color:var(--green); border-color:#CFE3D6;}
+  .chip.closed{background:#F3E4E4; color:var(--red); border-color:#E8D2D2;}
+  .chip.feria{background:#FBEAD3; color:var(--gold-dark); border-color:#EFDCBC;}
+  .chip.reciclable{background:#DDEAF3; color:var(--blue); border-color:#CBDFEC;}
+  .chip.organico{background:#FBEAD3; color:var(--gold-dark); border-color:#EFDCBC;}
+  .chip.ordinario{background:#E4EFE7; color:var(--green); border-color:#CFE3D6;}
+  .chip.aprobado{background:#E4EFE7; color:var(--green); border-color:#CFE3D6;}
+  .chip.revision{background:#FBEAD3; color:var(--gold-dark); border-color:#EFDCBC;}
+  .chip.observado{background:#F3E4E4; color:var(--red); border-color:#E8D2D2;}
+  .meta{font-size:13px; color:var(--ink-soft); margin-top:9px;}
+  .meta b{color:var(--ink); font-weight:500;}
+
+  .mapwrap{background:#F4EFE2; border-bottom:1px solid var(--line);}
+  .mapwrap svg{display:block; width:100%; height:auto;}
+  .mapinfo{padding:11px 14px; font-size:12.5px; color:var(--ink-soft); border-bottom:1px solid var(--line); min-height:42px;}
+  .mapinfo b{color:var(--ink); font-weight:500;}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; padding:10px 14px; font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .legend i{width:9px; height:9px; border-radius:50%; display:inline-block;}
+  .legend i.mk{background:var(--gold); border:1px solid var(--gold-dark);}
+  .legend i.ob{background:var(--blue); border-radius:1px;}
+  .legend i.yo{background:var(--red);}
+
+  .next{display:flex; gap:12px; align-items:flex-start; padding:12px; background:var(--cream); border:1px solid var(--line); margin-bottom:12px;}
+  .next .when{font-family:'Fraunces',serif; font-size:17px; font-weight:600; line-height:1.15; flex-shrink:0;}
+  .next .det{font-size:12.5px; color:var(--ink-soft);}
+
+  ul.items{list-style:none;}
+  ul.items li{padding:10px 0; border-top:1px solid var(--line);}
+  ul.items li:first-child{border-top:none;}
+  .item-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+  .item-name{font-size:13.5px; font-weight:500;}
+  .item-sub{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+  .empty{font-size:13px; color:var(--ink-soft); font-style:italic;}
+
+  .devfoot{padding:12px 16px; background:var(--ink); color:#9C968B; font-family:'IBM Plex Mono',monospace; font-size:10px; text-align:center; letter-spacing:0.03em;}
+  .devfoot b{color:var(--gold);}
+
+</style>
+</head>
+<body>
+
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales.</div>
+
+<div class="device">
+  <div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="statusbar">
+    <span id="clock">--:--</span>
+    <span>Loja · Ecuador</span>
+  </div>
+
+  <div class="appbar">
+    <div class="crest">
+      <svg viewBox="0 0 40 46" role="img" aria-label="Escudo del Municipio de Loja">
+        <path d="M20 2 L37 7 V24 C37 33.5 29.5 40.7 20 44 C10.5 40.7 3 33.5 3 24 V7 Z" fill="#A32638"/>
+        <path d="M4.2 26 H35.8 C35 33.8 28.4 40.3 20 43.4 C11.6 40.3 5 33.8 4.2 26 Z" fill="#F2E6C4"/>
+        <g fill="#D9A526">
+          <rect x="10.5" y="10.5" width="5" height="13.5"/>
+          <rect x="24.5" y="10.5" width="5" height="13.5"/>
+          <rect x="17.2" y="6" width="5.6" height="18"/>
+          <rect x="10.5" y="17" width="19" height="7"/>
+          <rect x="17.2" y="4.2" width="1.7" height="2"/>
+          <rect x="21.1" y="4.2" width="1.7" height="2"/>
+          <rect x="10.5" y="8.8" width="1.6" height="1.9"/>
+          <rect x="13.9" y="8.8" width="1.6" height="1.9"/>
+          <rect x="24.5" y="8.8" width="1.6" height="1.9"/>
+          <rect x="27.9" y="8.8" width="1.6" height="1.9"/>
+        </g>
+        <path d="M18.6 24 V21.2 A1.4 1.4 0 0 1 21.4 21.2 V24 Z" fill="#7A1C29"/>
+        <g stroke="#3D6E93" stroke-width="1.7" fill="none" stroke-linecap="round">
+          <path d="M9.5 31.5 q3.4 -2.2 6.8 0 t6.8 0 t6.8 0"/>
+          <path d="M10.5 36 q3 -2 6 0 t6 0 t6 0"/>
+        </g>
+        <path d="M20 2 L37 7 V24 C37 33.5 29.5 40.7 20 44 C10.5 40.7 3 33.5 3 24 V7 Z" fill="none" stroke="#D9A526" stroke-width="2.2"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Loja Cerca</h1>
+      <span class="sub">Servicios de mi barrio</span>
+    </div>
+  </div>
+
+  <div class="picker">
+    <label for="barrio">Tu barrio</label>
+    <select id="barrio"></select>
+    <button class="geo" id="geo" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+      Usar mi ubicación
+    </button>
+    <div class="geonote" id="geonote"></div>
+  </div>
+
+  <div class="feed">
+    <div class="card">
+      <header><h2>Mi barrio</h2><span class="tag">Mapa</span></header>
+      <div class="mapwrap" id="mapa"></div>
+      <div class="mapinfo" id="mapinfo"></div>
+      <div class="legend">
+        <span><i class="yo"></i>Tu barrio</span>
+        <span><i class="mk"></i>Mercados y ferias</span>
+        <span><i class="ob"></i>Obras en trámite</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h2>Mercado más cercano</h2><span class="tag">Mercados</span></header>
+      <div class="body" id="card-mercados"></div>
+    </div>
+
+    <div class="card">
+      <header><h2>Recolección de residuos</h2><span class="tag">Ambiente</span></header>
+      <div class="body" id="card-residuos"></div>
+    </div>
+
+    <div class="card">
+      <header><h2>Obras en trámite cerca</h2><span class="tag">Planificación</span></header>
+      <div class="body" id="card-obras"></div>
+    </div>
+  </div>
+
+  <div class="devfoot">Datos abiertos del <b>Municipio de Loja</b> · datos de prueba</div>
+</div>
+
+<script>
+(function(){
+  var DIAS = {dom:0, lun:1, mar:2, 'mié':3, jue:4, vie:5, 'sáb':6};
+  var NOMBRE_DIA = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+  var BARRIOS = [
+    {nombre:'Centro Histórico', parroquia:'Sagrario', sector:'Centro Histórico', lat:-3.9945, lng:-79.2020},
+    {nombre:'Gran Colombia', parroquia:'San Sebastián', sector:'Centro Histórico', lat:-4.0048, lng:-79.2004},
+    {nombre:'La Argelia', parroquia:'Sucre', sector:'La Argelia', lat:-4.0290, lng:-79.2020},
+    {nombre:'Zamora Huayco', parroquia:'Sucre', sector:'Zamora Huayco', lat:-3.9928, lng:-79.1958},
+    {nombre:'Punzara', parroquia:'Punzara', sector:'Punzara', lat:-4.0192, lng:-79.2124},
+    {nombre:'Época', parroquia:'Punzara', sector:'Época', lat:-4.0225, lng:-79.2100},
+    {nombre:'Carigán', parroquia:'Carigán', sector:'Carigán', lat:-3.9678, lng:-79.2062},
+    {nombre:'Motupe', parroquia:'Carigán', sector:'Motupe', lat:-3.9620, lng:-79.1988}
+  ];
+
+  var MERCADOS = [
+    {id:'MK-001', nombre:'Mercado Centro', tipo:'Minorista', puestos:184, apertura:'06:00', cierre:'17:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-3.9975, lng:-79.2042},
+    {id:'MK-002', nombre:'Mercado Gran Colombia', tipo:'Minorista', puestos:210, apertura:'05:30', cierre:'18:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-4.0031, lng:-79.2019},
+    {id:'MK-003', nombre:'Mercado Mayorista', tipo:'Mayorista', puestos:96, apertura:'03:00', cierre:'13:00', dias:'lun-sáb', dias_num:[1,2,3,4,5,6], lat:-3.9752, lng:-79.2093},
+    {id:'MK-004', nombre:'Feria Libre La Tebaida', tipo:'Feria', puestos:140, apertura:'06:00', cierre:'14:00', dias:'sáb y dom', dias_num:[6,0], lat:-4.0122, lng:-79.2071},
+    {id:'MK-005', nombre:'Mercado Sucre', tipo:'Minorista', puestos:77, apertura:'06:00', cierre:'16:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-3.9938, lng:-79.1998},
+    {id:'MK-006', nombre:'Feria Punzara', tipo:'Feria', puestos:65, apertura:'07:00', cierre:'13:00', dias:'domingo', dias_num:[0], lat:-4.0208, lng:-79.2115},
+    {id:'MK-007', nombre:'Mercado San Sebastián', tipo:'Minorista', puestos:118, apertura:'06:00', cierre:'17:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-4.0058, lng:-79.2036},
+    {id:'MK-008', nombre:'Feria Libre Carigán', tipo:'Feria', puestos:88, apertura:'06:30', cierre:'13:30', dias:'sábado', dias_num:[6], lat:-3.9689, lng:-79.2054},
+    {id:'MK-009', nombre:'Mercado Las Pitas', tipo:'Minorista', puestos:54, apertura:'06:00', cierre:'15:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-3.9801, lng:-79.2128},
+    {id:'MK-010', nombre:'Feria Agroecológica Jipiro', tipo:'Feria', puestos:42, apertura:'07:00', cierre:'12:00', dias:'sábado', dias_num:[6], lat:-3.9846, lng:-79.1962},
+    {id:'MK-011', nombre:'Mercado Mayorista Norte', tipo:'Mayorista', puestos:72, apertura:'04:00', cierre:'12:00', dias:'lun-sáb', dias_num:[1,2,3,4,5,6], lat:-3.9662, lng:-79.2088},
+    {id:'MK-012', nombre:'Mercado Época', tipo:'Minorista', puestos:61, apertura:'06:00', cierre:'16:00', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-4.0175, lng:-79.2142},
+    {id:'MK-013', nombre:'Feria Libre Motupe', tipo:'Feria', puestos:57, apertura:'06:00', cierre:'13:00', dias:'domingo', dias_num:[0], lat:-3.9603, lng:-79.2011},
+    {id:'MK-014', nombre:'Mercado Zamora Huayco', tipo:'Minorista', puestos:49, apertura:'06:30', cierre:'15:30', dias:'lun-dom', dias_num:[0,1,2,3,4,5,6], lat:-3.9912, lng:-79.1934}
+  ];
+
+  var RUTAS = [
+    {id:'RR-01', sector:'Centro Histórico', tipo:'Ordinario', dias:['lun','mié','vie'], desde:'20:00', hasta:'23:00'},
+    {id:'RR-02', sector:'Centro Histórico', tipo:'Reciclable', dias:['mar'], desde:'08:00', hasta:'11:00'},
+    {id:'RR-03', sector:'La Argelia', tipo:'Ordinario', dias:['mar','jue','sáb'], desde:'07:00', hasta:'10:00'},
+    {id:'RR-04', sector:'Zamora Huayco', tipo:'Ordinario', dias:['lun','jue'], desde:'19:00', hasta:'22:00'},
+    {id:'RR-05', sector:'Punzara', tipo:'Orgánico', dias:['mié'], desde:'08:00', hasta:'12:00'},
+    {id:'RR-06', sector:'Época', tipo:'Reciclable', dias:['vie'], desde:'08:00', hasta:'11:00'},
+    {id:'RR-07', sector:'Punzara', tipo:'Ordinario', dias:['lun','mié','vie'], desde:'06:30', hasta:'09:30'},
+    {id:'RR-08', sector:'Carigán', tipo:'Ordinario', dias:['mar','vie'], desde:'19:30', hasta:'22:30'},
+    {id:'RR-09', sector:'Carigán', tipo:'Reciclable', dias:['jue'], desde:'08:30', hasta:'11:30'},
+    {id:'RR-10', sector:'Motupe', tipo:'Ordinario', dias:['mié','sáb'], desde:'07:00', hasta:'10:00'},
+    {id:'RR-11', sector:'La Argelia', tipo:'Orgánico', dias:['vie'], desde:'08:00', hasta:'12:00'},
+    {id:'RR-12', sector:'Zamora Huayco', tipo:'Reciclable', dias:['mié'], desde:'09:00', hasta:'12:00'},
+    {id:'RR-13', sector:'Época', tipo:'Ordinario', dias:['lun','jue','sáb'], desde:'20:00', hasta:'23:00'},
+    {id:'RR-14', sector:'Motupe', tipo:'Orgánico', dias:['sáb'], desde:'07:30', hasta:'11:30'}
+  ];
+
+  var PERMISOS = [
+    {numero:'PC-2026-0341', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', area_m2:120, estado:'Aprobado', fecha:'2026-03-04', lat:-3.9760, lng:-79.2100},
+    {numero:'PC-2026-0342', tipo_obra:'Edificio multifamiliar', parroquia:'Sucre', area_m2:860, estado:'En revisión', fecha:'2026-03-07', lat:-3.9930, lng:-79.1975},
+    {numero:'PC-2026-0355', tipo_obra:'Ampliación', parroquia:'San Sebastián', area_m2:45, estado:'Aprobado', fecha:'2026-03-19', lat:-4.0044, lng:-79.2028},
+    {numero:'PC-2026-0361', tipo_obra:'Remodelación', parroquia:'Sagrario', area_m2:90, estado:'Observado', fecha:'2026-04-02', lat:-3.9964, lng:-79.2051},
+    {numero:'PC-2026-0378', tipo_obra:'Local comercial', parroquia:'Punzara', area_m2:210, estado:'Aprobado', fecha:'2026-04-15', lat:-4.0190, lng:-79.2130},
+    {numero:'PC-2026-0390', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', area_m2:135, estado:'En revisión', fecha:'2026-04-28', lat:-3.9795, lng:-79.2120},
+    {numero:'PC-2026-0402', tipo_obra:'Bodega industrial', parroquia:'Carigán', area_m2:540, estado:'Aprobado', fecha:'2026-05-11', lat:-3.9650, lng:-79.2070},
+    {numero:'PC-2026-0415', tipo_obra:'Vivienda unifamiliar', parroquia:'Punzara', area_m2:98, estado:'Aprobado', fecha:'2026-05-22', lat:-4.0230, lng:-79.2108},
+    {numero:'PC-2026-0431', tipo_obra:'Remodelación', parroquia:'Sagrario', area_m2:76, estado:'Observado', fecha:'2026-06-08', lat:-3.9982, lng:-79.2035},
+    {numero:'PC-2026-0448', tipo_obra:'Edificio multifamiliar', parroquia:'San Sebastián', area_m2:1240, estado:'En revisión', fecha:'2026-06-19', lat:-4.0025, lng:-79.2008},
+    {numero:'PC-2026-0463', tipo_obra:'Local comercial', parroquia:'Sucre', area_m2:185, estado:'Aprobado', fecha:'2026-07-03', lat:-4.0281, lng:-79.2032},
+    {numero:'PC-2026-0477', tipo_obra:'Ampliación', parroquia:'Carigán', area_m2:62, estado:'Aprobado', fecha:'2026-07-16', lat:-3.9612, lng:-79.2024},
+    {numero:'PC-2026-0489', tipo_obra:'Vivienda unifamiliar', parroquia:'El Valle', area_m2:112, estado:'Observado', fecha:'2026-07-29', lat:-3.9812, lng:-79.2140},
+    {numero:'PC-2026-0501', tipo_obra:'Equipamiento educativo', parroquia:'Punzara', area_m2:730, estado:'En revisión', fecha:'2026-08-12', lat:-4.0168, lng:-79.2155}
+  ];
+
+  var RADIO_OBRAS_KM = 1.5;
+
+  var el = function(id){ return document.getElementById(id); };
+
+  function distancia(aLat, aLng, bLat, bLng){
+    var R = 6371;
+    var dLat = (bLat - aLat) * Math.PI / 180;
+    var dLng = (bLng - aLng) * Math.PI / 180;
+    var s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(aLat * Math.PI / 180) * Math.cos(bLat * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  }
+
+  function fmtDist(km){
+    return km < 1 ? Math.round(km * 1000) + ' m' : km.toFixed(1).replace('.', ',') + ' km';
+  }
+
+  function minutos(hhmm){
+    var p = hhmm.split(':');
+    return Number(p[0]) * 60 + Number(p[1]);
+  }
+
+  function abiertoAhora(m, ahora){
+    if(m.dias_num.indexOf(ahora.getDay()) === -1) return false;
+    var t = ahora.getHours() * 60 + ahora.getMinutes();
+    return t >= minutos(m.apertura) && t <= minutos(m.cierre);
+  }
+
+  function proxima(ruta, ahora){
+    var hoy = ahora.getDay();
+    var t = ahora.getHours() * 60 + ahora.getMinutes();
+    var mejor = null;
+    ruta.dias.forEach(function(tok){
+      var d = DIAS[tok];
+      var faltan = (d - hoy + 7) % 7;
+      if(faltan === 0 && t > minutos(ruta.hasta)) faltan = 7;
+      if(mejor === null || faltan < mejor) mejor = faltan;
+    });
+    return mejor;
+  }
+
+  function etiquetaDia(faltan, ahora){
+    if(faltan === 0) return 'Hoy';
+    if(faltan === 1) return 'Mañana';
+    var d = (ahora.getDay() + faltan) % 7;
+    var n = NOMBRE_DIA[d];
+    return n.charAt(0).toUpperCase() + n.slice(1);
+  }
+
+  function claseTipo(t){
+    return t.toLowerCase().replace('á', 'a').replace('é', 'e').replace('ó', 'o');
+  }
+
+  function claseEstado(e){
+    if(e === 'Aprobado') return 'aprobado';
+    if(e === 'Observado') return 'observado';
+    return 'revision';
+  }
+
+  function pintarMercados(barrio, ahora){
+    var lista = MERCADOS.map(function(m){
+      var copia = {};
+      for(var k in m) copia[k] = m[k];
+      copia.km = distancia(barrio.lat, barrio.lng, m.lat, m.lng);
+      return copia;
+    }).sort(function(a, b){ return a.km - b.km; });
+
+    var cerca = lista[0];
+    var abierto = abiertoAhora(cerca, ahora);
+    var html = '<div class="main-name">' + cerca.nombre + '</div>' +
+      '<div class="row">' +
+        '<span class="chip dist">a ' + fmtDist(cerca.km) + '</span>' +
+        '<span class="chip ' + (cerca.tipo === 'Feria' ? 'feria' : '') + '">' + cerca.tipo + '</span>' +
+        '<span class="chip ' + (abierto ? 'open' : 'closed') + '">' + (abierto ? 'Abierto ahora' : 'Cerrado ahora') + '</span>' +
+      '</div>' +
+      '<div class="meta">Horario: <b>' + cerca.apertura + '–' + cerca.cierre + '</b> · ' + cerca.dias +
+      '<br>' + cerca.puestos + ' puestos · código ' + cerca.id + '</div>';
+
+    html += '<ul class="items" style="margin-top:12px;">';
+    lista.slice(1, 4).forEach(function(m){
+      html += '<li><div class="item-top"><span class="item-name">' + m.nombre + '</span>' +
+              '<span class="chip dist">' + fmtDist(m.km) + '</span></div>' +
+              '<div class="item-sub">' + m.tipo + ' · ' + m.apertura + '–' + m.cierre + ' · ' + m.dias + '</div></li>';
+    });
+    html += '</ul>';
+
+    el('card-mercados').innerHTML = html;
+  }
+
+  function pintarResiduos(barrio, ahora){
+    var rutas = RUTAS.filter(function(r){ return r.sector === barrio.sector; })
+      .map(function(r){
+        var copia = {};
+        for(var k in r) copia[k] = r[k];
+        copia.faltan = proxima(r, ahora);
+        return copia;
+      })
+      .sort(function(a, b){ return a.faltan - b.faltan || minutos(a.desde) - minutos(b.desde); });
+
+    if(!rutas.length){
+      el('card-residuos').innerHTML = '<p class="empty">Todavía no hay una ruta publicada para el sector ' + barrio.sector + '.</p>';
+      return;
+    }
+
+    var p = rutas[0];
+    var html = '<div class="next">' +
+        '<div class="when">' + etiquetaDia(p.faltan, ahora) + '</div>' +
+        '<div class="det"><b style="color:var(--ink);">' + p.tipo + '</b> · ' + p.desde + '–' + p.hasta +
+        '<br>Sector ' + barrio.sector + ' · ruta ' + p.id + '</div>' +
+      '</div>';
+
+    html += '<ul class="items">';
+    rutas.forEach(function(r){
+      html += '<li><div class="item-top"><span class="item-name">' + r.dias.join(', ') + '</span>' +
+              '<span class="chip ' + claseTipo(r.tipo) + '">' + r.tipo + '</span></div>' +
+              '<div class="item-sub">' + r.desde + '–' + r.hasta + ' · ruta ' + r.id + '</div></li>';
+    });
+    html += '</ul>';
+
+    el('card-residuos').innerHTML = html;
+  }
+
+  function pintarObras(barrio){
+    var obras = PERMISOS.map(function(p){
+      var copia = {};
+      for(var k in p) copia[k] = p[k];
+      copia.km = distancia(barrio.lat, barrio.lng, p.lat, p.lng);
+      return copia;
+    }).filter(function(p){ return p.km <= RADIO_OBRAS_KM; })
+      .sort(function(a, b){ return a.km - b.km; });
+
+    if(!obras.length){
+      el('card-obras').innerHTML = '<p class="empty">Sin permisos registrados a menos de ' +
+        String(RADIO_OBRAS_KM).replace('.', ',') + ' km de este barrio.</p>';
+      return;
+    }
+
+    var html = '<div class="meta" style="margin-top:0;"><b>' + obras.length + ' obras</b> en un radio de ' +
+      String(RADIO_OBRAS_KM).replace('.', ',') + ' km</div><ul class="items" style="margin-top:8px;">';
+    obras.slice(0, 5).forEach(function(o){
+      html += '<li><div class="item-top"><span class="item-name">' + o.tipo_obra + '</span>' +
+              '<span class="chip ' + claseEstado(o.estado) + '">' + o.estado + '</span></div>' +
+              '<div class="item-sub">' + o.area_m2 + ' m² · a ' + fmtDist(o.km) + ' · ' + o.numero + '</div></li>';
+    });
+    html += '</ul>';
+
+    el('card-obras').innerHTML = html;
+  }
+
+  function pintarMapa(barrio, ahora){
+    var W = 320, H = 250, PAD = 26;
+
+    var mercados = MERCADOS.map(function(m){
+      var c = {};
+      for(var k in m) c[k] = m[k];
+      c.km = distancia(barrio.lat, barrio.lng, m.lat, m.lng);
+      return c;
+    }).sort(function(a, b){ return a.km - b.km; }).slice(0, 4);
+
+    var obras = PERMISOS.map(function(p){
+      var c = {};
+      for(var k in p) c[k] = p[k];
+      c.km = distancia(barrio.lat, barrio.lng, p.lat, p.lng);
+      return c;
+    }).filter(function(p){ return p.km <= RADIO_OBRAS_KM; })
+      .sort(function(a, b){ return a.km - b.km; }).slice(0, 6);
+
+    var mLng = 111320 * Math.cos(barrio.lat * Math.PI / 180);
+    var mLat = 110540;
+    var maxX = 420, maxY = 420;
+    mercados.concat(obras).forEach(function(p){
+      maxX = Math.max(maxX, Math.abs((p.lng - barrio.lng) * mLng));
+      maxY = Math.max(maxY, Math.abs((p.lat - barrio.lat) * mLat));
+    });
+
+    var esc = Math.min((W / 2 - PAD) / maxX, (H / 2 - PAD - 12) / maxY);
+    var px = function(lng){ return W / 2 + (lng - barrio.lng) * mLng * esc; };
+    var py = function(lat){ return H / 2 - (lat - barrio.lat) * mLat * esc; };
+
+    var paso = 500;
+    if(paso * esc < 26) paso = 1000;
+    if(paso * esc > 90) paso = 250;
+
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Mapa del barrio">';
+    s += '<rect width="' + W + '" height="' + H + '" fill="#F4EFE2"/>';
+
+    s += '<g stroke="#E0D6BE" stroke-width="1">';
+    for(var gx = W / 2 % (paso * esc); gx < W; gx += paso * esc){
+      s += '<line x1="' + gx.toFixed(1) + '" y1="0" x2="' + gx.toFixed(1) + '" y2="' + H + '"/>';
+    }
+    for(var gy = H / 2 % (paso * esc); gy < H; gy += paso * esc){
+      s += '<line x1="0" y1="' + gy.toFixed(1) + '" x2="' + W + '" y2="' + gy.toFixed(1) + '"/>';
+    }
+    s += '</g>';
+
+    var r1 = 1000 * esc;
+    if(r1 < Math.min(W, H) / 2 - 6){
+      s += '<circle cx="' + (W / 2) + '" cy="' + (H / 2) + '" r="' + r1.toFixed(1) +
+           '" fill="none" stroke="#C9BB9A" stroke-width="1" stroke-dasharray="3 4"/>';
+      s += '<text x="' + (W / 2 + 4) + '" y="' + (H / 2 - r1 + 10).toFixed(1) +
+           '" font-family="IBM Plex Mono, monospace" font-size="7.5" fill="#9C9078">1 km</text>';
+    }
+
+    obras.forEach(function(o){
+      var x = px(o.lng), y = py(o.lat);
+      var info = 'Obra en trámite|' + o.tipo_obra + ' · ' + o.estado + ' · ' + o.area_m2 +
+                 ' m² · a ' + fmtDist(o.km);
+      s += '<g data-info="' + info + '" style="cursor:pointer">' +
+           '<rect x="' + (x - 4).toFixed(1) + '" y="' + (y - 4).toFixed(1) +
+           '" width="8" height="8" fill="#3D6E93" stroke="#2B5170" stroke-width="1"/></g>';
+    });
+
+    mercados.forEach(function(m, i){
+      var x = px(m.lng), y = py(m.lat);
+      var abierto = abiertoAhora(m, ahora);
+      var info = m.nombre + '|' + m.tipo + ' · ' + m.apertura + '–' + m.cierre + ' · a ' +
+                 fmtDist(m.km) + ' · ' + (abierto ? 'abierto ahora' : 'cerrado ahora');
+      s += '<g data-info="' + info + '" style="cursor:pointer">';
+      if(i === 0){
+        s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) +
+             '" r="11" fill="none" stroke="#A32638" stroke-width="1.4" stroke-dasharray="2.5 3"/>';
+      }
+      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6" fill="#D9A526" stroke="#A87A17" stroke-width="1.2"/>';
+      s += '</g>';
+      if(i === 0){
+        s += '<text x="' + x.toFixed(1) + '" y="' + (y - 16).toFixed(1) +
+             '" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" font-weight="600"' +
+             ' fill="#242220" stroke="#F4EFE2" stroke-width="2.6" paint-order="stroke">' + m.nombre + '</text>';
+      }
+    });
+
+    var ux = W / 2, uy = H / 2;
+    s += '<circle cx="' + ux + '" cy="' + uy + '" r="13" fill="#A32638" opacity="0.14"/>';
+    s += '<circle cx="' + ux + '" cy="' + uy + '" r="6" fill="#A32638" stroke="#FFFFFF" stroke-width="2"/>';
+    s += '<text x="' + ux + '" y="' + (uy + 26) + '" text-anchor="middle" font-family="Inter, sans-serif"' +
+         ' font-size="9.5" font-weight="600" fill="#A32638" stroke="#F4EFE2" stroke-width="2.6" paint-order="stroke">' +
+         barrio.nombre + '</text>';
+
+    var esb = paso;
+    while(esb * esc > 82) esb = esb / 2;
+    while(esb * esc < 34) esb = esb * 2;
+    var largo = esb * esc;
+    s += '<g stroke="#6E6553" stroke-width="1.4">' +
+         '<line x1="14" y1="' + (H - 16) + '" x2="' + (14 + largo).toFixed(1) + '" y2="' + (H - 16) + '"/>' +
+         '<line x1="14" y1="' + (H - 20) + '" x2="14" y2="' + (H - 12) + '"/>' +
+         '<line x1="' + (14 + largo).toFixed(1) + '" y1="' + (H - 20) + '" x2="' + (14 + largo).toFixed(1) + '" y2="' + (H - 12) + '"/>' +
+         '</g>';
+    s += '<text x="14" y="' + (H - 24) + '" font-family="IBM Plex Mono, monospace" font-size="8" fill="#6E6553">' +
+         (esb >= 1000 ? (esb / 1000) + ' km' : esb + ' m') + '</text>';
+
+    s += '<g transform="translate(' + (W - 22) + ',20)">' +
+         '<path d="M0 10 L0 -10 M0 -10 L-4 -3 M0 -10 L4 -3" fill="none" stroke="#6E6553" stroke-width="1.4"/>' +
+         '<text x="0" y="21" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" fill="#6E6553">N</text>' +
+         '</g>';
+
+    s += '</svg>';
+
+    el('mapa').innerHTML = s;
+    el('mapinfo').innerHTML = '<b>' + mercados.length + ' mercados</b> y <b>' + obras.length +
+      ' obras</b> en el entorno de ' + barrio.nombre + '. Toca un punto del mapa para ver el detalle.';
+  }
+
+  function render(){
+    var barrio = BARRIOS[Number(el('barrio').value)];
+    var ahora = new Date();
+    pintarMapa(barrio, ahora);
+    pintarMercados(barrio, ahora);
+    pintarResiduos(barrio, ahora);
+    pintarObras(barrio);
+  }
+
+  function reloj(){
+    var d = new Date();
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    el('clock').textContent = hh + ':' + mm;
+  }
+
+  BARRIOS.forEach(function(b, i){
+    var opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = b.nombre + ' — ' + b.parroquia;
+    el('barrio').appendChild(opt);
+  });
+
+  el('barrio').addEventListener('change', function(){
+    el('geonote').textContent = '';
+    render();
+  });
+
+  el('mapa').addEventListener('click', function(ev){
+    var g = ev.target.parentNode;
+    var info = g && g.getAttribute ? g.getAttribute('data-info') : null;
+    if(!info) return;
+    var partes = info.split('|');
+    el('mapinfo').innerHTML = '<b>' + partes[0] + '</b><br>' + partes[1];
+  });
+
+  el('geo').addEventListener('click', function(){
+    var nota = el('geonote');
+    if(!navigator.geolocation){
+      nota.textContent = 'Este navegador no permite ubicación; elige tu barrio en la lista.';
+      return;
+    }
+    nota.textContent = 'Buscando tu ubicación…';
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var mejor = 0;
+      var min = Infinity;
+      BARRIOS.forEach(function(b, i){
+        var d = distancia(pos.coords.latitude, pos.coords.longitude, b.lat, b.lng);
+        if(d < min){ min = d; mejor = i; }
+      });
+      el('barrio').value = String(mejor);
+      render();
+      nota.textContent = 'Barrio más cercano a tu ubicación: ' + BARRIOS[mejor].nombre +
+        ' (a ' + fmtDist(min) + ').';
+    }, function(){
+      nota.textContent = 'No se pudo obtener la ubicación; elige tu barrio en la lista.';
+    }, {timeout:8000});
+  });
+
+  reloj();
+  window.setInterval(reloj, 30000);
+  render();
+})();
+</script>
+
+</body>
+</html>

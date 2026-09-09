@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tablero · Ventanilla Única Digital — Municipio de Loja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --red:#A32638; --red-dark:#7A1C29;
+      --blue:#3D6E93; --blue-dark:#2B5170;
+      --gold:#D9A526; --gold-dark:#A87A17;
+      --cream:#FAF6EC; --paper:#FFFFFF;
+      --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+      --green:#2C6B44; --green-soft:#E4EFE7;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.5}
+    h1,h2,h3{font-family:Fraunces,serif;font-weight:600;letter-spacing:-.01em}
+    button,select{font:inherit}
+    .mono{font-family:'IBM Plex Mono',monospace}
+    .muted{color:var(--ink-soft)}
+
+    .flagbar{display:flex;height:6px}
+    .flagbar span{flex:1}
+    .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red)}
+    .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue);flex:.5}
+    .flagbar span:nth-child(3){background:var(--gold)}
+    .protobadge{background:var(--ink);color:#F3EEDD;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.04em;padding:8px 16px}
+    .protobadge b{color:var(--gold)}
+
+    header{
+      background:var(--paper);border-bottom:1px solid var(--line);
+      display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      padding:16px 32px;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{width:52px;height:52px;object-fit:cover;border-radius:4px}
+    .brand h1{font-size:clamp(18px,2vw,22px)}
+    .brand p{font-size:12.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace}
+    .header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .live{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--green-soft);color:var(--green);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+    @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+    label.period{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
+    select{
+      background:var(--cream);border:1px solid var(--line);color:var(--ink);
+      padding:8px 12px;border-radius:3px;min-width:220px
+    }
+
+    .wrap{max-width:1280px;margin:0 auto;padding:28px 32px 48px;display:flex;flex-direction:column;gap:18px}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .card{background:var(--paper);border:1px solid var(--line);padding:20px}
+    .kpi .card{border-top:3px solid var(--blue)}
+    .kpi .card:nth-child(2){border-top-color:var(--red)}
+    .kpi .card:nth-child(3){border-top-color:var(--gold)}
+    .kpi .card:nth-child(4){border-top-color:var(--green)}
+    .kpi .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-dark)}
+    .kpi .val{font-family:Fraunces,serif;font-size:30px;font-weight:600;margin:6px 0 4px}
+    .kpi .card p{font-size:13px}
+
+    .grid-2{display:grid;grid-template-columns:1.35fr .65fr;gap:18px}
+    .grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card h2{font-size:18px;margin-bottom:4px}
+    .sub{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+    .chart{position:relative;height:280px}
+
+    .alert{padding:13px 16px;background:#FBEAD3;border-left:3px solid var(--gold);color:#5A4207;font-size:13.5px;margin-bottom:14px}
+    .alert.bad{background:#F8E8EA;border-left-color:var(--red);color:var(--red-dark)}
+    .alert b{font-weight:600}
+
+    table{width:100%;border-collapse:collapse;font-size:13.5px}
+    th{text-align:left;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+    td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    .table-wrap{overflow-x:auto}
+    .bar{height:7px;background:var(--cream);border:1px solid var(--line);overflow:hidden;min-width:90px}
+    .bar span{display:block;height:100%;background:var(--red)}
+    .bar.ok span{background:var(--green)}
+    .bar.warn span{background:var(--gold)}
+
+    .pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 9px;border-radius:12px;background:var(--green-soft);color:var(--green)}
+    .pill.warn{background:#FBEAD3;color:var(--gold-dark)}
+    .pill.bad{background:#F8E8EA;color:var(--red)}
+    .pill.info{background:#E5EDF3;color:var(--blue-dark)}
+
+    .feed{display:grid;gap:8px;max-height:280px;overflow:auto}
+    .feed-item{border:1px solid var(--line);padding:12px 14px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;font-size:13.5px}
+    .feed-item .meta{font-size:12px;color:var(--ink-soft)}
+    .feed-item time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue-dark);white-space:nowrap}
+
+    .deps{display:grid;gap:10px}
+    .dep{display:grid;grid-template-columns:160px 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+    .dep .track{height:10px;background:var(--cream);border:1px solid var(--line)}
+    .dep .fill{height:100%;background:var(--blue)}
+    .dep.slow .fill{background:var(--red)}
+    .dep.mid .fill{background:var(--gold)}
+    .dep.fast .fill{background:var(--green)}
+    .dep .days{font-family:'IBM Plex Mono',monospace;font-size:12px;min-width:72px;text-align:right}
+
+    footer{border-top:1px solid var(--line);background:var(--paper);padding:22px 32px;text-align:center;color:var(--ink-soft);font-size:12.5px}
+    footer b{color:var(--ink)}
+
+    @media(max-width:980px){
+      header,.wrap{padding-left:20px;padding-right:20px}
+      .kpi,.grid-2,.grid-2b{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:640px){
+      .kpi,.grid-2,.grid-2b{grid-template-columns:1fr}
+      .dep{grid-template-columns:1fr;gap:4px}
+      .brand img{width:40px;height:40px}
+    }
+  </style>
+</head>
+<body>
+  <div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="protobadge">TABLERO DE LA VENTANILLA ÚNICA — <b>datos ficticios</b> recolectados del prototipo Mi Loja. Sin conexión a sistemas reales.</div>
+
+  <header>
+    <div class="brand">
+      <img src="../logo-municipio-loja.jpg" alt="Municipio de Loja">
+      <div>
+        <h1>Tablero · Ventanilla Única Digital</h1>
+        <p>Mi Loja · monitoreo de trámites, tiempos y dependencias</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live"><span class="dot"></span> En operación · demo</div>
+      <div>
+        <label class="period" for="periodo">Periodo</label><br>
+        <select id="periodo" onchange="aplicarPeriodo(this.value)">
+          <option value="mes">Mes · septiembre 2026</option>
+          <option value="trimestre" selected>Trimestre · Q3 2026</option>
+          <option value="anio">Año 2026 · ene–sep</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="kpi" id="kpis"></section>
+
+    <section class="grid-2">
+      <article class="card">
+        <h2>Trámites procesados por mes</h2>
+        <p class="sub">Ingresos y cierres en Ventanilla Única · 2026 (ficticio). El filtro no altera esta serie anual.</p>
+        <div class="chart"><canvas id="chartMes"></canvas></div>
+      </article>
+      <article class="card">
+        <h2>Por trimestre</h2>
+        <p class="sub">Q1 y Q2 cerrados · Q3 al 9 de septiembre</p>
+        <div class="chart"><canvas id="chartTrim"></canvas></div>
+      </article>
+    </section>
+
+    <section class="grid-2">
+      <article class="card">
+        <h2>Dónde se demoran más</h2>
+        <p class="sub">Días hábiles promedio que el expediente permanece en cada dependencia</p>
+        <div id="cuello" class="alert bad"></div>
+        <div class="deps" id="deps"></div>
+      </article>
+      <article class="card">
+        <h2>Volumen por dependencia</h2>
+        <p class="sub" id="volSub">Participación de trámites en el periodo seleccionado</p>
+        <div class="chart"><canvas id="chartDeps"></canvas></div>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Trámites más lentos en el periodo</h2>
+      <p class="sub">Comparación del tiempo real frente al SLA publicado en el catálogo de la Ventanilla Única</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Trámite</th>
+              <th>Dependencia</th>
+              <th>Promedio</th>
+              <th>SLA</th>
+              <th>Fuera de plazo</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tablaLentos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid-2b">
+      <article class="card">
+        <h2>Demora por etapa de la ventanilla</h2>
+        <p class="sub">Tiempo medio desde que el ciudadano inicia el trámite hasta cada hito</p>
+        <div class="chart"><canvas id="chartEtapas"></canvas></div>
+      </article>
+      <article class="card">
+        <h2>Actividad reciente</h2>
+        <p class="sub">Eventos que la ventanilla puede registrar: ingreso, IA, pago, asistencia</p>
+        <div class="feed" id="feed"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>Prototipo conceptual de “Mi Loja” · Datos ficticios · <b>Municipio de Loja</b> · Tablero gerencial de la Ventanilla Única Digital</footer>
+
+  <script>
+    const UNIDADES=['Avalúos y Catastros','Planificación Territorial','Control Municipal','Rentas','Obras Públicas','Movilidad'];
+    const COLORES=['#A32638','#3D6E93','#D9A526','#2C6B44','#7A1C29','#2B5170'];
+
+    const MESES={
+      labels:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep'],
+      ingresados:[1480,1390,1710,1620,1760,1840,1695,1880,612],
+      cerrados:[1210,1320,1580,1540,1690,1760,1710,1795,428]
+    };
+    const TRIM={
+      labels:['Q1 2026','Q2 2026','Q3 2026 (parcial)'],
+      ingresados:[4580,5220,4187],
+      cerrados:[4110,4990,3933]
+    };
+
+    const PERIODOS={
+      mes:{
+        tramites:612, enProceso:184, dias:6.1, observados:47, asistencia:19,
+        kpiNota:'septiembre · al día 9',
+        vs:'+4,2% vs. primera semana de ago',
+        cuello:'Control Municipal concentra el 41% de los trámites fuera de plazo en septiembre. Permiso de construcción y publicidad son los que más se atrasan.',
+        deps:[
+          {n:'Control Municipal',d:12.4,max:13},
+          {n:'Planificación Territorial',d:10.1,max:13},
+          {n:'Avalúos y Catastros',d:6.8,max:13},
+          {n:'Obras Públicas',d:4.9,max:13},
+          {n:'Movilidad',d:3.1,max:13},
+          {n:'Rentas',d:1.9,max:13}
+        ],
+        volumen:[118,94,186,132,48,34],
+        lentos:[
+          ['Permiso de construcción','Control Municipal',17.4,15,42,'bad'],
+          ['Licencia de publicidad exterior','Control Municipal',13.8,12,39,'bad'],
+          ['Aprobación de planos arquitectónicos','Planificación Territorial',18.6,20,21,'warn'],
+          ['Subdivisión o fraccionamiento','Avalúos y Catastros',14.2,15,18,'warn'],
+          ['Autorización de uso de suelo','Planificación Territorial',9.8,10,16,'warn'],
+          ['Exoneración de impuesto predial','Rentas',7.4,8,12,'ok'],
+          ['Certificado de Avalúos y Catastros','Avalúos y Catastros',2.6,3,7,'ok'],
+          ['Patente municipal','Rentas',1.7,2,5,'ok']
+        ]
+      },
+      trimestre:{
+        tramites:4187, enProceso:254, dias:5.9, observados:186, asistencia:71,
+        kpiNota:'Q3 · jul–9 sep',
+        vs:'−3,1% vs. Q2 (parcial)',
+        cuello:'En el trimestre, Control Municipal es la dependencia donde más se detiene el expediente (12,1 días). Planificación Territorial le sigue, sobre todo en aprobación de planos.',
+        deps:[
+          {n:'Control Municipal',d:12.1,max:13},
+          {n:'Planificación Territorial',d:9.7,max:13},
+          {n:'Avalúos y Catastros',d:6.4,max:13},
+          {n:'Obras Públicas',d:5.2,max:13},
+          {n:'Movilidad',d:3.3,max:13},
+          {n:'Rentas',d:1.8,max:13}
+        ],
+        volumen:[820,710,1240,890,310,217],
+        lentos:[
+          ['Permiso de construcción','Control Municipal',16.9,15,38,'bad'],
+          ['Licencia de publicidad exterior','Control Municipal',13.2,12,36,'bad'],
+          ['Aprobación de planos arquitectónicos','Planificación Territorial',17.8,20,19,'warn'],
+          ['Subdivisión o fraccionamiento','Avalúos y Catastros',13.9,15,17,'warn'],
+          ['Permiso de demolición','Control Municipal',9.6,10,15,'warn'],
+          ['Autorización de uso de suelo','Planificación Territorial',9.4,10,13,'ok'],
+          ['Exoneración de impuesto predial','Rentas',6.9,8,10,'ok'],
+          ['Certificado de Avalúos y Catastros','Avalúos y Catastros',2.3,3,6,'ok']
+        ]
+      },
+      anio:{
+        tramites:13987, enProceso:254, dias:6.4, observados:512, asistencia:204,
+        kpiNota:'ene–9 sep 2026',
+        vs:'serie 2026 · datos acumulados',
+        cuello:'En el año, el cuello de botella estructural está en Control Municipal (11,8 días) y Planificación Territorial (10,2). Rentas cierra en menos de 2 días.',
+        deps:[
+          {n:'Control Municipal',d:11.8,max:13},
+          {n:'Planificación Territorial',d:10.2,max:13},
+          {n:'Avalúos y Catastros',d:6.6,max:13},
+          {n:'Obras Públicas',d:5.4,max:13},
+          {n:'Movilidad',d:3.5,max:13},
+          {n:'Rentas',d:1.7,max:13}
+        ],
+        volumen:[2680,2310,4120,3180,1020,677],
+        lentos:[
+          ['Permiso de construcción','Control Municipal',16.4,15,35,'bad'],
+          ['Aprobación de planos arquitectónicos','Planificación Territorial',18.1,20,23,'warn'],
+          ['Licencia de publicidad exterior','Control Municipal',12.9,12,33,'bad'],
+          ['Subdivisión o fraccionamiento','Avalúos y Catastros',14.6,15,20,'warn'],
+          ['Autorización de uso de suelo','Planificación Territorial',9.9,10,15,'warn'],
+          ['Unificación de lotes','Avalúos y Catastros',8.4,8,22,'warn'],
+          ['Exoneración de impuesto predial','Rentas',7.2,8,11,'ok'],
+          ['Tarjeta de residente SIMERT','Movilidad',2.8,3,8,'ok']
+        ]
+      }
+    };
+
+    const FEED=[
+      {t:'Certificado de Avalúos y Catastros · LOJ-2026-005210',m:'IA sin observaciones · pago habilitado · Avalúos y Catastros',h:'Hace 4 min'},
+      {t:'Exoneración predial · LOJ-2026-005318',m:'IA: inconsistencia predial vs comprobante · videollamada con Rentas',h:'Hace 9 min'},
+      {t:'Permiso de construcción · LOJ-2026-004612',m:'En Control Municipal · 11 días en la dependencia',h:'Hace 18 min'},
+      {t:'Patente municipal · LOJ-2026-005401',m:'Emitida en Rentas · 1 día hábil',h:'Hace 32 min'},
+      {t:'Uso de suelo · LOJ-2026-003754',m:'Observado en Planificación Territorial · zonificación',h:'Hace 1 h'},
+      {t:'Línea de fábrica · LOJ-2026-005088',m:'Documentos cargados · revisión IA en curso',h:'Hace 2 h'}
+    ];
+
+    const etapas={
+      labels:['Solicitud','Carga de documentos','Revisión IA','Pago','En dependencia','Asistencia humana'],
+      data:[0.2,1.8,0.3,0.7,6.1,0.5]
+    };
+
+    Chart.defaults.color='#605B52';
+    Chart.defaults.borderColor='#E4DCC8';
+    Chart.defaults.font.family='Inter, system-ui, sans-serif';
+    Chart.defaults.plugins.legend.labels.usePointStyle=true;
+
+    const grid={color:'#E4DCC8'};
+    const ticks={color:'#605B52',font:{family:"'IBM Plex Mono', monospace",size:11}};
+
+    const chartMes=new Chart(document.getElementById('chartMes'),{
+      type:'bar',
+      data:{
+        labels:MESES.labels,
+        datasets:[
+          {label:'Ingresados',data:MESES.ingresados,backgroundColor:'#3D6E93'},
+          {label:'Cerrados / emitidos',data:MESES.cerrados,backgroundColor:'#2C6B44'}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{grid:{display:false},ticks},y:{grid,ticks,beginAtZero:true}}}
+    });
+
+    const chartTrim=new Chart(document.getElementById('chartTrim'),{
+      type:'bar',
+      data:{
+        labels:TRIM.labels,
+        datasets:[
+          {label:'Ingresados',data:TRIM.ingresados,backgroundColor:'#A32638'},
+          {label:'Cerrados',data:TRIM.cerrados,backgroundColor:'#D9A526'}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{grid:{display:false},ticks},y:{grid,ticks,beginAtZero:true}}}
+    });
+
+    const chartDeps=new Chart(document.getElementById('chartDeps'),{
+      type:'doughnut',
+      data:{labels:UNIDADES,datasets:[{data:PERIODOS.trimestre.volumen,backgroundColor:COLORES,borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}
+    });
+
+    const chartEtapas=new Chart(document.getElementById('chartEtapas'),{
+      type:'bar',
+      data:{
+        labels:etapas.labels,
+        datasets:[{label:'Días hábiles',data:etapas.data,backgroundColor:['#3D6E93','#3D6E93','#2C6B44','#D9A526','#A32638','#2B5170']}]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid,ticks,beginAtZero:true,title:{display:true,text:'Días'}},y:{grid:{display:false},ticks}}
+      }
+    });
+
+    function pill(k){
+      if(k==='bad')return 'pill bad';
+      if(k==='warn')return 'pill warn';
+      return 'pill';
+    }
+    function pillTxt(k){
+      if(k==='bad')return 'Crítico';
+      if(k==='warn')return 'En riesgo';
+      return 'En meta';
+    }
+    function barClass(k){return k==='ok'?'ok':k==='warn'?'warn':'';}
+
+    function aplicarPeriodo(id){
+      const p=PERIODOS[id];
+      document.getElementById('kpis').innerHTML=`
+        <div class="card"><div class="lbl">Trámites en el periodo</div><div class="val">${p.tramites.toLocaleString('es-EC')}</div><p class="muted">${p.kpiNota} · ${p.vs}</p></div>
+        <div class="card"><div class="lbl">En proceso ahora</div><div class="val">${p.enProceso}</div><p class="muted">Expedientes abiertos en la ventanilla</p></div>
+        <div class="card"><div class="lbl">Tiempo medio de cierre</div><div class="val">${p.dias.toString().replace('.',',')} d</div><p class="muted">Días hábiles · ${p.observados} observados por IA</p></div>
+        <div class="card"><div class="lbl">Asistencia humana</div><div class="val">${p.asistencia}</div><p class="muted">Salas de orientación / videollamada</p></div>`;
+
+      document.getElementById('cuello').innerHTML='<b>Cuello de botella:</b> '+p.cuello;
+      document.getElementById('volSub').textContent='Participación de trámites · '+p.kpiNota;
+
+      document.getElementById('deps').innerHTML=p.deps.map(d=>{
+        const cls=d.d>=10?'slow':d.d>=5?'mid':'fast';
+        const w=Math.round(d.d/d.max*100);
+        return `<div class="dep ${cls}"><span>${d.n}</span><div class="track"><div class="fill" style="width:${w}%"></div></div><span class="days">${d.d.toString().replace('.',',')} d</span></div>`;
+      }).join('');
+
+      document.getElementById('tablaLentos').innerHTML=p.lentos.map(r=>{
+        return `<tr>
+          <td>${r[0]}</td>
+          <td>${r[1]}</td>
+          <td class="mono">${r[2].toString().replace('.',',')} d</td>
+          <td class="mono">${r[3]} d</td>
+          <td><div class="bar ${barClass(r[5])}"><span style="width:${r[4]}%"></span></div><span class="mono" style="font-size:11px">${r[4]}%</span></td>
+          <td><span class="${pill(r[5])}">${pillTxt(r[5])}</span></td>
+        </tr>`;
+      }).join('');
+
+      chartDeps.data.datasets[0].data=p.volumen;
+      chartDeps.update();
+    }
+
+    document.getElementById('feed').innerHTML=FEED.map(f=>`
+      <div class="feed-item">
+        <div><div>${f.t}</div><div class="meta">${f.m}</div></div>
+        <time>${f.h}</time>
+      </div>`).join('');
+
+    aplicarPeriodo('trimestre');
+  </script>
+</body>
+</html>

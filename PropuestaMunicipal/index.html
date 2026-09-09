@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta de Transformación Digital - Loja 2027-2031</title>
+    <style>
+        :root {
+            --rojo-loja: #8B0000;
+            --rojo-claro: #B22222;
+            --azul-loja: #003366;
+            --azul-marino: #0A192F;
+            --dorado-loja: #DAA520;
+            --dorado-suave: #FFF8DC;
+            --gris-fondo: #F4F6F9;
+            --gris-texto: #333333;
+            --blanco: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #111;
+            color: var(--gris-texto);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 600px;
+            background: var(--blanco);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide {
+            display: none;
+            height: 100%;
+            padding: 40px;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: var(--blanco);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        /* Banner Institucional */
+        .slide-header {
+            border-bottom: 3px solid var(--dorado-loja);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-header h2 {
+            color: var(--rojo-loja);
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slide-header .tag {
+            background-color: var(--azul-loja);
+            color: var(--blanco);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Slide 1 - Portada */
+        .slide-cover {
+            background: linear-gradient(135deg, var(--azul-marino) 0%, var(--azul-loja) 100%);
+            color: var(--blanco);
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide-cover h1 {
+            font-size: 38px;
+            color: var(--dorado-loja);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .slide-cover h3 {
+            font-size: 22px;
+            font-weight: 300;
+            margin-bottom: 30px;
+            color: #E0E0E0;
+        }
+
+        .slide-cover .badge {
+            background-color: var(--rojo-loja);
+            color: var(--blanco);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        /* Grids y Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--gris-fondo);
+            border-left: 5px solid var(--azul-loja);
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .card-red {
+            border-left-color: var(--rojo-loja);
+        }
+
+        .card-gold {
+            border-left-color: var(--dorado-loja);
+            background: var(--dorado-suave);
+        }
+
+        .card h4 {
+            color: var(--azul-loja);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .card-red h4 {
+            color: var(--rojo-loja);
+        }
+
+        .card p, .card ul {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.4;
+        }
+
+        .card ul {
+            padding-left: 18px;
+        }
+
+        /* Footer con franja institucional */
+        .slide-footer {
+            height: 15px;
+            display: flex;
+            width: 100%;
+        }
+
+        .band-red { background-color: var(--rojo-loja); flex: 1; }
+        .band-blue { background-color: var(--azul-loja); flex: 1; }
+        .band-gold { background-color: var(--dorado-loja); flex: 1; }
+
+        /* Controles */
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button {
+            background-color: var(--rojo-loja);
+            color: var(--blanco);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--rojo-claro);
+        }
+
+        .slide-number {
+            color: var(--blanco);
+            font-size: 14px;
+        }
+
+        /* Destacados */
+        .stat-box {
+            background: var(--azul-loja);
+            color: var(--blanco);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dorado-loja);
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+        }
+
+        /* Slide caso ciudadano (simulación) */
+        .slide-caso .slide-header h2 {
+            font-size: 18px;
+            line-height: 1.25;
+        }
+
+        .slide-caso .slide-content {
+            justify-content: flex-start;
+            min-height: 0;
+            margin-top: 12px;
+        }
+
+        .caso-intro {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .sc-sim {
+            flex: 1;
+            min-height: 0;
+            background: var(--gris-fondo);
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sc-sim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .sc-sim-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--azul-loja);
+        }
+
+        .sc-sim-status {
+            font-size: 11px;
+            color: var(--rojo-loja);
+            text-align: right;
+            flex: 1;
+        }
+
+        .sc-sim canvas {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            display: block;
+            background: var(--blanco);
+            border-radius: 6px;
+        }
+
+        .slide-simert {
+            padding: 22px 28px 16px;
+        }
+
+        .slide-simert .slide-header h2 {
+            font-size: 20px;
+            line-height: 1.25;
+        }
+
+        .slide-simert .slide-content {
+            justify-content: flex-start;
+            min-height: 0;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .simert-intro {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .simert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .simert-panel {
+            background: var(--gris-fondo);
+            border-radius: 8px;
+            padding: 4px 4px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            position: relative;
+            border-top: 3px solid var(--azul-loja);
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .simert-panel:nth-child(4n) {
+            border-top-color: var(--rojo-loja);
+        }
+
+        .simert-panel img {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: var(--blanco);
+            border-radius: 5px;
+            display: block;
+        }
+
+        .simert-panel p {
+            font-size: 11px;
+            color: #444;
+            line-height: 1.3;
+            margin-top: 5px;
+            padding: 0 4px;
+        }
+
+        .simert-pains {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0;
+            background: var(--azul-loja);
+            color: var(--blanco);
+            border-radius: 8px;
+            padding: 10px 4px;
+        }
+
+        .simert-pain {
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.3;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .simert-pain:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 18%;
+            height: 64%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .simert-pain .icon {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .simert-pain span {
+            color: #E8EEF5;
+        }
+
+        .problema-grid {
+            height: 100%;
+            align-content: stretch;
+        }
+
+        .problema-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 18px 16px;
+        }
+
+        .problema-card .problema-num {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--dorado-loja);
+            margin-bottom: 8px;
+        }
+
+        .problema-card p {
+            font-size: 15px;
+            line-height: 1.45;
+            color: var(--gris-texto);
+        }
+
+        .problema-pregunta {
+            background: var(--gris-fondo);
+            border-left: 5px solid var(--rojo-loja);
+            border-radius: 6px;
+            padding: 26px 28px;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--rojo-loja);
+        }
+
+        .preguntas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .preguntas-grid .problema-pregunta {
+            padding: 14px 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .preguntas-grid .problema-pregunta:nth-child(even) {
+            border-left-color: var(--azul-loja);
+            color: var(--azul-loja);
+        }
+
+        .preguntas-grid .pregunta-ancha {
+            grid-column: 1 / -1;
+            border-left-color: var(--dorado-loja);
+            color: #8A6508;
+        }
+
+        .insight-card p {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        
+        <!-- Slide 1: Portada -->
+        <div class="slide slide-cover active">
+            <div class="badge">Propuesta Estratégica de Gobierno</div>
+            <h1>Transformación Digital<br>para el Municipio de Loja</h1>
+            <h3>Innovación, Eficiencia y Cercanía Ciudadana (2027–2031)</h3>
+            <p style="font-size: 14px; color: #BBB;">Presentado a la Candidatura a la Alcaldía de Loja</p>
+        </div>
+
+        <!-- Slide 2: Problemática Ciudadana -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Problemática Ciudadana</h2>
+                <span class="tag">Diagnóstico</span>
+            </div>
+            <div class="slide-content">
+                <p class="problema-pregunta">¿Qué sucede cuando un ciudadano intenta realizar un trámite en el Municipio de Loja?</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Caso 1 - Certificado de Unificación de Lotes -->
+        <div class="slide slide-caso">
+            <div class="slide-header">
+                <h2>Ciudadano solicitando un Certificado de Unificación de Lotes</h2>
+                <span class="tag">Caso Real</span>
+            </div>
+            <div class="slide-content">
+                <p class="caso-intro">El ciudadano recorre Registro de la Propiedad, Bomberos y Municipio. A los 11 días de espera le notifican una corrección documental y debe reiniciar el circuito.</p>
+                <div class="sc-sim">
+                    <div class="sc-sim-header">
+                        <span class="sc-sim-title">Simulación del recorrido ciudadano</span>
+                        <span id="simStatusCaso1" class="sc-sim-status">Iniciando simulación...</span>
+                    </div>
+                    <canvas id="simCanvasCaso1"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Caso 2 - Permiso de Construcción de Obra Mayor -->
+        <div class="slide slide-caso">
+            <div class="slide-header">
+                <h2>Ciudadano solicitando un Permiso de Construcción de Obra Mayor</h2>
+                <span class="tag">Caso Real</span>
+            </div>
+            <div class="slide-content">
+                <p class="caso-intro">El ciudadano (o su arquitecto) recorre 7 entidades entre el Registro de la Propiedad, UMAPAL, EERSSA, Bomberos y la Notaría, recopilando certificados en papel antes de que el Municipio apruebe los planos y emita el permiso. Mientras el expediente espera, el certificado del Registro de la Propiedad se vence y debe reiniciar ese paso.</p>
+                <div class="sc-sim">
+                    <div class="sc-sim-header">
+                        <span class="sc-sim-title">Simulación del recorrido ciudadano (tiempos estimados)</span>
+                        <span id="simStatusCaso2" class="sc-sim-status">Iniciando simulación...</span>
+                    </div>
+                    <canvas id="simCanvasCaso2"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Problemática Ciudadana - SIMERT -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Problemática Ciudadana</h2>
+                <span class="tag">Diagnóstico</span>
+            </div>
+            <div class="slide-content">
+                <p class="problema-pregunta">¿Qué sucede cuando un ciudadano hace uso del SIMERT?</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Ciudadano haciendo uso del SIMERT -->
+        <div class="slide slide-simert">
+            <div class="slide-header">
+                <h2>Ciudadano haciendo uso del SIMERT</h2>
+                <span class="tag">Caso Real</span>
+            </div>
+            <div class="slide-content">
+                <p class="simert-intro">Así vive hoy el ciudadano de Loja el SIMERT: un recorrido manual, fragmentado y con alto riesgo de multa.</p>
+                <div class="simert-grid">
+                    <div class="simert-panel">
+                        <img src="simert-panels/01.png" alt="Joven mira el reloj con preocupación">
+                        <p>Mira el reloj. Necesita parquear ahora.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/02.png" alt="Punto de venta de tarjetas SIMERT cerrado">
+                        <p>El punto de venta de tarjetas está cerrado.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/03.png" alt="Consigue una tarjeta SIMERT física">
+                        <p>Finalmente consigue una tarjeta física.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/04.png" alt="Llena a mano la tarjeta SIMERT">
+                        <p>La llena a mano: fecha, hora y minutos.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/05.png" alt="Busca parqueo sin información de plazas">
+                        <p>Busca plaza y no hay información disponible.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/06.png" alt="No sabe cuánto tiempo de parqueo le queda">
+                        <p>No sabe cuánto tiempo le queda.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/07.png" alt="Sin aplicación ni recarga digital">
+                        <p>No existe app ni recarga digital.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/08.png" alt="Corre de vuelta al vehículo con la tarjeta">
+                        <p>Corre de vuelta al vehículo a colocar la tarjeta.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/09.png" alt="Deja la tarjeta SIMERT en el parabrisas">
+                        <p>Deja la tarjeta en el parabrisas.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/10.png" alt="El tiempo de parqueo se agota">
+                        <p>El tiempo se agota y no puede ampliarlo fácil.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/11.png" alt="Un agente inspecciona el vehículo">
+                        <p>Un agente inspecciona el vehículo.</p>
+                    </div>
+                    <div class="simert-panel">
+                        <img src="simert-panels/12.png" alt="Recibe una multa por el SIMERT">
+                        <p>Termina con multa y un costo extra.</p>
+                    </div>
+                </div>
+                <div class="simert-pains">
+                    <div class="simert-pain">
+                        <span class="icon">😟</span>
+                        <span>Dificultad para conseguir la tarjeta</span>
+                    </div>
+                    <div class="simert-pain">
+                        <span class="icon">📝</span>
+                        <span>Llenado manual y con errores</span>
+                    </div>
+                    <div class="simert-pain">
+                        <span class="icon">🚫</span>
+                        <span>No hay información de plazas disponibles</span>
+                    </div>
+                    <div class="simert-pain">
+                        <span class="icon">⏱️</span>
+                        <span>No es fácil aumentar el tiempo</span>
+                    </div>
+                    <div class="simert-pain">
+                        <span class="icon">🚶</span>
+                        <span>Hay que regresar a la vereda o al vehículo</span>
+                    </div>
+                    <div class="simert-pain">
+                        <span class="icon">💰</span>
+                        <span>Riesgo de multa y costo extra</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Problemática Ciudadana - Transporte Público -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Problemática Ciudadana - Transporte Público</h2>
+                <span class="tag">Diagnóstico</span>
+            </div>
+            <div class="slide-content">
+                <div class="preguntas-grid">
+                    <p class="problema-pregunta">¿A qué hora del día hay un aumento fuerte de pasajeros (hora pico de 7 am o media tarde)?</p>
+                    <p class="problema-pregunta">¿En qué parada sube la mayor cantidad de gente?</p>
+                    <p class="problema-pregunta">¿Cuántas personas viajaron realmente en cada bus en un momento dado (ocupación real vs. capacidad)?</p>
+                    <p class="problema-pregunta">¿En qué ruta específica se usó cada pasaje (la que va al mercado mayorista o la que va a la Nacional)?</p>
+                    <p class="problema-pregunta pregunta-ancha">¿Qué sucede con las personas que llegan por primera vez a Loja, se quedan por un lapso corto de tiempo y quieren hacer uso del transporte público?</p>
+                </div>
+                <div class="card card-gold insight-card">
+                    <p>Es la diferencia entre saber <b>"vendimos 50.000 dólares en pasajes este mes"</b> y saber <b>"el bus de la ruta 4 va sobrecargado todos los días entre 6:45 y 7:15 am, mientras el de la ruta 7 casi siempre circula medio vacío a esa misma hora"</b>. La primera cifra es útil para contabilidad; la segunda es la que permite tomar decisiones operativas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Problemática Ciudadana - Transparencia -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Problemática Ciudadana - Transparencia</h2>
+                <span class="tag">Diagnóstico</span>
+            </div>
+            <div class="slide-content">
+                <p class="problema-pregunta">¿Existe transparencia y control ciudadano sobre la gestión municipal (presupuesto, obras, contrataciones)?</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: El Reto y la Oportunidad -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>El Reto Actual de Loja</h2>
+                <span class="tag">Diagnóstico</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2" style="margin-bottom: 20px;">
+                    <div class="card card-red">
+                        <h4>Problemática Ciudadana</h4>
+                        <ul>
+                            <li>Trámites presenciales lentos y duplicidad de requisitos.</li>
+                            <li>SIMERT basado en tarjetas físicas de papel (obsoleto e ineficiente).</li>
+                            <li>Dependencia total de un punto físico para cualquier interacción con el sistema de pago del transporte público.</li>
+                            <li>Falta de transparencia en tiempo real de la gestión pública.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>La Oportunidad Política</h4>
+                        <ul>
+                            <li>Posicionar a Loja como la <b>Capital Digital del Sur del Ecuador</b>.</li>
+                            <li>Generar impactos visibles en los <b>primeros 100 días</b>.</li>
+                            <li>Optimización del gasto público y aumento del recaudo municipal.</li>
+                            <li>Modernización sin inversiones astronómicas gracias a la interoperabilidad.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="stat-box">
+                        <div class="number">100%</div>
+                        <div class="label">Trámites Unificados</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number">-60%</div>
+                        <div class="label">Tiempos de Espera</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number">24/7</div>
+                        <div class="label">Disponibilidad Digital</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Proyecto 1 - Ventanilla Única -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>1. Ventanilla Única Interoperable e Inteligente</h2>
+                <span class="tag">Proyecto Ancla</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>Concepto Clave</h4>
+                        <p>Un modelo de gestión donde el ciudadano tiene <b>un solo punto de contacto</b> con el Municipio, eliminando la burocracia entre dependencias.</p>
+                        <br>
+                        <h4>Estrategia Omnicanal</h4>
+                        <ul>
+                            <li><b>App Móvil y Web:</b> Solicitud, seguimiento y pago en línea.</li>
+                            <li><b>Atención Virtual:</b> Videollamada y sala de orientación con un asesor que ya tiene el expediente.</li>
+                            <li><b>Atención Presencial Rediseñada:</b> Ventanilla única física respaldada por el mismo sistema digital.</li>
+                        </ul>
+                    </div>
+                    <div class="card card-gold">
+                        <h4>Interoperabilidad Institucional</h4>
+                        <p style="margin-bottom: 10px;">El ciudadano no debe ser el "mensajero" del municipio. El sistema se conecta automáticamente con:</p>
+                        <ul>
+                            <li><b>DINARDAP / Registro Civil:</b> Verificación de identidad y datos personales.</li>
+                            <li><b>SRI:</b> Verificación de RUC y estado tributario.</li>
+                            <li><b>Dependencias Internas:</b> Avalúos, CATASTRO, UMOT, bomberos en una sola plataforma.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Proyecto 2 - SIMERT Inteligente -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>2. SIMERT Digital e Inteligente</h2>
+                <span class="tag">Movilidad & Recaudación</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div class="card card-red">
+                        <h4>Modelo Actual (Tarjetas Físicas)</h4>
+                        <ul>
+                            <li>Dependencia de la compra física de tarjetas raspables.</li>
+                            <li>Pérdida de ingresos por falta de control eficiente.</li>
+                            <li>Fricción y molestias continuas para los conductores.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Modelo Propuesto (SIMERT App)</h4>
+                        <ul>
+                            <li><b>Pago Digital:</b> Saldo prepago, tarjeta de débito/crédito o transferencia.</li>
+                            <li><b>Aparcamiento por Placa:</b> El ciudadano ingresa su placa y tiempo estimado.</li>
+                            <li><b>Control Digital:</b> Los agentes verifican placas con una app de escaneo rápido.</li>
+                            <li><b>Mapa de Plazas Libres:</b> Guiado en tiempo real a zonas con parqueo disponible.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Proyecto 3 - Boleto Digital de Transporte -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>3. Recaudo Digital para Transporte Público</h2>
+                <span class="tag">Inspiración Europea</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2" style="margin-bottom: 15px;">
+                    <div class="card">
+                        <h4>Modelo Digital Dinámico (Caso Cork / Finlandia)</h4>
+                        <p>Inspirado en sistemas de transporte de ciudades inteligentes europeas:</p>
+                        <ul>
+                            <li><b>Compra anticipada:</b> Compra de pasajes o pases diarios/mensuales en la App.</li>
+                            <li><b>Activación al abordar:</b> El usuario presiona "Activar Ticket" justo antes de subir.</li>
+                            <li><b>QR Dinámico con Contador:</b> Muestra una animación de seguridad visible para el conductor/validador.</li>
+                        </ul>
+                    </div>
+                    <div class="card card-gold">
+                        <h4>Ventajas para Loja</h4>
+                        <ul>
+                            <li><b>Baja inversión inicial:</b> No requiere instalar molinetes ni validadores costosos en el 100% de buses desde el día 1.</li>
+                            <li><b>Cero manejo de efectivo:</b> Mayor seguridad para conductores y velocidad en las paradas.</li>
+                            <li><b>Datos de movilidad:</b> Conocer las rutas y horarios de mayor demanda para optimizar el servicio.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Proyecto 4 - Datos Abiertos -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>4. Datos Abiertos y Transparencia</h2>
+                <span class="tag">Gobierno Abierto</span>
+            </div>
+            <div class="slide-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>Portal Municipal de Datos Abiertos</h4>
+                        <p>Plataforma donde la información pública se publica en formatos reutilizables y comprensibles para todos.</p>
+                        <br>
+                        <ul>
+                            <li><b>Presupuesto Transparente:</b> Visualización clara de ejecución de obras y contratos.</li>
+                            <li><b>Indicadores de la Ciudad:</b> Tráfico, calidad del aire, recolección de basura, uso del suelo.</li>
+                        </ul>
+                    </div>
+                    <div class="card card-red">
+                        <h4>Impacto Social y Académico</h4>
+                        <ul>
+                            <li><b>Alianza con Universidades:</b> Estudiantes de UTPL y UNL desarrollando aplicaciones basadas en datos del municipio.</li>
+                            <li><b>Confianza Ciudadana:</b> Herramienta clave para combatir la percepción de corrupción.</li>
+                            <li><b>Atracción de Inversión:</b> Datos claros para negocios que deseen invertir en Loja.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Hoja de Ruta - Primeros 100 Días -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>Hoja de Ruta e Impacto Político</h2>
+                <span class="tag">Plan de Acción</span>
+            </div>
+            <div class="slide-content">
+                <div class="card card-gold" style="margin-bottom: 15px;">
+                    <h4>Primeros 100 Días de Gobierno (Victorias Rápidas)</h4>
+                    <ul>
+                        <li>Lanzamiento del <b>Prototipo / MVP de Ventanilla Única</b> (Trámites principales).</li>
+                        <li><b>Piloto de SIMERT Digital</b> en el casco central de Loja.</li>
+                        <li>Presentación de la <b>Ordenanza de Transformación Digital e Interoperabilidad</b>.</li>
+                    </ul>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>Año 1 de Gestión</h4>
+                        <ul>
+                            <li>Despliegue total del SIMERT App.</li>
+                            <li>Plan Piloto de Boletería Digital en líneas principales de bus.</li>
+                            <li>Lanzamiento del Portal de Datos Abiertos.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Sostenibilidad Financiera</h4>
+                        <ul>
+                            <li>Ahorro masivo en impresión de tarjetas SIMERT y papel de trámites.</li>
+                            <li>Alianzas Público-Privadas (APP) para infraestructura tecnológica.</li>
+                            <li>Incremento en la eficiencia de cobro de cartera vencida municipal.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Cierre -->
+        <div class="slide slide-cover">
+            <div class="badge">Loja Ciudad Inteligente</div>
+            <h1>Una Loja Moderna, Eficiente y Transparente</h1>
+            <p style="font-size: 18px; color: var(--dorado-loja); margin-top: 20px;">"El futuro digital de Loja empieza con una decisión de liderazgo."</p>
+            <p style="font-size: 14px; color: #AAA; margin-top: 40px;">¡Muchas Gracias!</p>
+        </div>
+
+        <!-- Franja de bandera en la parte inferior -->
+        <div class="slide-footer">
+            <div class="band-red"></div>
+            <div class="band-blue"></div>
+            <div class="band-gold"></div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="controls">
+        <button onclick="prevSlide()">❮ Anterior</button>
+        <span class="slide-number" id="slideNum">Slide 1 / 15</span>
+        <button onclick="nextSlide()">Siguiente ❯</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const slideNum = document.getElementById('slideNum');
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+            slideNum.textContent = `Slide ${index + 1} / ${slides.length}`;
+            window.dispatchEvent(new Event('resize'));
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+
+    <script>
+        function slideActiveFor(canvas) {
+            const slide = canvas.closest('.slide');
+            return !!slide && slide.classList.contains('active');
+        }
+
+        const METRICS_SPACE = 56;
+        const METRICS_LABEL_FONT = "bold 22px Segoe UI, sans-serif";
+        const METRICS_VALUE_FONT = "bold 22px Segoe UI, sans-serif";
+
+        function applyDiagramTransform(ctx, canvas, designWidth, designHeight) {
+            const usableHeight = Math.max(1, canvas.height - METRICS_SPACE);
+            const scale = Math.min(canvas.width / designWidth, usableHeight / designHeight);
+            const offsetX = (canvas.width - designWidth * scale) / 2;
+            const offsetY = (usableHeight - designHeight * scale) / 2;
+            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+        }
+
+        function drawMetric(ctx, x, y, label, value) {
+            ctx.textAlign = "left";
+            ctx.font = METRICS_LABEL_FONT;
+            ctx.fillText(label, x, y);
+            const labelWidth = ctx.measureText(label).width;
+            ctx.font = METRICS_VALUE_FONT;
+            ctx.fillText(value, x + labelWidth + 8, y);
+        }
+
+        function createSimulation(config) {
+            const canvas = document.getElementById(config.canvasId);
+            const ctx = canvas.getContext('2d');
+            const simStatus = document.getElementById(config.statusId);
+            const nodes = config.nodes;
+            const route = config.route;
+
+            function resizeCanvas() {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const citizen = {
+                x: nodes[0].x,
+                y: nodes[0].y,
+                routeStep: 1,
+                speed: config.speed,
+                energy: 100,
+                daysAccumulated: 0
+            };
+
+            let waitingTime = 0;
+            let state = "DELAYED";
+            let wasActive = false;
+            let delayUntil = 0;
+
+            function drawPath(indexes, color) {
+                ctx.strokeStyle = color;
+                ctx.beginPath();
+                indexes.forEach((nodeIndex, i) => {
+                    const node = nodes[nodeIndex];
+                    if (i === 0) ctx.moveTo(node.x, node.y);
+                    else ctx.lineTo(node.x, node.y);
+                });
+                ctx.stroke();
+            }
+
+            function drawScene() {
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                applyDiagramTransform(ctx, canvas, config.designWidth, config.designHeight);
+
+                ctx.lineWidth = config.lineWidth;
+                ctx.setLineDash([5, 5]);
+                drawPath(config.mainPath, "#94A3B8");
+                drawPath(config.reworkPath, "rgba(139, 0, 0, 0.45)");
+                ctx.setLineDash([]);
+
+                nodes.forEach((node) => {
+                    ctx.fillStyle = node.color;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, config.nodeRadius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.font = config.iconFont;
+                    ctx.textAlign = "center";
+                    ctx.fillText(node.icon, node.x, node.y + (config.iconOffset || 6));
+
+                    ctx.fillStyle = "#333333";
+                    ctx.font = config.labelFont;
+                    const nameLines = node.name.split("\n");
+                    nameLines.forEach((line, i) => {
+                        ctx.fillText(line, node.x, node.y + config.labelOffset + i * config.lineHeight);
+                    });
+                    if (node.days) {
+                        ctx.fillStyle = "#8B0000";
+                        ctx.font = config.daysFont;
+                        ctx.fillText(config.daysLabel(node.days), node.x, node.y + config.labelOffset + nameLines.length * config.lineHeight + 3);
+                    }
+                });
+
+                ctx.fillStyle = citizen.energy < 30 ? "#F43F5E" : (citizen.energy < 60 ? "#F59E0B" : "#10B981");
+                ctx.beginPath();
+                ctx.arc(citizen.x, citizen.y, config.citizenRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#FFF";
+                ctx.font = config.citizenFont;
+                ctx.textAlign = "center";
+                ctx.fillText(citizen.energy < 30 ? "😫" : (citizen.energy < 60 ? "🏃" : "🚶"), citizen.x, citizen.y + (config.citizenIconOffset || 6));
+
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.fillStyle = "#003366";
+                drawMetric(ctx, 16, canvas.height - 18, `⏱️ ${config.timeLabel}:`, `${citizen.daysAccumulated} días`);
+            }
+
+            function resetCitizen() {
+                citizen.x = nodes[0].x;
+                citizen.y = nodes[0].y;
+                citizen.routeStep = 1;
+                citizen.energy = 100;
+                citizen.daysAccumulated = 0;
+            }
+
+            function updateAnimation() {
+                const isActive = slideActiveFor(canvas);
+
+                if (!isActive || canvas.width === 0 || canvas.height === 0) {
+                    wasActive = false;
+                    requestAnimationFrame(updateAnimation);
+                    return;
+                }
+
+                if (!wasActive) {
+                    wasActive = true;
+                    resetCitizen();
+                    state = "DELAYED";
+                    delayUntil = Date.now() + 4000;
+                    simStatus.innerText = "Iniciando simulación...";
+                }
+
+                if (state === "DELAYED") {
+                    if (Date.now() >= delayUntil) {
+                        state = "MOVING";
+                    }
+                    drawScene();
+                    requestAnimationFrame(updateAnimation);
+                    return;
+                }
+
+                if (state === "MOVING") {
+                    const target = nodes[route[citizen.routeStep]];
+                    const dx = target.x - citizen.x;
+                    const dy = target.y - citizen.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 3) {
+                        state = "WAITING";
+                        waitingTime = 0;
+                    } else {
+                        citizen.x += (dx / dist) * citizen.speed;
+                        citizen.y += (dy / dist) * citizen.speed;
+                    }
+                } else if (state === "WAITING") {
+                    const targetNodeIndex = route[citizen.routeStep];
+                    const target = nodes[targetNodeIndex];
+                    waitingTime++;
+
+                    simStatus.innerText = config.statusText(targetNodeIndex, target);
+
+                    if (waitingTime % config.ticksPerDay === 0) {
+                        citizen.daysAccumulated++;
+                        citizen.energy = Math.max(5, citizen.energy - config.energyDrain);
+                    }
+
+                    if (waitingTime > target.days * config.ticksPerWait) {
+                        if (citizen.routeStep < route.length - 1) {
+                            citizen.routeStep++;
+                            state = "MOVING";
+                        } else {
+                            state = "FINISHED";
+                        }
+                    }
+                } else if (state === "FINISHED") {
+                    simStatus.innerText = config.finishedText(citizen.daysAccumulated);
+                    setTimeout(() => {
+                        citizen.x = nodes[0].x;
+                        citizen.y = nodes[0].y;
+                        citizen.routeStep = 1;
+                        citizen.energy = 100;
+                        citizen.daysAccumulated = 0;
+                        state = "MOVING";
+                    }, 5000);
+                }
+
+                drawScene();
+                requestAnimationFrame(updateAnimation);
+            }
+
+            updateAnimation();
+        }
+
+        createSimulation({
+            canvasId: 'simCanvasCaso1',
+            statusId: 'simStatusCaso1',
+            designWidth: 960,
+            designHeight: 520,
+            lineWidth: 4,
+            nodeRadius: 36,
+            citizenRadius: 24,
+            iconFont: "28px sans-serif",
+            iconOffset: 10,
+            citizenFont: "26px sans-serif",
+            citizenIconOffset: 9,
+            labelFont: "bold 16px Segoe UI, sans-serif",
+            daysFont: "bold 20px Segoe UI, sans-serif",
+            labelOffset: 58,
+            lineHeight: 20,
+            daysLabel: (days) => `+${days} días`,
+            speed: 2,
+            ticksPerDay: 15,
+            ticksPerWait: 18,
+            energyDrain: 2.8,
+            timeLabel: "Tiempo Transcurrido",
+            nodes: [
+                { id: 0, name: "Ciudadano", x: 80, y: 210, color: "#0EA5E9", icon: "🧍" },
+                { id: 1, name: "Reg. Propiedad", x: 280, y: 70, color: "#F59E0B", days: 4, icon: "📜" },
+                { id: 2, name: "Bomberos", x: 540, y: 70, color: "#EF4444", days: 2, icon: "🚒" },
+                { id: 3, name: "Municipio (Catastros)\n1ª vez", x: 850, y: 140, color: "#8B5CF6", days: 11, icon: "🏛️" },
+                { id: 4, name: "Reg. Propiedad (Corrección)", x: 400, y: 390, color: "#F59E0B", days: 2, icon: "📝" },
+                { id: 5, name: "Municipio (Catastros)\nFinal", x: 850, y: 400, color: "#8B5CF6", days: 15, icon: "🏛️" }
+            ],
+            route: [0, 1, 2, 3, 4, 5],
+            mainPath: [0, 1, 2, 3],
+            reworkPath: [3, 4, 5],
+            statusText: (index, node) => {
+                if (index === 3) return `⏳ En Municipio (Catastros) 1ª vez... A los 11 días notifican: "Corregir documentación en Registro de la Propiedad"`;
+                if (index === 4) return `🔄 De vuelta en Reg. Propiedad para corregir documentos (+2 días)...`;
+                return `⏳ Esperando respuesta en ${node.name.replace("\n", " ")}... (+${node.days} días)`;
+            },
+            finishedText: (days) => `❌ TRÁMITE COMPLETADO: ${days} DÍAS Y RE-TRABAJOS. El ciudadano terminó exhausto.`
+        });
+
+        createSimulation({
+            canvasId: 'simCanvasCaso2',
+            statusId: 'simStatusCaso2',
+            designWidth: 1240,
+            designHeight: 580,
+            lineWidth: 4,
+            nodeRadius: 34,
+            citizenRadius: 23,
+            iconFont: "26px sans-serif",
+            iconOffset: 9,
+            citizenFont: "24px sans-serif",
+            citizenIconOffset: 9,
+            labelFont: "bold 16px Segoe UI, sans-serif",
+            daysFont: "bold 20px Segoe UI, sans-serif",
+            labelOffset: 56,
+            lineHeight: 20,
+            daysLabel: (days) => `+${days} días`,
+            speed: 6,
+            ticksPerDay: 12,
+            ticksPerWait: 12,
+            energyDrain: 1.5,
+            timeLabel: "Tiempo Transcurrido",
+            nodes: [
+                { id: 0, name: "Ciudadano", x: 150, y: 80, color: "#0EA5E9", icon: "👷" },
+                { id: 1, name: "Reg. Propiedad\n(Certificado)", x: 460, y: 80, color: "#F59E0B", days: 4, icon: "📜" },
+                { id: 2, name: "Municipio · Rentas\n(Predial)", x: 780, y: 80, color: "#8B5CF6", days: 1, icon: "🧾" },
+                { id: 3, name: "Reg. y Control Urbano\n(Línea de Fábrica)", x: 1090, y: 80, color: "#8B5CF6", days: 5, icon: "📐" },
+                { id: 4, name: "UMAPAL\n(Agua y Alcantarillado)", x: 1090, y: 260, color: "#06B6D4", days: 8, icon: "💧" },
+                { id: 5, name: "EERSSA", x: 780, y: 260, color: "#EAB308", days: 3, icon: "⚡" },
+                { id: 6, name: "Bomberos\n(Visto Bueno)", x: 460, y: 260, color: "#EF4444", days: 5, icon: "🚒" },
+                { id: 7, name: "Notaría\n(Dirección Técnica)", x: 150, y: 260, color: "#64748B", days: 2, icon: "✍️" },
+                { id: 8, name: "Reg. y Control Urbano\n(Aprobación de Planos)", x: 150, y: 440, color: "#8B5CF6", days: 15, icon: "🏛️" },
+                { id: 9, name: "Permiso de Construcción\n(1ª vez)", x: 460, y: 440, color: "#8B5CF6", days: 10, icon: "🏛️" },
+                { id: 10, name: "Reg. Propiedad\n(Renovación)", x: 780, y: 440, color: "#F43F5E", days: 3, icon: "🔄" },
+                { id: 11, name: "Permiso de Construcción\n(Emitido)", x: 1090, y: 440, color: "#10B981", days: 8, icon: "✅" }
+            ],
+            route: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            mainPath: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            reworkPath: [9, 10, 11],
+            statusText: (index, node) => {
+                if (index === 1) return `⏳ Registro de la Propiedad: certificado simple e historiado del predio (+4 días)...`;
+                if (index === 3) return `⏳ Regulación y Control Urbano: Certificado de Regulación Urbana o Línea de Fábrica (+5 días)...`;
+                if (index === 4) return `⏳ UMAPAL: factibilidad y revisión del estudio hidrosanitario, entregado en CD membretado (+8 días)...`;
+                if (index === 6) return `⏳ Cuerpo de Bomberos: visto bueno de los planos del sistema contra incendios (+5 días)...`;
+                if (index === 7) return `⏳ Notaría: reconocimiento de firmas del contrato de dirección técnica (+2 días)...`;
+                if (index === 8) return `⏳ Regulación y Control Urbano: aprobación de planos arquitectónicos, Art. 400 (+15 días)...`;
+                if (index === 9) return `⏳ Permiso de construcción, Art. 411... A los 10 días notifican: "certificado del Registro de la Propiedad vencido durante la espera".`;
+                if (index === 10) return `🔄 De vuelta al Registro de la Propiedad a renovar el certificado (+3 días)...`;
+                return `⏳ Tramitando en ${node.name.replace("\n", " ")}... (+${node.days} días)`;
+            },
+            finishedText: (days) => `❌ PERMISO OBTENIDO EN ${days} DÍAS: 7 entidades, 11 paradas presenciales y un re-trabajo por vencimiento.`
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja bus — Validador del chofer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --surface-0:#f1efe8; --surface-1:#f1efe8; --surface-2:#ffffff;
+  --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18); --border-success:#639922;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+  --text-accent:#0c447c; --text-success:#27500a;
+  --fill-primary:#0b0b0b; --on-primary:#ffffff;
+  --bg-accent:#e6f1fb; --bg-success:#eaf3de;
+  --radius:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --surface-0:#1a1a19; --surface-1:#2c2c2a; --surface-2:#242422;
+    --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.18);
+    --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --text-accent:#85b7eb; --text-success:#97c459;
+    --fill-primary:#f0efec; --on-primary:#0b0b0b;
+    --bg-accent:#0c447c; --bg-success:#173404;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;padding:2rem 1rem;background:var(--surface-0);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text-primary)}
+button{font-family:inherit;font-size:14px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--surface-2);color:var(--text-primary);padding:8px 12px;cursor:pointer}
+button:hover{background:var(--surface-1)}
+button:active{transform:scale(0.98)}
+</style>
+</head>
+<body>
+<div style="background:var(--surface-1);border-radius:28px;padding:14px;max-width:340px;margin:0 auto">
+<div style="background:var(--surface-2);border-radius:20px;padding:1.25rem;min-height:480px;display:flex;flex-direction:column">
+
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+<div style="width:32px;height:32px;border-radius:8px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center"><i class="ti ti-steering-wheel" style="font-size:18px;color:var(--text-accent)" aria-hidden="true"></i></div>
+<div><p style="font-weight:500;font-size:14px;margin:0">Validador</p><p style="font-size:12px;color:var(--text-secondary);margin:0">Ruta 4 · Centro - UTPL</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem">
+<div style="background:var(--surface-1);border-radius:var(--radius);padding:0.75rem"><p style="font-size:12px;color:var(--text-secondary);margin:0">Validados hoy</p><p style="font-size:20px;font-weight:500;margin:0" id="count-today">0</p></div>
+<div style="background:var(--surface-1);border-radius:var(--radius);padding:0.75rem"><p style="font-size:12px;color:var(--text-secondary);margin:0">Este viaje</p><p style="font-size:20px;font-weight:500;margin:0" id="count-trip">0</p></div>
+</div>
+
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+<div id="scan-frame" style="width:140px;height:140px;border-radius:16px;border:2px dashed var(--border-strong);display:flex;align-items:center;justify-content:center"><i class="ti ti-scan" style="font-size:40px;color:var(--text-muted)" aria-hidden="true"></i></div>
+<button onclick="scanTicket()" style="background:var(--fill-primary);color:var(--on-primary);border:none;width:100%;height:44px;font-weight:500">Escanear boleto</button>
+<p id="scan-result" style="font-size:13px;color:var(--text-success);min-height:18px;margin:0"></p>
+</div>
+
+<p style="font-size:12px;color:var(--text-secondary);margin:1rem 0 8px">Últimas validaciones</p>
+<div id="recent-list" style="display:flex;flex-direction:column;gap:6px"></div>
+
+</div>
+</div>
+<script>
+let today=0,trip=0;
+let recent=[];
+function scanTicket(){
+today++;trip++;
+document.getElementById('count-today').textContent=today;
+document.getElementById('count-trip').textContent=trip;
+const frame=document.getElementById('scan-frame');
+frame.style.borderColor='var(--border-success)';
+document.getElementById('scan-result').textContent='Boleto válido · tarifa general';
+setTimeout(()=>{frame.style.borderColor='var(--border-strong)'},600);
+const now=new Date();
+const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+recent.unshift(time+' · válido');
+recent=recent.slice(0,3);
+document.getElementById('recent-list').innerHTML=recent.map(r=>`<div style="background:var(--surface-1);border-radius:var(--radius);padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:6px"><i class="ti ti-check" style="font-size:14px;color:var(--text-success)" aria-hidden="true"></i>${r}</div>`).join('');
+}
+</script>
+</body>
+</html>

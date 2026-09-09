@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A192F">
+  <title>CTUL — Acceso al tablero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../SimertDigital/css/styles.css">
+  <style>
+    .err { color: var(--red); font-size: 12px; margin: 8px 0 0; min-height: 16px; }
+    .login-foot { margin-top: 16px; font-size: 12px; }
+    .login-foot a { color: var(--blue); font-weight: 600; }
+    .chart-box { position: relative; height: 220px; }
+    .chart-box.short { height: 200px; }
+    .alert-banner { display: flex; align-items: flex-start; gap: 10px; }
+    .alert-banner svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+  </style>
+</head>
+<body>
+  <div id="view-login" class="admin-solo admin-login">
+    <div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="admin-login-card">
+      <div class="login-screen">
+        <div class="logo-mark" style="margin:8px auto 12px">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 13h16v4.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2V13Z" stroke="#fff" stroke-width="1.7"/>
+            <path d="M6 13 7.4 8.6A2 2 0 0 1 9.3 7.2h5.4a2 2 0 0 1 1.9 1.4L18 13" stroke="#fff" stroke-width="1.7"/>
+            <circle cx="7.2" cy="19.1" r="1.5" fill="#DAA520"/>
+            <circle cx="16.8" cy="19.1" r="1.5" fill="#DAA520"/>
+          </svg>
+        </div>
+        <h2>Acceso municipal</h2>
+        <p class="muted">Tablero CTUL · Municipio de Loja</p>
+        <form id="login-form">
+          <div class="field">
+            <label for="login-user">Usuario</label>
+            <input id="login-user" name="user" value="ctul" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="login-pass">Contraseña</label>
+            <input id="login-pass" name="pass" type="password" value="loja2026" autocomplete="current-password">
+          </div>
+          <button class="btn btn-navy btn-full" type="submit">Entrar al tablero</button>
+          <p class="err" id="login-err"></p>
+        </form>
+        <p class="login-foot muted"><a href="index.html">Volver al inicio</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-board" class="admin-solo" hidden>
+    <div class="admin-wrap">
+      <div class="admin-head">
+        <div class="brand">
+          <div class="logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 13h16v4.2A1.8 1.8 0 0 1 18.2 19H5.8A1.8 1.8 0 0 1 4 17.2V13Z" stroke="#fff" stroke-width="1.7"/>
+              <path d="M6 13 7.4 8.6A2 2 0 0 1 9.3 7.2h5.4a2 2 0 0 1 1.9 1.4L18 13" stroke="#fff" stroke-width="1.7"/>
+              <circle cx="7.2" cy="19.1" r="1.5" fill="#DAA520"/>
+              <circle cx="16.8" cy="19.1" r="1.5" fill="#DAA520"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Tablero CTUL · Municipio de Loja</h1>
+            <p class="muted">Ing. Jorge Rojas · Coordinación de Transporte Urbano</p>
+          </div>
+        </div>
+        <div class="admin-head-actions">
+          <div class="live"><span class="dot"></span> Operación en vivo</div>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="logout()">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <section class="kpis" style="grid-template-columns:repeat(3,1fr)">
+        <article class="kpi">
+          <div class="lbl">Pasajeros hoy</div>
+          <div class="val">3,842</div>
+          <p class="muted">Boletos validados en las 4 rutas</p>
+        </article>
+        <article class="kpi">
+          <div class="lbl">Recaudación hoy</div>
+          <div class="val">$1,076</div>
+          <p class="muted">Tarifa general y preferencial</p>
+        </article>
+        <article class="kpi">
+          <div class="lbl">Boletos preferencial</div>
+          <div class="val">31%</div>
+          <p class="muted">Verificados con cédula</p>
+        </article>
+      </section>
+
+      <div class="alert-banner" style="margin-bottom:16px">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4 3 19h18L12 4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v5M12 17.2v.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <p>Ruta 4 con 92% de ocupación entre 6:45 y 7:15 am, 4 días seguidos</p>
+      </div>
+
+      <div class="admin-grid">
+        <article class="card">
+          <h3>Pasajeros por ruta</h3>
+          <div class="chart-box">
+            <canvas id="routeChart" role="img" aria-label="Gráfico de barras de pasajeros por ruta hoy">Ruta 4: 1420, Ruta 7: 980, Ruta 2: 860, Ruta 1: 582</canvas>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Ocupación por hora, ruta 4</h3>
+          <div class="chart-box short">
+            <canvas id="hourChart" role="img" aria-label="Gráfico de línea de ocupación por hora en la ruta 4">6am: 40%, 7am: 92%, 8am: 75%, 9am: 50%, 12pm: 60%, 5pm: 88%, 6pm: 70%</canvas>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const ADMIN = { usuario: "ctul", pass: "loja2026" };
+    let charts = [];
+
+    function showBoard() {
+      document.getElementById("view-login").hidden = true;
+      document.getElementById("view-board").hidden = false;
+      initCharts();
+    }
+
+    function logout() {
+      charts.forEach(function (c) { c.destroy(); });
+      charts = [];
+      document.getElementById("login-err").textContent = "";
+      document.getElementById("view-board").hidden = true;
+      document.getElementById("view-login").hidden = false;
+    }
+
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const user = document.getElementById("login-user").value.trim().toLowerCase();
+      const pass = document.getElementById("login-pass").value;
+      if (user !== ADMIN.usuario || pass !== ADMIN.pass) {
+        document.getElementById("login-err").textContent = "Usuario o contraseña incorrectos.";
+        return;
+      }
+      showBoard();
+    });
+
+    function initCharts() {
+      if (typeof Chart === "undefined") return;
+      charts.forEach(function (c) { c.destroy(); });
+      charts = [
+        new Chart(document.getElementById("routeChart"), {
+          type: "bar",
+          data: {
+            labels: ["Ruta 4", "Ruta 7", "Ruta 2", "Ruta 1"],
+            datasets: [{ label: "Pasajeros", data: [1420, 980, 860, 582], backgroundColor: "#003366", borderRadius: 4 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        }),
+        new Chart(document.getElementById("hourChart"), {
+          type: "line",
+          data: {
+            labels: ["6am", "7am", "8am", "9am", "12pm", "5pm", "6pm"],
+            datasets: [{
+              label: "Ocupación",
+              data: [40, 92, 75, 50, 60, 88, 70],
+              borderColor: "#8B0000",
+              backgroundColor: "rgba(218,165,32,0.18)",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100, ticks: { callback: function (v) { return v + "%"; } } } }
+          }
+        })
+      ];
+    }
+  </script>
+</body>
+</html>

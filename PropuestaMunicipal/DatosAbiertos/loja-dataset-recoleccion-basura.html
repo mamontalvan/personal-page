@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutas y horarios de recolección de residuos — Loja Datos Abiertos (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --blue:#3D6E93; --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF; --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55;}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 32px;}
+
+  .flagbar{display:flex; height:6px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+  .protobadge{background:var(--ink); color:#F3EEDD; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:8px;}
+  .protobadge b{color:var(--gold);}
+
+  header{background:var(--paper); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:17px;}
+  .brand .crest{width:26px; height:26px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand .crest svg{width:14px; height:14px;}
+  .navlinks{display:flex; gap:22px; list-style:none;}
+  .navlinks a{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .navlinks a:hover{color:var(--red);}
+
+  .crumbs{padding:18px 0; font-size:13px; color:var(--ink-soft);}
+  .crumbs a:hover{color:var(--red);}
+  .crumbs span{margin:0 6px;}
+
+  .dshead{padding:6px 0 34px; border-bottom:1px solid var(--line);}
+  .dshead .org{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--blue); text-transform:uppercase; letter-spacing:0.04em;}
+  .dshead h1{font-size:clamp(22px,3.2vw,30px); margin:10px 0 14px;}
+  .dshead p.desc{color:var(--ink-soft); max-width:700px; font-size:15px;}
+  .dstags{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .dstags span{background:var(--paper); border:1px solid var(--line); padding:5px 12px; font-size:12.5px; border-radius:14px; color:var(--ink-soft);}
+  .dsmeta{display:flex; gap:26px; margin-top:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft);}
+  .dsmeta b{color:var(--ink); font-weight:500;}
+
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:40px; padding:40px 0 70px;}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;}}
+
+  .resources h2{font-size:17px; margin-bottom:16px;}
+  .res-item{display:flex; align-items:center; justify-content:space-between; background:var(--paper); border:1px solid var(--line); padding:16px 18px; margin-bottom:10px;}
+  .res-item .l{display:flex; align-items:center; gap:12px;}
+  .res-item .fmt{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 9px; border-radius:3px; background:var(--cream); color:var(--gold-dark); font-weight:500;}
+  .res-item .name{font-size:14.5px; font-weight:500;}
+  .res-item .actions a{font-size:12.5px; color:var(--red); margin-left:14px;}
+  .res-item .actions a:hover{text-decoration:underline;}
+
+  .preview{margin-top:34px;}
+  .preview h2{font-size:17px; margin-bottom:14px;}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); background:var(--paper);}
+  table.pv{width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px;}
+  table.pv th{text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); letter-spacing:0.03em; background:var(--cream);}
+  table.pv td{padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.pv tr:last-child td{border-bottom:none;}
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px; border-radius:10px;}
+  .pill.ordinario{background:#E4EFE7; color:#2C6B44;}
+  .pill.reciclable{background:#DDEAF3; color:var(--blue);}
+  .pill.organico{background:#FBEAD3; color:var(--gold-dark);}
+
+  .res-item .fmt.api{background:#DDEAF3; color:var(--blue);}
+
+  .api{margin-top:38px;}
+  .api h2{font-size:17px; margin-bottom:6px;}
+  .api .hint{font-size:13px; color:var(--ink-soft); margin-bottom:16px; max-width:660px;}
+  .apibox{border:1px solid var(--line); background:var(--paper);}
+  .endpoint{display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--cream); border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .endpoint .verb{font-family:'IBM Plex Mono',monospace; font-size:11px; background:#2C6B44; color:#fff; padding:4px 9px; border-radius:3px;}
+  .endpoint code{font-family:'IBM Plex Mono',monospace; font-size:12.5px; flex:1; min-width:200px; word-break:break-all;}
+  .btn-mini{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); padding:6px 11px; border-radius:3px; cursor:pointer;}
+  .btn-mini:hover{border-color:var(--blue); color:var(--blue);}
+  .params{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; padding:16px;}
+  .params label{display:flex; flex-direction:column; gap:5px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft);}
+  .params select,.params input{font-family:'Inter',sans-serif; font-size:13.5px; padding:8px 10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); min-width:158px;}
+  .params select:focus,.params input:focus{outline:none; border-color:var(--blue);}
+  .btn-run{background:var(--red); color:#fff; border:none; padding:10px 20px; font-size:13.5px; font-weight:500; border-radius:3px; cursor:pointer;}
+  .btn-run:hover{background:#7A1C29;}
+  .btn-run[disabled]{opacity:0.55; cursor:progress;}
+  .resline{display:flex; gap:18px; flex-wrap:wrap; align-items:center; padding:10px 16px; border-top:1px solid var(--line); background:var(--cream); font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
+  .resline .st{color:#2C6B44;}
+  .resline .st.load{color:var(--gold-dark);}
+  .resline .grow{flex:1;}
+  pre.json{margin:0; padding:16px; background:#211F1C; color:#E9E3D5; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.62; overflow:auto; max-height:430px;}
+  pre.json .jk{color:#8FC3E6;}
+  pre.json .jstr{color:#DCC178;}
+  pre.json .jn{color:#C99BE0;}
+  pre.json .jb{color:#7FC49A;}
+  .apidocs{margin-top:16px; border:1px solid var(--line); background:var(--paper);}
+  .apidocs .row{display:grid; grid-template-columns:225px 1fr; gap:16px; padding:12px 16px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-soft);}
+  .apidocs .row:first-child{border-top:none;}
+  .apidocs code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--red);}
+  @media(max-width:640px){.apidocs .row{grid-template-columns:1fr; gap:4px;}}
+
+  aside{align-self:start;}
+  .infobox{background:var(--paper); border:1px solid var(--line); padding:20px;}
+  .infobox h3{font-size:13px; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:14px;}
+  .infobox table{width:100%; font-size:13px;}
+  .infobox td{padding:8px 0; border-top:1px solid var(--line); vertical-align:top;}
+  .infobox tr:first-child td{border-top:none;}
+  .infobox td:first-child{color:var(--ink-soft); width:44%;}
+  .infobox td:last-child{color:var(--ink); text-align:right;}
+
+  footer{background:var(--paper); border-top:1px solid var(--line); padding:26px 0; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales.</div>
+
+<header>
+  <nav>
+    <div class="brand">
+      <div class="crest"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L9 10 L13 15 L18 5 L22 12" stroke="#D9A526" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      Loja Datos Abiertos
+    </div>
+    <ul class="navlinks">
+      <li><a href="loja-portal-datos.html">Conjuntos de datos</a></li>
+      <li><a href="loja-portal-datos.html#organismos">Direcciones municipales</a></li>
+      <li><a href="loja-portal-datos.html#acerca">Acerca de</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs">
+    <a href="loja-portal-datos.html">Inicio</a><span>/</span>
+    <a href="loja-portal-datos.html#datasets">Conjuntos de datos</a><span>/</span>
+    Rutas y horarios de recolección de residuos
+  </div>
+
+  <div class="dshead">
+    <span class="org">Publicado por: Dirección de Gestión Ambiental — Municipio de Loja</span>
+    <h1>Rutas y horarios de recolección de residuos</h1>
+    <p class="desc">Sectores, días y horarios de recolección de residuos sólidos por tipo (ordinario, reciclable, orgánico) en la zona urbana de Loja. Útil para que la ciudadanía consulte cuándo sacar la basura y para planificar rutas de recolección.</p>
+    <div class="dstags">
+      <span>Residuos sólidos</span><span>Ambiente</span><span>Municipio de Loja</span><span>Servicios públicos</span>
+    </div>
+    <div class="dsmeta">
+      <div>Vistas: <b>298</b></div>
+      <div>Frecuencia de actualización: <b>Semestral</b></div>
+      <div>Última actualización: <b>12 ago 2026</b></div>
+      <div>Licencia: <b>CC-BY 4.0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="resources">
+        <h2>Recursos de datos (2)</h2>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">recoleccion_residuos.csv</span></div>
+          <div class="actions"><a href="#">Vista previa</a><a href="#">Descargar</a></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt api">API</span><span class="name">/api/v1/recoleccion-residuos</span></div>
+          <div class="actions"><a href="#api">Probar consulta</a><a href="#api">Documentación</a></div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <h2>Vista previa — recoleccion_residuos.csv</h2>
+        <div class="tablewrap">
+          <table class="pv">
+            <thead>
+              <tr><th>ID ruta</th><th>Sector</th><th>Tipo de residuo</th><th>Días de recolección</th><th>Horario</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>RR-01</td><td>Centro Histórico</td><td><span class="pill ordinario">Ordinario</span></td><td>Lun, Mié, Vie</td><td>20:00–23:00</td></tr>
+              <tr><td>RR-02</td><td>Centro Histórico</td><td><span class="pill reciclable">Reciclable</span></td><td>Martes</td><td>08:00–11:00</td></tr>
+              <tr><td>RR-03</td><td>La Argelia</td><td><span class="pill ordinario">Ordinario</span></td><td>Mar, Jue, Sáb</td><td>07:00–10:00</td></tr>
+              <tr><td>RR-04</td><td>Zamora Huayco</td><td><span class="pill ordinario">Ordinario</span></td><td>Lun, Jue</td><td>19:00–22:00</td></tr>
+              <tr><td>RR-05</td><td>Punzara</td><td><span class="pill organico">Orgánico</span></td><td>Miércoles</td><td>08:00–12:00</td></tr>
+              <tr><td>RR-06</td><td>Época</td><td><span class="pill reciclable">Reciclable</span></td><td>Viernes</td><td>08:00–11:00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="api" id="api">
+        <h2>API — consulta en vivo</h2>
+        <p class="hint">Así consultaría una app ciudadana el horario de recolección de un sector. En este prototipo la respuesta se genera en el navegador con datos de prueba: no hay servidor detrás, pero la estructura de la respuesta y los parámetros son los que tendría la API real.</p>
+
+        <div class="apibox">
+          <div class="endpoint">
+            <span class="verb">GET</span>
+            <code id="api-url">https://datos.loja.gob.ec/api/v1/recoleccion-residuos</code>
+            <button class="btn-mini" id="api-copy-url" type="button">Copiar URL</button>
+          </div>
+
+          <div class="params">
+            <label>tipo_residuo
+              <select id="f-tipo">
+                <option value="">(todos)</option>
+                <option value="Ordinario">Ordinario</option>
+                <option value="Reciclable">Reciclable</option>
+                <option value="Orgánico">Orgánico</option>
+              </select>
+            </label>
+            <label>sector
+              <select id="f-sector">
+                <option value="">(todos)</option>
+                <option value="Centro Histórico">Centro Histórico</option>
+                <option value="La Argelia">La Argelia</option>
+                <option value="Zamora Huayco">Zamora Huayco</option>
+                <option value="Punzara">Punzara</option>
+                <option value="Época">Época</option>
+                <option value="Carigán">Carigán</option>
+                <option value="Motupe">Motupe</option>
+              </select>
+            </label>
+            <label>dia
+              <select id="f-dia">
+                <option value="">(cualquiera)</option>
+                <option value="lun">Lunes</option>
+                <option value="mar">Martes</option>
+                <option value="mié">Miércoles</option>
+                <option value="jue">Jueves</option>
+                <option value="vie">Viernes</option>
+                <option value="sáb">Sábado</option>
+              </select>
+            </label>
+            <label>limit
+              <input type="number" id="f-limit" min="1" max="20" value="5">
+            </label>
+            <button class="btn-run" id="api-run" type="button">Ejecutar consulta</button>
+          </div>
+
+          <div class="resline">
+            <span class="st" id="api-status">200 OK</span>
+            <span id="api-meta"></span>
+            <span class="grow"></span>
+            <button class="btn-mini" id="api-copy-json" type="button">Copiar JSON</button>
+            <button class="btn-mini" id="api-download" type="button">Descargar .json</button>
+          </div>
+          <pre class="json" id="api-out"></pre>
+        </div>
+
+        <div class="apidocs">
+          <div class="row"><code>GET /api/v1/recoleccion-residuos</code><span>Lista las rutas de recolección con sus días y horarios.</span></div>
+          <div class="row"><code>GET /api/v1/recoleccion-residuos/{id}</code><span>Devuelve una sola ruta por su identificador, por ejemplo <code>RR-03</code>.</span></div>
+          <div class="row"><code>?tipo_residuo=</code><span>Filtra por <code>Ordinario</code>, <code>Reciclable</code> u <code>Orgánico</code>.</span></div>
+          <div class="row"><code>?sector=</code><span>Filtra por sector de la zona urbana.</span></div>
+          <div class="row"><code>?dia=</code><span>Rutas que recolectan ese día: <code>lun</code>, <code>mar</code>, <code>mié</code>, <code>jue</code>, <code>vie</code> o <code>sáb</code>.</span></div>
+          <div class="row"><code>?limit=</code><span>Número máximo de registros devueltos (1–20).</span></div>
+          <div class="row"><code>Formato</code><span>JSON (UTF-8). Horarios en zona horaria de Ecuador (UTC-5). Licencia CC-BY 4.0.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="infobox">
+        <h3>Información adicional</h3>
+        <table>
+          <tr><td>Contacto</td><td>ambiente@loja.gob.ec</td></tr>
+          <tr><td>Formato</td><td>CSV, API JSON</td></tr>
+          <tr><td>Cobertura geográfica</td><td>Zona urbana de Loja</td></tr>
+          <tr><td>Fecha de creación</td><td>2026-01-20</td></tr>
+          <tr><td>Cobertura temporal</td><td>2026</td></tr>
+          <tr><td>Idioma</td><td>Español</td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>Prototipo estático con datos de prueba · Municipio de Loja</footer>
+
+<script>
+(function(){
+  var BASE = 'https://datos.loja.gob.ec/api/v1/recoleccion-residuos';
+  var RECORDS = [
+    {id_ruta:'RR-01', sector:'Centro Histórico', tipo_residuo:'Ordinario', dias:['lun','mié','vie'], hora_inicio:'20:00', hora_fin:'23:00', vehiculo:'Compactador C-04'},
+    {id_ruta:'RR-02', sector:'Centro Histórico', tipo_residuo:'Reciclable', dias:['mar'], hora_inicio:'08:00', hora_fin:'11:00', vehiculo:'Recolector R-11'},
+    {id_ruta:'RR-03', sector:'La Argelia', tipo_residuo:'Ordinario', dias:['mar','jue','sáb'], hora_inicio:'07:00', hora_fin:'10:00', vehiculo:'Compactador C-02'},
+    {id_ruta:'RR-04', sector:'Zamora Huayco', tipo_residuo:'Ordinario', dias:['lun','jue'], hora_inicio:'19:00', hora_fin:'22:00', vehiculo:'Compactador C-07'},
+    {id_ruta:'RR-05', sector:'Punzara', tipo_residuo:'Orgánico', dias:['mié'], hora_inicio:'08:00', hora_fin:'12:00', vehiculo:'Volqueta V-03'},
+    {id_ruta:'RR-06', sector:'Época', tipo_residuo:'Reciclable', dias:['vie'], hora_inicio:'08:00', hora_fin:'11:00', vehiculo:'Recolector R-08'},
+    {id_ruta:'RR-07', sector:'Punzara', tipo_residuo:'Ordinario', dias:['lun','mié','vie'], hora_inicio:'06:30', hora_fin:'09:30', vehiculo:'Compactador C-01'},
+    {id_ruta:'RR-08', sector:'Carigán', tipo_residuo:'Ordinario', dias:['mar','vie'], hora_inicio:'19:30', hora_fin:'22:30', vehiculo:'Compactador C-05'},
+    {id_ruta:'RR-09', sector:'Carigán', tipo_residuo:'Reciclable', dias:['jue'], hora_inicio:'08:30', hora_fin:'11:30', vehiculo:'Recolector R-11'},
+    {id_ruta:'RR-10', sector:'Motupe', tipo_residuo:'Ordinario', dias:['mié','sáb'], hora_inicio:'07:00', hora_fin:'10:00', vehiculo:'Compactador C-06'},
+    {id_ruta:'RR-11', sector:'La Argelia', tipo_residuo:'Orgánico', dias:['vie'], hora_inicio:'08:00', hora_fin:'12:00', vehiculo:'Volqueta V-01'},
+    {id_ruta:'RR-12', sector:'Zamora Huayco', tipo_residuo:'Reciclable', dias:['mié'], hora_inicio:'09:00', hora_fin:'12:00', vehiculo:'Recolector R-08'},
+    {id_ruta:'RR-13', sector:'Época', tipo_residuo:'Ordinario', dias:['lun','jue','sáb'], hora_inicio:'20:00', hora_fin:'23:00', vehiculo:'Compactador C-03'},
+    {id_ruta:'RR-14', sector:'Motupe', tipo_residuo:'Orgánico', dias:['sáb'], hora_inicio:'07:30', hora_fin:'11:30', vehiculo:'Volqueta V-03'}
+  ];
+
+  var el = function(id){ return document.getElementById(id); };
+  var payload = null;
+
+  function params(){
+    var p = {};
+    if(el('f-tipo').value) p.tipo_residuo = el('f-tipo').value;
+    if(el('f-sector').value) p.sector = el('f-sector').value;
+    if(el('f-dia').value) p.dia = el('f-dia').value;
+    if(el('f-limit').value) p.limit = Number(el('f-limit').value);
+    return p;
+  }
+
+  function url(p){
+    var qs = Object.keys(p).map(function(k){ return k + '=' + encodeURIComponent(p[k]); }).join('&');
+    return BASE + (qs ? '?' + qs : '');
+  }
+
+  function highlight(obj){
+    var txt = JSON.stringify(obj, null, 2)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return txt.replace(/("(?:\\.|[^"\\])*"\s*:?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?)/g, function(m){
+      var cls = 'jn';
+      if(m.charAt(0) === '"') cls = /:\s*$/.test(m) ? 'jk' : 'jstr';
+      else if(/^(true|false|null)$/.test(m)) cls = 'jb';
+      return '<span class="' + cls + '">' + m + '</span>';
+    });
+  }
+
+  function refreshUrl(){ el('api-url').textContent = url(params()); }
+
+  function run(){
+    var p = params();
+    refreshUrl();
+    el('api-run').setAttribute('disabled', 'disabled');
+    el('api-status').textContent = 'Consultando…';
+    el('api-status').className = 'st load';
+    el('api-meta').textContent = '';
+
+    var started = Date.now();
+    window.setTimeout(function(){
+      var rows = RECORDS.filter(function(r){
+        return (!p.tipo_residuo || r.tipo_residuo === p.tipo_residuo) &&
+               (!p.sector || r.sector === p.sector) &&
+               (!p.dia || r.dias.indexOf(p.dia) !== -1);
+      });
+      var coincidencias = rows.length;
+      if(p.limit) rows = rows.slice(0, p.limit);
+
+      payload = {
+        endpoint: '/api/v1/recoleccion-residuos',
+        generado: new Date().toISOString(),
+        licencia: 'CC-BY 4.0',
+        parametros: p,
+        total_dataset: RECORDS.length,
+        coincidencias: coincidencias,
+        devueltos: rows.length,
+        resultados: rows
+      };
+
+      el('api-out').innerHTML = highlight(payload);
+      el('api-status').textContent = '200 OK';
+      el('api-status').className = 'st';
+      el('api-meta').textContent = rows.length + ' de ' + coincidencias + ' registros · ' +
+        (Date.now() - started) + ' ms · respuesta simulada en el navegador';
+      el('api-run').removeAttribute('disabled');
+    }, 180 + Math.random() * 260);
+  }
+
+  function copy(text, btn){
+    var label = btn.textContent;
+    var done = function(){
+      btn.textContent = 'Copiado';
+      window.setTimeout(function(){ btn.textContent = label; }, 1400);
+    };
+    var manual = function(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ btn.textContent = 'No se pudo copiar'; }
+      document.body.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, manual);
+    } else {
+      manual();
+    }
+  }
+
+  el('api-run').addEventListener('click', run);
+  ['f-tipo', 'f-sector', 'f-dia', 'f-limit'].forEach(function(id){
+    el(id).addEventListener('change', refreshUrl);
+    el(id).addEventListener('input', refreshUrl);
+  });
+  el('api-copy-url').addEventListener('click', function(){ copy(url(params()), this); });
+  el('api-copy-json').addEventListener('click', function(){
+    if(payload) copy(JSON.stringify(payload, null, 2), this);
+  });
+  el('api-download').addEventListener('click', function(){
+    if(!payload) return;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var href = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = href;
+    a.download = 'recoleccion_residuos.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(function(){ URL.revokeObjectURL(href); }, 1000);
+  });
+
+  run();
+})();
+</script>
+
+</body>
+</html>

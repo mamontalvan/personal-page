@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercados municipales de Loja — Loja Datos Abiertos (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --blue:#3D6E93; --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF; --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55;}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 32px;}
+
+  .flagbar{display:flex; height:6px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+  .protobadge{background:var(--ink); color:#F3EEDD; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:8px;}
+  .protobadge b{color:var(--gold);}
+
+  header{background:var(--paper); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:17px;}
+  .brand .crest{width:26px; height:26px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand .crest svg{width:14px; height:14px;}
+  .navlinks{display:flex; gap:22px; list-style:none;}
+  .navlinks a{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .navlinks a:hover{color:var(--red);}
+
+  .crumbs{padding:18px 0; font-size:13px; color:var(--ink-soft);}
+  .crumbs a:hover{color:var(--red);}
+  .crumbs span{margin:0 6px;}
+
+  .dshead{padding:6px 0 34px; border-bottom:1px solid var(--line);}
+  .dshead .org{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--blue); text-transform:uppercase; letter-spacing:0.04em;}
+  .dshead h1{font-size:clamp(24px,3.2vw,32px); margin:10px 0 14px;}
+  .dshead p.desc{color:var(--ink-soft); max-width:700px; font-size:15px;}
+  .dstags{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .dstags span{background:var(--paper); border:1px solid var(--line); padding:5px 12px; font-size:12.5px; border-radius:14px; color:var(--ink-soft);}
+  .dsmeta{display:flex; gap:26px; margin-top:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft);}
+  .dsmeta b{color:var(--ink); font-weight:500;}
+
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:40px; padding:40px 0 70px;}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;}}
+
+  .resources h2{font-size:17px; margin-bottom:16px;}
+  .res-item{display:flex; align-items:center; justify-content:space-between; background:var(--paper); border:1px solid var(--line); padding:16px 18px; margin-bottom:10px;}
+  .res-item .l{display:flex; align-items:center; gap:12px;}
+  .res-item .fmt{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 9px; border-radius:3px;
+    background:var(--cream); color:var(--gold-dark); font-weight:500;
+  }
+  .res-item .name{font-size:14.5px; font-weight:500;}
+  .res-item .actions a{font-size:12.5px; color:var(--red); margin-left:14px;}
+  .res-item .actions a:hover{text-decoration:underline;}
+
+  .preview{margin-top:34px;}
+  .preview h2{font-size:17px; margin-bottom:14px;}
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); background:var(--paper);}
+  table.pv{width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px;}
+  table.pv th{text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); letter-spacing:0.03em; background:var(--cream);}
+  table.pv td{padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.pv tr:last-child td{border-bottom:none;}
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px; border-radius:10px; background:#E4EFE7; color:#2C6B44;}
+  .pill.feria{background:#FBEAD3; color:var(--gold-dark);}
+
+  .res-item .fmt.api{background:#DDEAF3; color:var(--blue);}
+
+  .api{margin-top:38px;}
+  .api h2{font-size:17px; margin-bottom:6px;}
+  .api .hint{font-size:13px; color:var(--ink-soft); margin-bottom:16px; max-width:660px;}
+  .apibox{border:1px solid var(--line); background:var(--paper);}
+  .endpoint{display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--cream); border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .endpoint .verb{font-family:'IBM Plex Mono',monospace; font-size:11px; background:#2C6B44; color:#fff; padding:4px 9px; border-radius:3px;}
+  .endpoint code{font-family:'IBM Plex Mono',monospace; font-size:12.5px; flex:1; min-width:200px; word-break:break-all;}
+  .btn-mini{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); padding:6px 11px; border-radius:3px; cursor:pointer;}
+  .btn-mini:hover{border-color:var(--blue); color:var(--blue);}
+  .params{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; padding:16px;}
+  .params label{display:flex; flex-direction:column; gap:5px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft);}
+  .params select,.params input{font-family:'Inter',sans-serif; font-size:13.5px; padding:8px 10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); min-width:158px;}
+  .params select:focus,.params input:focus{outline:none; border-color:var(--blue);}
+  .btn-run{background:var(--red); color:#fff; border:none; padding:10px 20px; font-size:13.5px; font-weight:500; border-radius:3px; cursor:pointer;}
+  .btn-run:hover{background:#7A1C29;}
+  .btn-run[disabled]{opacity:0.55; cursor:progress;}
+  .resline{display:flex; gap:18px; flex-wrap:wrap; align-items:center; padding:10px 16px; border-top:1px solid var(--line); background:var(--cream); font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
+  .resline .st{color:#2C6B44;}
+  .resline .st.load{color:var(--gold-dark);}
+  .resline .grow{flex:1;}
+  pre.json{margin:0; padding:16px; background:#211F1C; color:#E9E3D5; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.62; overflow:auto; max-height:430px;}
+  pre.json .jk{color:#8FC3E6;}
+  pre.json .jstr{color:#DCC178;}
+  pre.json .jn{color:#C99BE0;}
+  pre.json .jb{color:#7FC49A;}
+  .apidocs{margin-top:16px; border:1px solid var(--line); background:var(--paper);}
+  .apidocs .row{display:grid; grid-template-columns:210px 1fr; gap:16px; padding:12px 16px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-soft);}
+  .apidocs .row:first-child{border-top:none;}
+  .apidocs code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--red);}
+  @media(max-width:640px){.apidocs .row{grid-template-columns:1fr; gap:4px;}}
+
+  aside{align-self:start;}
+  .infobox{background:var(--paper); border:1px solid var(--line); padding:20px;}
+  .infobox h3{font-size:13px; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:14px;}
+  .infobox table{width:100%; font-size:13px;}
+  .infobox td{padding:8px 0; border-top:1px solid var(--line); vertical-align:top;}
+  .infobox tr:first-child td{border-top:none;}
+  .infobox td:first-child{color:var(--ink-soft); width:44%;}
+  .infobox td:last-child{color:var(--ink); text-align:right;}
+
+  footer{background:var(--paper); border-top:1px solid var(--line); padding:26px 0; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales.</div>
+
+<header>
+  <nav>
+    <div class="brand">
+      <div class="crest"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L9 10 L13 15 L18 5 L22 12" stroke="#D9A526" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      Loja Datos Abiertos
+    </div>
+    <ul class="navlinks">
+      <li><a href="loja-portal-datos.html">Conjuntos de datos</a></li>
+      <li><a href="loja-portal-datos.html#organismos">Direcciones municipales</a></li>
+      <li><a href="loja-portal-datos.html#acerca">Acerca de</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs">
+    <a href="loja-portal-datos.html">Inicio</a><span>/</span>
+    <a href="loja-portal-datos.html#datasets">Conjuntos de datos</a><span>/</span>
+    Mercados municipales de Loja
+  </div>
+
+  <div class="dshead">
+    <span class="org">Publicado por: Dirección de Gestión de Mercados — Municipio de Loja</span>
+    <h1>Mercados municipales de Loja</h1>
+    <p class="desc">Ubicación, tipo, número de puestos y horario de atención de los mercados y ferias libres administrados por el Municipio de Loja. Incluye mercados mayoristas, minoristas y ferias itinerantes.</p>
+    <div class="dstags">
+      <span>Mercados</span><span>Comercio</span><span>Municipio de Loja</span><span>Planificación urbana</span>
+    </div>
+    <div class="dsmeta">
+      <div>Vistas: <b>412</b></div>
+      <div>Frecuencia de actualización: <b>Trimestral</b></div>
+      <div>Última actualización: <b>04 ago 2026</b></div>
+      <div>Licencia: <b>CC-BY 4.0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="resources">
+        <h2>Recursos de datos (3)</h2>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">mercados_loja.csv</span></div>
+          <div class="actions"><a href="#">Vista previa</a><a href="#">Descargar</a></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt">GEOJSON</span><span class="name">mercados_loja_geo.json</span></div>
+          <div class="actions"><a href="#">Vista previa</a><a href="#">Descargar</a></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt api">API</span><span class="name">/api/v1/mercados</span></div>
+          <div class="actions"><a href="#api">Probar consulta</a><a href="#api">Documentación</a></div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <h2>Vista previa — mercados_loja.csv</h2>
+        <div class="tablewrap">
+          <table class="pv">
+            <thead>
+              <tr><th>ID</th><th>Nombre</th><th>Parroquia</th><th>Tipo</th><th>N.º puestos</th><th>Horario</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>MK-001</td><td>Mercado Centro</td><td>Sagrario</td><td>Minorista</td><td>184</td><td>06:00–17:00</td></tr>
+              <tr><td>MK-002</td><td>Mercado Gran Colombia</td><td>San Sebastián</td><td>Minorista</td><td>210</td><td>05:30–18:00</td></tr>
+              <tr><td>MK-003</td><td>Mercado Mayorista</td><td>El Valle</td><td>Mayorista</td><td>96</td><td>03:00–13:00</td></tr>
+              <tr><td>MK-004</td><td>Feria Libre La Tebaida</td><td>San Sebastián</td><td><span class="pill feria">Feria</span></td><td>140</td><td>06:00–14:00 (sáb-dom)</td></tr>
+              <tr><td>MK-005</td><td>Mercado Sucre</td><td>Sucre</td><td>Minorista</td><td>77</td><td>06:00–16:00</td></tr>
+              <tr><td>MK-006</td><td>Feria Punzara</td><td>Punzara</td><td><span class="pill feria">Feria</span></td><td>65</td><td>07:00–13:00 (dom)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="api" id="api">
+        <h2>API — consulta en vivo</h2>
+        <p class="hint">Así se consultaría el conjunto de datos desde una aplicación. En este prototipo la respuesta se genera en el navegador con datos de prueba: no hay servidor detrás, pero la estructura de la respuesta y los parámetros son los que tendría la API real.</p>
+
+        <div class="apibox">
+          <div class="endpoint">
+            <span class="verb">GET</span>
+            <code id="api-url">https://datos.loja.gob.ec/api/v1/mercados</code>
+            <button class="btn-mini" id="api-copy-url" type="button">Copiar URL</button>
+          </div>
+
+          <div class="params">
+            <label>tipo
+              <select id="f-tipo">
+                <option value="">(todos)</option>
+                <option value="Minorista">Minorista</option>
+                <option value="Mayorista">Mayorista</option>
+                <option value="Feria">Feria</option>
+              </select>
+            </label>
+            <label>parroquia
+              <select id="f-parroquia">
+                <option value="">(todas)</option>
+                <option value="Sagrario">Sagrario</option>
+                <option value="San Sebastián">San Sebastián</option>
+                <option value="Sucre">Sucre</option>
+                <option value="El Valle">El Valle</option>
+                <option value="Punzara">Punzara</option>
+                <option value="Carigán">Carigán</option>
+              </select>
+            </label>
+            <label>limit
+              <input type="number" id="f-limit" min="1" max="20" value="5">
+            </label>
+            <button class="btn-run" id="api-run" type="button">Ejecutar consulta</button>
+          </div>
+
+          <div class="resline">
+            <span class="st" id="api-status">200 OK</span>
+            <span id="api-meta"></span>
+            <span class="grow"></span>
+            <button class="btn-mini" id="api-copy-json" type="button">Copiar JSON</button>
+            <button class="btn-mini" id="api-download" type="button">Descargar .json</button>
+          </div>
+          <pre class="json" id="api-out"></pre>
+        </div>
+
+        <div class="apidocs">
+          <div class="row"><code>GET /api/v1/mercados</code><span>Lista los mercados y ferias municipales.</span></div>
+          <div class="row"><code>GET /api/v1/mercados/{id}</code><span>Devuelve un solo mercado por su identificador, por ejemplo <code>MK-003</code>.</span></div>
+          <div class="row"><code>?tipo=</code><span>Filtra por <code>Minorista</code>, <code>Mayorista</code> o <code>Feria</code>.</span></div>
+          <div class="row"><code>?parroquia=</code><span>Filtra por parroquia urbana.</span></div>
+          <div class="row"><code>?limit=</code><span>Número máximo de registros devueltos (1–20).</span></div>
+          <div class="row"><code>Formato</code><span>JSON (UTF-8). Coordenadas en WGS 84. Licencia CC-BY 4.0.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="infobox">
+        <h3>Información adicional</h3>
+        <table>
+          <tr><td>Contacto</td><td>mercados@loja.gob.ec</td></tr>
+          <tr><td>Formato</td><td>CSV, GeoJSON, API JSON</td></tr>
+          <tr><td>Proyección espacial</td><td>WGS 84</td></tr>
+          <tr><td>Fecha de creación</td><td>2026-02-10</td></tr>
+          <tr><td>Cobertura temporal</td><td>2026</td></tr>
+          <tr><td>Idioma</td><td>Español</td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>Prototipo estático con datos de prueba · Municipio de Loja</footer>
+
+<script>
+(function(){
+  var BASE = 'https://datos.loja.gob.ec/api/v1/mercados';
+  var RECORDS = [
+    {id:'MK-001', nombre:'Mercado Centro', parroquia:'Sagrario', tipo:'Minorista', puestos:184, horario:'06:00-17:00', dias:'lun-dom', lat:-3.9975, lng:-79.2042},
+    {id:'MK-002', nombre:'Mercado Gran Colombia', parroquia:'San Sebastián', tipo:'Minorista', puestos:210, horario:'05:30-18:00', dias:'lun-dom', lat:-4.0031, lng:-79.2019},
+    {id:'MK-003', nombre:'Mercado Mayorista', parroquia:'El Valle', tipo:'Mayorista', puestos:96, horario:'03:00-13:00', dias:'lun-sáb', lat:-3.9752, lng:-79.2093},
+    {id:'MK-004', nombre:'Feria Libre La Tebaida', parroquia:'San Sebastián', tipo:'Feria', puestos:140, horario:'06:00-14:00', dias:'sáb-dom', lat:-4.0122, lng:-79.2071},
+    {id:'MK-005', nombre:'Mercado Sucre', parroquia:'Sucre', tipo:'Minorista', puestos:77, horario:'06:00-16:00', dias:'lun-dom', lat:-3.9938, lng:-79.1998},
+    {id:'MK-006', nombre:'Feria Punzara', parroquia:'Punzara', tipo:'Feria', puestos:65, horario:'07:00-13:00', dias:'dom', lat:-4.0208, lng:-79.2115},
+    {id:'MK-007', nombre:'Mercado San Sebastián', parroquia:'San Sebastián', tipo:'Minorista', puestos:118, horario:'06:00-17:00', dias:'lun-dom', lat:-4.0058, lng:-79.2036},
+    {id:'MK-008', nombre:'Feria Libre Carigán', parroquia:'Carigán', tipo:'Feria', puestos:88, horario:'06:30-13:30', dias:'sáb', lat:-3.9689, lng:-79.2054},
+    {id:'MK-009', nombre:'Mercado Las Pitas', parroquia:'El Valle', tipo:'Minorista', puestos:54, horario:'06:00-15:00', dias:'lun-dom', lat:-3.9801, lng:-79.2128},
+    {id:'MK-010', nombre:'Feria Agroecológica Jipiro', parroquia:'Sagrario', tipo:'Feria', puestos:42, horario:'07:00-12:00', dias:'sáb', lat:-3.9846, lng:-79.1962},
+    {id:'MK-011', nombre:'Mercado Mayorista Norte', parroquia:'Carigán', tipo:'Mayorista', puestos:72, horario:'04:00-12:00', dias:'lun-sáb', lat:-3.9662, lng:-79.2088},
+    {id:'MK-012', nombre:'Mercado Época', parroquia:'Punzara', tipo:'Minorista', puestos:61, horario:'06:00-16:00', dias:'lun-dom', lat:-4.0175, lng:-79.2142},
+    {id:'MK-013', nombre:'Feria Libre Motupe', parroquia:'Carigán', tipo:'Feria', puestos:57, horario:'06:00-13:00', dias:'dom', lat:-3.9603, lng:-79.2011},
+    {id:'MK-014', nombre:'Mercado Zamora Huayco', parroquia:'Sucre', tipo:'Minorista', puestos:49, horario:'06:30-15:30', dias:'lun-dom', lat:-3.9912, lng:-79.1934}
+  ];
+
+  var el = function(id){ return document.getElementById(id); };
+  var payload = null;
+
+  function params(){
+    var p = {};
+    if(el('f-tipo').value) p.tipo = el('f-tipo').value;
+    if(el('f-parroquia').value) p.parroquia = el('f-parroquia').value;
+    if(el('f-limit').value) p.limit = Number(el('f-limit').value);
+    return p;
+  }
+
+  function url(p){
+    var qs = Object.keys(p).map(function(k){ return k + '=' + encodeURIComponent(p[k]); }).join('&');
+    return BASE + (qs ? '?' + qs : '');
+  }
+
+  function highlight(obj){
+    var txt = JSON.stringify(obj, null, 2)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return txt.replace(/("(?:\\.|[^"\\])*"\s*:?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?)/g, function(m){
+      var cls = 'jn';
+      if(m.charAt(0) === '"') cls = /:\s*$/.test(m) ? 'jk' : 'jstr';
+      else if(/^(true|false|null)$/.test(m)) cls = 'jb';
+      return '<span class="' + cls + '">' + m + '</span>';
+    });
+  }
+
+  function refreshUrl(){ el('api-url').textContent = url(params()); }
+
+  function run(){
+    var p = params();
+    refreshUrl();
+    el('api-run').setAttribute('disabled', 'disabled');
+    el('api-status').textContent = 'Consultando…';
+    el('api-status').className = 'st load';
+    el('api-meta').textContent = '';
+
+    var started = Date.now();
+    window.setTimeout(function(){
+      var rows = RECORDS.filter(function(r){
+        return (!p.tipo || r.tipo === p.tipo) && (!p.parroquia || r.parroquia === p.parroquia);
+      });
+      var coincidencias = rows.length;
+      if(p.limit) rows = rows.slice(0, p.limit);
+
+      payload = {
+        endpoint: '/api/v1/mercados',
+        generado: new Date().toISOString(),
+        licencia: 'CC-BY 4.0',
+        parametros: p,
+        total_dataset: RECORDS.length,
+        coincidencias: coincidencias,
+        devueltos: rows.length,
+        resultados: rows
+      };
+
+      el('api-out').innerHTML = highlight(payload);
+      el('api-status').textContent = '200 OK';
+      el('api-status').className = 'st';
+      el('api-meta').textContent = rows.length + ' de ' + coincidencias + ' registros · ' +
+        (Date.now() - started) + ' ms · respuesta simulada en el navegador';
+      el('api-run').removeAttribute('disabled');
+    }, 180 + Math.random() * 260);
+  }
+
+  function copy(text, btn){
+    var label = btn.textContent;
+    var done = function(){
+      btn.textContent = 'Copiado';
+      window.setTimeout(function(){ btn.textContent = label; }, 1400);
+    };
+    var manual = function(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ btn.textContent = 'No se pudo copiar'; }
+      document.body.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, manual);
+    } else {
+      manual();
+    }
+  }
+
+  el('api-run').addEventListener('click', run);
+  ['f-tipo', 'f-parroquia', 'f-limit'].forEach(function(id){
+    el(id).addEventListener('change', refreshUrl);
+    el(id).addEventListener('input', refreshUrl);
+  });
+  el('api-copy-url').addEventListener('click', function(){ copy(url(params()), this); });
+  el('api-copy-json').addEventListener('click', function(){
+    if(payload) copy(JSON.stringify(payload, null, 2), this);
+  });
+  el('api-download').addEventListener('click', function(){
+    if(!payload) return;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var href = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = href;
+    a.download = 'mercados_loja.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(function(){ URL.revokeObjectURL(href); }, 1000);
+  });
+
+  run();
+})();
+</script>
+
+</body>
+</html>
