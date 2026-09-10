@@ -78,13 +78,29 @@
             letter-spacing: 1px;
         }
 
-        .slide-header .tag {
+        .slide-header .tag,
+        .tag {
             background-color: var(--azul-loja);
             color: var(--blanco);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+        }
+
+        a.tag {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        a.tag:hover {
+            opacity: 0.85;
+        }
+
+        .slide-bottom-action {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
         }
 
         .slide-content {
@@ -707,7 +723,7 @@
         <div class="slide">
             <div class="slide-header">
                 <h2>1. Ventanilla Única Interoperable e Inteligente</h2>
-                <span class="tag">Proyecto Ancla</span>
+                <a class="tag" href="https://maymontalvan.link/PropuestaMunicipal/" target="_blank" rel="noopener noreferrer">Proyecto Ancla</a>
             </div>
             <div class="slide-content">
                 <div class="grid-2">
@@ -733,13 +749,16 @@
                     </div>
                 </div>
             </div>
+            <div class="slide-bottom-action">
+                <a class="tag" href="https://maymontalvan.link/PropuestaMunicipal/VentanillaUnicaTablero/" target="_blank" rel="noopener noreferrer">Midiendo Resultados</a>
+            </div>
         </div>
 
         <!-- Slide 11: Proyecto 2 - SIMERT Inteligente -->
         <div class="slide">
             <div class="slide-header">
                 <h2>2. SIMERT Digital e Inteligente</h2>
-                <span class="tag">Movilidad & Recaudación</span>
+                <a class="tag" href="https://maymontalvan.link/PropuestaMunicipal/SimertDigital/" target="_blank" rel="noopener noreferrer">Movilidad & Recaudación</a>
             </div>
             <div class="slide-content">
                 <div class="grid-2">
@@ -768,7 +787,7 @@
         <div class="slide">
             <div class="slide-header">
                 <h2>3. Recaudo Digital para Transporte Público</h2>
-                <span class="tag">Inspiración Europea</span>
+                <a class="tag" href="https://maymontalvan.link/PropuestaMunicipal/TPL/" target="_blank" rel="noopener noreferrer">Inspiración Europea</a>
             </div>
             <div class="slide-content">
                 <div class="grid-2" style="margin-bottom: 15px;">
@@ -797,7 +816,7 @@
         <div class="slide">
             <div class="slide-header">
                 <h2>4. Datos Abiertos y Transparencia</h2>
-                <span class="tag">Gobierno Abierto</span>
+                <a class="tag" href="https://maymontalvan.link/PropuestaMunicipal/DatosAbiertos/" target="_blank" rel="noopener noreferrer">Gobierno Abierto</a>
             </div>
             <div class="slide-content">
                 <div class="grid-2">
