@@ -460,14 +460,14 @@
         .preguntas-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .preguntas-grid .problema-pregunta {
-            padding: 14px 16px;
-            font-size: 14px;
-            line-height: 1.4;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            line-height: 1.35;
         }
 
         .preguntas-grid .problema-pregunta:nth-child(even) {
@@ -475,7 +475,7 @@
             color: var(--azul-loja);
         }
 
-        .preguntas-grid .pregunta-ancha {
+        .preguntas-grid .problema-pregunta.pregunta-ancha {
             grid-column: 1 / -1;
             border-left-color: var(--dorado-loja);
             color: #8A6508;
@@ -652,14 +652,11 @@
             </div>
             <div class="slide-content">
                 <div class="preguntas-grid">
-                    <p class="problema-pregunta">¿A qué hora del día hay un aumento fuerte de pasajeros (hora pico de 7 am o media tarde)?</p>
-                    <p class="problema-pregunta">¿En qué parada sube la mayor cantidad de gente?</p>
-                    <p class="problema-pregunta">¿Cuántas personas viajaron realmente en cada bus en un momento dado (ocupación real vs. capacidad)?</p>
-                    <p class="problema-pregunta">¿En qué ruta específica se usó cada pasaje (la que va al mercado mayorista o la que va a la Nacional)?</p>
                     <p class="problema-pregunta pregunta-ancha">¿Qué sucede con las personas que llegan por primera vez a Loja, se quedan por un lapso corto de tiempo y quieren hacer uso del transporte público?</p>
+                    <p class="problema-pregunta pregunta-ancha">¿Qué sucede cuando los usuarios, a tempranas horas, quieren recargar su tarjeta SITU y el bus no cuenta con recargador?</p>
                 </div>
                 <div class="card card-gold insight-card">
-                    <p>Es la diferencia entre saber <b>"vendimos 50.000 dólares en pasajes este mes"</b> y saber <b>"el bus de la ruta 4 va sobrecargado todos los días entre 6:45 y 7:15 am, mientras el de la ruta 7 casi siempre circula medio vacío a esa misma hora"</b>. La primera cifra es útil para contabilidad; la segunda es la que permite tomar decisiones operativas.</p>
+                    <p>Hoy por hoy la Administración Municipal responde información como: <b>"vendimos 50.000 dólares en pasajes este mes"</b>.<br>Pero no se cuenta con información útil para organizar de mejor manera el transporte público; sería interesante saber: <b>"el bus de la ruta 4 va sobrecargado todos los días entre 6:45 y 7:15 am, mientras el de la ruta 7 casi siempre circula medio vacío a esa misma hora"</b>.<br>La primera cifra es útil para contabilidad; la segunda es la que permite tomar decisiones operativas.</p>
                 </div>
             </div>
         </div>
