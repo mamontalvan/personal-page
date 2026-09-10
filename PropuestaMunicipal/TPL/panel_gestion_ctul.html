@@ -17,6 +17,9 @@
     .chart-box.short { height: 200px; }
     .alert-banner { display: flex; align-items: flex-start; gap: 10px; }
     .alert-banner svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+    /* display:flex de .admin-login pisa el atributo hidden y deja el login a la vista */
+    #view-login.hide, #view-board.hide,
+    .admin-login.hide, [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -43,15 +46,16 @@
             <label for="login-pass">Contraseña</label>
             <input id="login-pass" name="pass" type="password" value="loja2026" autocomplete="current-password">
           </div>
-          <button class="btn btn-navy btn-full" type="submit">Entrar al tablero</button>
+          <button class="btn btn-navy btn-full" type="submit" id="login-btn">Entrar al tablero</button>
           <p class="err" id="login-err"></p>
+          <p class="muted" style="margin-top:10px;font-size:12px">Prototipo: usuario <b>ctul</b> · contraseña <b>loja2026</b></p>
         </form>
         <p class="login-foot muted"><a href="index.html">Volver al inicio</a></p>
       </div>
     </div>
   </div>
 
-  <div id="view-board" class="admin-solo" hidden>
+  <div id="view-board" class="admin-solo hide" hidden>
     <div class="admin-wrap">
       <div class="admin-head">
         <div class="brand">
@@ -114,39 +118,61 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
     const ADMIN = { usuario: "ctul", pass: "loja2026" };
+    const SESSION_KEY = "ctul-board-session";
     let charts = [];
 
+    function setVisible(id, on) {
+      var el = document.getElementById(id);
+      el.hidden = !on;
+      el.classList.toggle("hide", !on);
+    }
+
     function showBoard() {
-      document.getElementById("view-login").hidden = true;
-      document.getElementById("view-board").hidden = false;
-      initCharts();
+      try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (e) {}
+      setVisible("view-login", false);
+      setVisible("view-board", true);
+      loadChartThenInit();
     }
 
     function logout() {
-      charts.forEach(function (c) { c.destroy(); });
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+      charts.forEach(function (c) { if (c && c.destroy) c.destroy(); });
       charts = [];
       document.getElementById("login-err").textContent = "";
-      document.getElementById("view-board").hidden = true;
-      document.getElementById("view-login").hidden = false;
+      setVisible("view-board", false);
+      setVisible("view-login", true);
     }
 
-    document.getElementById("login-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const user = document.getElementById("login-user").value.trim().toLowerCase();
-      const pass = document.getElementById("login-pass").value;
+    function tryLogin(e) {
+      if (e) e.preventDefault();
+      var user = document.getElementById("login-user").value.trim().toLowerCase();
+      var pass = document.getElementById("login-pass").value.trim();
       if (user !== ADMIN.usuario || pass !== ADMIN.pass) {
-        document.getElementById("login-err").textContent = "Usuario o contraseña incorrectos.";
-        return;
+        document.getElementById("login-err").textContent = "Usuario o contraseña incorrectos. Usa ctul / loja2026.";
+        return false;
       }
       showBoard();
-    });
+      return false;
+    }
+
+    document.getElementById("login-form").addEventListener("submit", tryLogin);
+
+    function loadChartThenInit() {
+      if (typeof Chart !== "undefined") {
+        initCharts();
+        return;
+      }
+      var s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
+      s.onload = initCharts;
+      document.head.appendChild(s);
+    }
 
     function initCharts() {
       if (typeof Chart === "undefined") return;
-      charts.forEach(function (c) { c.destroy(); });
+      charts.forEach(function (c) { if (c && c.destroy) c.destroy(); });
       charts = [
         new Chart(document.getElementById("routeChart"), {
           type: "bar",
@@ -179,6 +205,10 @@
         })
       ];
     }
+
+    try {
+      if (sessionStorage.getItem(SESSION_KEY) === "1") showBoard();
+    } catch (e) {}
   </script>
 </body>
 </html>
