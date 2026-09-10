@@ -89,9 +89,13 @@
   .lvl .track{width:70px; height:6px; background:var(--line); position:relative;}
   .lvl .track i{position:absolute; top:0; left:0; height:100%; background:var(--blue);}
   .lvl.alert .track i{background:var(--red);}
-  .badge{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:3px 9px; border-radius:12px;}
+  .badge{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:3px 9px; border-radius:12px; white-space:nowrap;}
   .badge.normal{background:#E4EFE7; color:#2C6B44;}
   .badge.atencion{background:#FBEAD3; color:var(--gold-dark);}
+  .badge.inter{background:#DDEAF3; color:var(--blue);}
+  .badge.comu{background:#E4EFE7; color:#2C6B44;}
+  table.live td.stops{white-space:normal; min-width:220px; color:var(--ink-soft); font-size:13px;}
+  table.live td.stops b{color:var(--ink); font-weight:500;}
 
   .lists{padding:56px 0; border-bottom:1px solid var(--line);}
   .lists .wrap{display:grid; grid-template-columns:1fr 1fr; gap:56px; max-width:1000px;}
@@ -205,7 +209,7 @@
       <input type="text" placeholder="Buscar">
       <button type="submit">Buscar</button>
     </form>
-    <a href="#datasets" class="count-badge"><span class="n mono">11</span> Conjuntos de datos</a>
+    <a href="#transporte" class="count-badge"><span class="n mono">12</span> Conjuntos de datos</a>
   </div>
 </section>
 
@@ -213,11 +217,11 @@
   <div class="wrap">
     <span class="lbl">Explora nuestras etiquetas populares</span>
     <div class="tags">
-      <a class="tag" href="#">Municipio de Loja <span class="n">6</span></a>
+      <a class="tag" href="#">Municipio de Loja <span class="n">7</span></a>
       <a class="tag" href="loja-dataset-permisos-construccion.html">Planificación urbana <span class="n">3</span></a>
       <a class="tag" href="#">Ambiente <span class="n">2</span></a>
       <a class="tag" href="loja-dataset-mercados.html">Mercados <span class="n">1</span></a>
-      <a class="tag" href="#">Movilidad <span class="n">2</span></a>
+      <a class="tag" href="loja-dataset-transporte.html">Movilidad <span class="n">3</span></a>
       <a class="tag" href="loja-dataset-recoleccion-basura.html">Residuos sólidos <span class="n">1</span></a>
       <a class="tag" href="#">Patrimonio <span class="n">1</span></a>
       <a class="tag" href="#">Presupuesto <span class="n">1</span></a>
@@ -225,32 +229,70 @@
   </div>
 </section>
 
-<section class="featured">
+<section class="featured" id="transporte">
   <div class="wrap">
     <div class="featured-head">
       <div>
         <span class="lbl">Conjunto de datos destacado</span>
-        <h2>Nivel de los ríos Zamora y Malacatos</h2>
+        <h2>Afluencia de transporte interprovincial e interparroquial</h2>
       </div>
-      <a href="#">Ver conjunto de datos completo →</a>
+      <a href="loja-dataset-transporte.html">Ver conjunto de datos completo →</a>
     </div>
     <div class="live-card">
       <div class="live-head">
-        <span class="mono status"><span class="dot"></span>Datos de ejemplo — actualizado hace 8 min</span>
+        <span class="mono status"><span class="dot"></span>Datos de ejemplo — horarios, rutas y paradas</span>
         <span class="mono status">Formato: CSV / API</span>
       </div>
       <div class="table-scroll">
       <table class="live">
-        <thead><tr><th>Estación</th><th>Río</th><th>Nivel actual</th><th>Estado</th></tr></thead>
+        <thead><tr><th>Ruta</th><th>Tipo</th><th>Horarios</th><th>Paradas</th><th>Afluencia / día</th></tr></thead>
         <tbody>
-          <tr><td>Puente Bolívar</td><td>Zamora</td><td><span class="lvl"><span class="track"><i style="width:38%"></i></span> 1.2 m</span></td><td><span class="badge normal">Normal</span></td></tr>
-          <tr><td>La Tebaida</td><td>Malacatos</td><td><span class="lvl"><span class="track"><i style="width:52%"></i></span> 1.6 m</span></td><td><span class="badge normal">Normal</span></td></tr>
-          <tr><td>Puente Sucre</td><td>Zamora</td><td><span class="lvl alert"><span class="track"><i style="width:81%"></i></span> 2.4 m</span></td><td><span class="badge atencion">Atención</span></td></tr>
-          <tr><td>El Valle</td><td>Malacatos</td><td><span class="lvl"><span class="track"><i style="width:29%"></i></span> 0.9 m</span></td><td><span class="badge normal">Normal</span></td></tr>
+          <tr>
+            <td><b>Loja – Cuenca</b></td>
+            <td><span class="badge inter">Interprovincial</span></td>
+            <td>04:30 · 05:15 · 06:00 · cada 45 min</td>
+            <td class="stops"><b>Terminal Loja</b> → Catamayo → Saraguro → Girón → <b>Cuenca</b></td>
+            <td><span class="lvl alert"><span class="track"><i style="width:78%"></i></span> 1.860 pax</span></td>
+          </tr>
+          <tr>
+            <td><b>Loja – Quito</b></td>
+            <td><span class="badge inter">Interprovincial</span></td>
+            <td>16:00 · 17:30 · 18:45 · 21:00</td>
+            <td class="stops"><b>Terminal Loja</b> → Cuenca → Riobamba → Ambato → <b>Quitumbe</b></td>
+            <td><span class="lvl"><span class="track"><i style="width:82%"></i></span> 420 pax</span></td>
+          </tr>
+          <tr>
+            <td><b>Loja – Zamora</b></td>
+            <td><span class="badge inter">Interprovincial</span></td>
+            <td>Cada 30 min · 05:00–20:00</td>
+            <td class="stops"><b>Terminal Loja</b> → El Plateado → Sabanilla → <b>Zamora</b></td>
+            <td><span class="lvl alert"><span class="track"><i style="width:69%"></i></span> 1.420 pax</span></td>
+          </tr>
+          <tr>
+            <td><b>Loja – Vilcabamba</b></td>
+            <td><span class="badge comu">Comunitario</span></td>
+            <td>Cada 20 min · 05:20–19:40</td>
+            <td class="stops"><b>Terminal Loja</b> → Motupe → Malacatos → <b>Vilcabamba</b></td>
+            <td><span class="lvl alert"><span class="track"><i style="width:73%"></i></span> 980 pax</span></td>
+          </tr>
+          <tr>
+            <td><b>Loja – Malacatos</b></td>
+            <td><span class="badge comu">Comunitario</span></td>
+            <td>Cada 15 min · 05:00–20:00</td>
+            <td class="stops"><b>Terminal Loja</b> → Motupe → Las Palmas → <b>Malacatos</b></td>
+            <td><span class="lvl alert"><span class="track"><i style="width:81%"></i></span> 1.240 pax</span></td>
+          </tr>
+          <tr>
+            <td><b>Loja – El Cisne</b></td>
+            <td><span class="badge comu">Comunitario</span></td>
+            <td>Cada 60 min · 05:00–18:00</td>
+            <td class="stops"><b>Terminal Loja</b> → Taquil → Chuquiribamba → Gualel → <b>El Cisne</b></td>
+            <td><span class="lvl"><span class="track"><i style="width:76%"></i></span> 410 pax</span></td>
+          </tr>
         </tbody>
       </table>
       </div>
-      <p class="scroll-hint">Desliza la tabla para ver más columnas →</p>
+      <p class="scroll-hint">Desliza la tabla para ver horarios y paradas →</p>
     </div>
   </div>
 </section>
@@ -263,13 +305,14 @@
         <li><a href="loja-dataset-mercados.html">Mercados municipales de Loja <span class="fmt">CSV · API</span></a></li>
         <li><a href="loja-dataset-permisos-construccion.html">Permisos de construcción y planificación urbana <span class="fmt">CSV · API</span></a></li>
         <li><a href="#">Límites cantonales y parroquiales <span class="fmt">GeoJSON</span></a></li>
-        <li><a href="#">Rutas de transporte urbano <span class="fmt">CSV</span></a></li>
+        <li><a href="loja-dataset-transporte.html">Afluencia de transporte interprovincial e interparroquial <span class="fmt">CSV · API</span></a></li>
         <li><a href="#">Ejecución presupuestaria 2026 <span class="fmt">XLSX</span></a></li>
       </ul>
     </div>
     <div>
       <h3><span class="sq" style="background:var(--gold);"></span>Conjuntos de datos recientes</h3>
       <ul>
+        <li><a href="loja-dataset-transporte.html">Afluencia de transporte interprovincial e interparroquial <span class="fmt">CSV · API</span></a></li>
         <li><a href="loja-dataset-recoleccion-basura.html">Rutas y horarios de recolección de residuos <span class="fmt">CSV · API</span></a></li>
         <li><a href="#">Nivel de los ríos Zamora y Malacatos <span class="fmt">API</span></a></li>
         <li><a href="#">Agenda cultural y musical 2026 <span class="fmt">CSV</span></a></li>
