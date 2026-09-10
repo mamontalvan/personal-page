@@ -20,6 +20,9 @@
     agentScreen: "login",
     agentFaceState: "idle",
     agentFaceTimer: null,
+    agentCamState: "live",
+    agentCamTimer: null,
+    agentSnap: null,
     adminLoggedIn: false,
     adminScreen: "login",
     sensorTimer: 0
@@ -525,37 +528,91 @@
     return phoneChrome(inner, nav);
   }
 
-  function agentVerdict(db) {
-    if (ui.scanning) {
-      return (
-        '<div class="finder"><div class="finder-view"></div><div class="reticle scanning"></div>' +
-        '<div class="finder-label">Leyendo matrícula…</div></div>'
-      );
-    }
-    if (!ui.consulta) {
-      return (
-        '<div class="finder"><div class="finder-view"></div><div class="reticle"></div>' +
-        '<div class="finder-label">Apunta al vehículo · control por placa</div></div>'
-      );
-    }
-    const c = ui.consulta.consulta;
-    const info = ui.consulta.info;
-    const sesion = ui.consulta.sesion;
-    const cls = c.resultado;
-    const titles = {
-      valido: "Estacionamiento válido",
-      expirado: "Tiempo máximo agotado",
-      sin_ticket: "Sin estacionamiento activo",
-      ocupado_sin_ticket: "Ocupado · sin ticket digital"
+  function agentValidResult() {
+    return {
+      placa: "LOJ-2048",
+      titular: SIM.CIUDADANO.nombre,
+      zona: "Zona Centro",
+      plazaId: "C-05",
+      inicio: "15:40",
+      elapsed: "2 h 40 min",
+      costo: "$1,34"
     };
-    const extra = sesion && info
-      ? '<p>' + esc(sesion.titular) + "<br>" + esc(info.zona.nombre) + " · plaza " + esc(sesion.plazaId) +
-        "<br>Desde " + SIM.formatClock(sesion.inicio) + " · " + SIM.formatDuration(info.elapsed) +
-        "<br>A pagar " + SIM.money(info.costo) + "</p>"
-      : "<p>" + esc(c.detalle) + "</p>";
+  }
+
+  function agentVerdictCard() {
+    if (ui.consulta) {
+      const c = ui.consulta.consulta;
+      const info = ui.consulta.info;
+      const sesion = ui.consulta.sesion;
+      const cls = c.resultado;
+      const titles = {
+        valido: "Estacionamiento válido",
+        expirado: "Tiempo máximo agotado",
+        sin_ticket: "Sin estacionamiento activo",
+        ocupado_sin_ticket: "Ocupado · sin ticket digital"
+      };
+      const extra = sesion && info
+        ? "<p>" + esc(sesion.titular) + "<br>" + esc(info.zona.nombre) + " · plaza " + esc(sesion.plazaId) +
+          "<br>Desde " + SIM.formatClock(sesion.inicio) + " · " + SIM.formatDuration(info.elapsed) +
+          "<br>A pagar " + SIM.money(info.costo) + "</p>"
+        : "<p>" + esc(c.detalle) + "</p>";
+      return (
+        '<div class="verdict ' + cls + '"><div class="mono" style="opacity:.8">' + esc(c.placa) + "</div>" +
+          "<h3>" + (titles[cls] || cls) + "</h3>" + extra + "</div>"
+      );
+    }
+    const r = agentValidResult();
     return (
-      '<div class="verdict ' + cls + '"><div class="mono" style="opacity:.8">' + esc(c.placa) + "</div>" +
-        "<h3>" + (titles[cls] || cls) + "</h3>" + extra + "</div>"
+      '<div class="verdict valido">' +
+        '<div class="mono" style="opacity:.8">' + esc(r.placa) + "</div>" +
+        "<h3>Estacionamiento válido</h3>" +
+        "<p>" + esc(r.titular) + "<br>" +
+          esc(r.zona) + " · plaza " + esc(r.plazaId) + "<br>" +
+          "Desde " + esc(r.inicio) + " · " + esc(r.elapsed) + "<br>" +
+          "A pagar " + esc(r.costo) +
+        "</p>" +
+      "</div>"
+    );
+  }
+
+  function agentFinder() {
+    const state = ui.agentCamState || "live";
+    const capturing = state === "capturing";
+    return (
+      '<div class="cam-finder' + (capturing ? " capturing" : "") + '">' +
+        '<div class="cam-hud"><span class="cam-rec"></span><span>SIMERT CAM</span></div>' +
+        '<div class="reticle' + (capturing ? " scanning" : "") + '"></div>' +
+        '<div class="finder-label">Apunta a la matrícula</div>' +
+        (capturing ? '<div class="cam-flash"></div>' : "") +
+      "</div>"
+    );
+  }
+
+  function agentControl() {
+    const db = SIM.load();
+    const showResult = ui.agentCamState === "ok" || ui.consulta;
+    const busy = ui.agentCamState === "capturing";
+    const validas = db.consultas.filter(function (q) { return q.resultado === "valido"; }).slice(0, 4);
+    return (
+      '<div class="app-head"><div><div class="hello">' + esc(SIM.AGENTE.unidad) + "</div><h2>Control</h2></div>" +
+        '<button class="btn-ghost btn-sm" type="button" data-action="agent-screen" data-screen="welcome">Volver</button></div>' +
+      '<p class="muted" style="font-size:13px;margin-bottom:8px">' + esc(SIM.AGENTE.nombre) + " · " + esc(SIM.AGENTE.placa) + " · no revisa tarjetas, consulta la placa.</p>" +
+      (showResult ? agentVerdictCard() : agentFinder()) +
+      '<button class="btn btn-gold btn-full" type="button" data-action="scan"' + (busy ? " disabled" : "") + ">Escanear matrícula cercana</button>" +
+      '<div class="field" style="margin-top:12px"><label>O ingresa la placa</label>' +
+        '<div style="display:flex;gap:8px">' +
+          '<input id="placa-in" placeholder="GAA-4410" value="GAA-4410" maxlength="8" style="flex:1">' +
+          '<button class="btn btn-navy" type="button" data-action="lookup">Ver</button>' +
+        "</div></div>" +
+      '<div class="zone-meta" style="margin:10px 0">' +
+        '<button class="pill ok" type="button" data-action="quick" data-placa="GAA-4410">GAA-4410</button>' +
+      "</div>" +
+      '<article class="list-card"><div class="hello">Últimas consultas</div>' +
+        (validas.map(function (q) {
+          return '<div class="list-row"><span class="mono">' + esc(q.placa) + '</span><span class="pill ok">válido</span></div>';
+        }).join("") || '<div class="muted">Aún no hay lecturas en esta demo.</div>') +
+      "</article>"
     );
   }
 
@@ -577,34 +634,11 @@
     );
   }
 
-  function agentControl(db) {
-    return (
-      '<div class="app-head"><div><div class="hello">' + esc(SIM.AGENTE.unidad) + "</div><h2>Control</h2></div>" +
-        '<button class="btn-ghost btn-sm" type="button" data-action="agent-screen" data-screen="welcome">Volver</button></div>' +
-      '<p class="muted" style="font-size:13px;margin-bottom:8px">' + esc(SIM.AGENTE.nombre) + " · " + esc(SIM.AGENTE.placa) + " · no revisa tarjetas, consulta la placa.</p>" +
-      agentVerdict(db) +
-      '<button class="btn btn-gold btn-full" data-action="scan"' + (ui.scanning ? " disabled" : "") + ">Escanear matrícula cercana</button>" +
-      '<div class="field" style="margin-top:12px"><label>O ingresa la placa</label>' +
-        '<div style="display:flex;gap:8px">' +
-          '<input id="placa-in" placeholder="GAA-4410" value="GAA-4410" maxlength="8" style="flex:1">' +
-          '<button class="btn btn-navy" data-action="lookup">Ver</button>' +
-        "</div></div>" +
-      '<div class="zone-meta" style="margin:10px 0">' +
-        '<button class="pill ok" data-action="quick" data-placa="GAA-4410">GAA-4410</button>' +
-      "</div>" +
-      '<article class="list-card"><div class="hello">Últimas consultas</div>' +
-        (db.consultas.filter(function (q) { return q.resultado === "valido"; }).slice(0, 4).map(function (q) {
-          return '<div class="list-row"><span class="mono">' + esc(q.placa) + '</span><span class="pill ok">válido</span></div>';
-        }).join("") || '<div class="muted">Aún no hay lecturas en esta demo.</div>') +
-      "</article>"
-    );
-  }
-
   function viewAgente() {
     if (ui.agentScreen === "face") return phoneChrome(agentFace(), null);
     if (!ui.agentLoggedIn || ui.agentScreen === "login") return phoneChrome(agentLogin(), null);
     if (ui.agentScreen === "welcome") return phoneChrome(agentWelcome(), null);
-    return phoneChrome(agentControl(SIM.load()), null);
+    return phoneChrome(agentControl(), null);
   }
 
   function agentLogin() {
@@ -829,16 +863,59 @@
     });
   }
 
+  function stopAgentCamera() {
+    if (ui.agentCamTimer) {
+      clearTimeout(ui.agentCamTimer);
+      ui.agentCamTimer = null;
+    }
+  }
+
+  function resetAgentCamera() {
+    stopAgentCamera();
+    ui.agentCamState = "live";
+    ui.agentSnap = null;
+    ui.consulta = null;
+    ui.scanning = false;
+  }
+
+  function registrarConsultaDemo() {
+    const db = SIM.load();
+    db.consultas.unshift({
+      id: SIM.uid("q"),
+      t: SIM.now(),
+      placa: "LOJ-2048",
+      resultado: "valido",
+      detalle: "Estacionamiento Start & Stop en curso. El ciudadano paga solo el tiempo usado.",
+      agente: SIM.AGENTE.placa,
+      origen: "camara",
+      sesionId: null,
+      plazaId: "C-05"
+    });
+    db.consultas = db.consultas.slice(0, 30);
+    SIM.pushEvento(db, "control", "Control LOJ-2048 · valido", "ok");
+    SIM.save(db);
+  }
+
+  function onAgentPhoto() {
+    if (ui.agentCamState === "capturing" || ui.agentCamState === "analyzing") return;
+    ui.consulta = null;
+    ui.agentSnap = null;
+    ui.agentCamState = "capturing";
+    render();
+    if (ui.agentCamTimer) clearTimeout(ui.agentCamTimer);
+    ui.agentCamTimer = setTimeout(function () {
+      registrarConsultaDemo();
+      ui.agentCamState = "ok";
+      ui.agentCamTimer = null;
+      render();
+    }, 400);
+  }
+
   function consultar(placa, origen) {
     const db = SIM.load();
     ui.consulta = SIM.consultarPlaca(db, placa, origen);
     ui.scanning = false;
     render();
-  }
-
-  function consultarAgente(placa, origen) {
-    const db = SIM.load();
-    consultar(SIM.placaControlValido(db, placa), origen || "demo");
   }
 
   function onFaceStart() {
@@ -1009,8 +1086,9 @@
     if (action === "agent-screen") {
       ui.agentScreen = btn.getAttribute("data-screen");
       if (ui.agentScreen === "home") {
-        consultarAgente(null, "demo");
-        return;
+        resetAgentCamera();
+      } else {
+        stopAgentCamera();
       }
       render();
     }
@@ -1018,8 +1096,7 @@
       ui.agentLoggedIn = false;
       ui.agentScreen = "login";
       ui.agentFaceState = "idle";
-      ui.scanning = false;
-      ui.consulta = null;
+      resetAgentCamera();
       if (ui.agentFaceTimer) clearTimeout(ui.agentFaceTimer);
       render();
     }
@@ -1082,17 +1159,21 @@
       SIM.revisarAlertas(db);
       render();
     }
-    if (action === "scan") {
-      ui.scanning = true;
+    if (action === "scan") onAgentPhoto();
+    if (action === "agent-rescan") {
+      resetAgentCamera();
       render();
-      const placa = SIM.placaControlValido(SIM.load());
-      setTimeout(function () { consultarAgente(placa, "camara"); }, 1200);
     }
     if (action === "lookup") {
       const input = document.getElementById("placa-in");
-      consultarAgente((input && input.value) || "GAA-4410", "manual");
+      const placa = input && input.value.trim();
+      if (!placa) {
+        showToast("Ingresa una placa", "Aún no hay datos automáticos. Escribe la matrícula para consultarla.", "warn");
+        return;
+      }
+      consultar(placa, "manual");
     }
-    if (action === "quick") consultarAgente(btn.getAttribute("data-placa"), "atajo");
+    if (action === "quick") consultar(btn.getAttribute("data-placa"), "atajo");
   });
 
   root.addEventListener("change", function (e) {
@@ -1145,6 +1226,7 @@
       ui.agentLoggedIn = false;
       ui.agentScreen = "login";
       ui.agentFaceState = "idle";
+      resetAgentCamera();
       if (ui.agentFaceTimer) clearTimeout(ui.agentFaceTimer);
     } else if (!ui.agentLoggedIn) {
       ui.agentScreen = "login";
