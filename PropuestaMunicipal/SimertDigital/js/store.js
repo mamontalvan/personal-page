@@ -513,4 +513,20 @@ SIM.recaudacionHoy = function (db) {
   };
 };
 
-SIM.plazasConsultaDemo = ["LOJ-2048", "GAA-4410", "PXA-1107", "MCH-3321", "C-12"];
+SIM.plazasConsultaDemo = ["GAA-4410"];
+
+SIM.placaControlValido = function (db, preferida) {
+  const tryPlate = function (placa) {
+    if (!placa) return null;
+    const s = SIM.sesionPorPlaca(db, placa);
+    if (!s) return null;
+    const info = SIM.estadoSesion(s);
+    return info && info.validez === "valido" ? s.placa : null;
+  };
+  const hallada = tryPlate(preferida) || tryPlate(db.placaActiva);
+  if (hallada) return hallada;
+  const sesion = db.sesiones.find(function (s) {
+    return s.status === "activa" && SIM.estadoSesion(s).validez === "valido";
+  });
+  return sesion ? sesion.placa : "GAA-4410";
+};

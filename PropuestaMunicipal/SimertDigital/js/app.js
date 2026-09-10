@@ -586,20 +586,15 @@
       '<button class="btn btn-gold btn-full" data-action="scan"' + (ui.scanning ? " disabled" : "") + ">Escanear matrícula cercana</button>" +
       '<div class="field" style="margin-top:12px"><label>O ingresa la placa</label>' +
         '<div style="display:flex;gap:8px">' +
-          '<input id="placa-in" placeholder="LOJ-2048" maxlength="8" style="flex:1">' +
+          '<input id="placa-in" placeholder="GAA-4410" value="GAA-4410" maxlength="8" style="flex:1">' +
           '<button class="btn btn-navy" data-action="lookup">Ver</button>' +
         "</div></div>" +
       '<div class="zone-meta" style="margin:10px 0">' +
-        '<button class="pill ok" data-action="quick" data-placa="LOJ-2048">LOJ-2048</button>' +
-        '<button class="pill info" data-action="quick" data-placa="GAA-4410">GAA-4410</button>' +
-        '<button class="pill bad" data-action="quick" data-placa="PXA-1107">PXA-1107</button>' +
-        '<button class="pill warn" data-action="quick" data-placa="MCH-3321">MCH-3321</button>' +
+        '<button class="pill ok" data-action="quick" data-placa="GAA-4410">GAA-4410</button>' +
       "</div>" +
       '<article class="list-card"><div class="hello">Últimas consultas</div>' +
-        (db.consultas.slice(0, 4).map(function (q) {
-          return '<div class="list-row"><span class="mono">' + esc(q.placa) + '</span><span class="pill ' +
-            (q.resultado === "valido" ? "ok" : q.resultado === "expirado" ? "warn" : "bad") + '">' +
-            esc(q.resultado.replace(/_/g, " ")) + "</span></div>";
+        (db.consultas.filter(function (q) { return q.resultado === "valido"; }).slice(0, 4).map(function (q) {
+          return '<div class="list-row"><span class="mono">' + esc(q.placa) + '</span><span class="pill ok">válido</span></div>';
         }).join("") || '<div class="muted">Aún no hay lecturas en esta demo.</div>') +
       "</article>"
     );
@@ -841,6 +836,11 @@
     render();
   }
 
+  function consultarAgente(placa, origen) {
+    const db = SIM.load();
+    consultar(SIM.placaControlValido(db, placa), origen || "demo");
+  }
+
   function onFaceStart() {
     ui.screen = "face";
     ui.faceState = "scanning";
@@ -1008,6 +1008,10 @@
     if (action === "agent-face-start") onAgentFaceStart();
     if (action === "agent-screen") {
       ui.agentScreen = btn.getAttribute("data-screen");
+      if (ui.agentScreen === "home") {
+        consultarAgente(null, "demo");
+        return;
+      }
       render();
     }
     if (action === "agent-logout") {
@@ -1081,16 +1085,14 @@
     if (action === "scan") {
       ui.scanning = true;
       render();
-      const db = SIM.load();
-      const propia = SIM.sesionActiva(db);
-      const placa = propia ? propia.placa : "GAA-4410";
-      setTimeout(function () { consultar(placa, "camara"); }, 1200);
+      const placa = SIM.placaControlValido(SIM.load());
+      setTimeout(function () { consultarAgente(placa, "camara"); }, 1200);
     }
     if (action === "lookup") {
       const input = document.getElementById("placa-in");
-      consultar((input && input.value) || "LOJ-2048", "manual");
+      consultarAgente((input && input.value) || "GAA-4410", "manual");
     }
-    if (action === "quick") consultar(btn.getAttribute("data-placa"), "atajo");
+    if (action === "quick") consultarAgente(btn.getAttribute("data-placa"), "atajo");
   });
 
   root.addEventListener("change", function (e) {
