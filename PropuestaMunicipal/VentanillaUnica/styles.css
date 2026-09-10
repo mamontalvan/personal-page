@@ -237,7 +237,7 @@ textarea.input{resize:vertical; min-height:88px;}
 .zoom .muted{color:#B9C3D3;}
 .zoom .lbl{color:var(--gold);}
 .zoom-bar{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:10px 16px; background:#111C2E; font-size:12.5px; font-family:'IBM Plex Mono',monospace;}
-.zoom-body{display:grid; grid-template-columns:1.55fr 0.9fr; min-height:540px;}
+.zoom-body{display:grid; grid-template-columns:1fr; min-height:540px;}
 .zoom-stage{position:relative; padding:14px; background:#0A101C;}
 .zoom-tile{position:relative; background:#152033; overflow:hidden;}
 .zoom-tile.main{min-height:460px; height:100%; display:grid; place-items:center; border-radius:8px;}
@@ -253,15 +253,6 @@ textarea.input{resize:vertical; min-height:88px;}
 .zoom-ctrl.on{border-color:#4CAF6A; color:#C8F0D2;}
 .zoom-ctrl.leave{background:var(--red); border-color:var(--red);}
 .zoom-ctrl:disabled{opacity:.4; cursor:not-allowed;}
-.zoom-side{display:flex; flex-direction:column; background:#111C2E; border-left:1px solid #24344F;}
-.zoom-exp{padding:14px 16px; border-bottom:1px solid #24344F; font-size:13px;}
-.zoom-exp .mono{margin:4px 0 8px;}
-.zoom-chat{flex:1; display:flex; flex-direction:column; min-height:280px;}
-.zoom-chat strong{padding:12px 16px 4px; font-family:'Fraunces',serif;}
-.zoom-chat .chatbot-msgs{flex:1; background:#0E1624;}
-.zoom-chat .msg.bot{background:#1A2740; border-color:#24344F; color:#F3EEDD;}
-.zoom-chat .chatbot-form{background:#111C2E; border-top-color:#24344F;}
-.zoom-chat .input{background:#0E1624; color:#F3EEDD; border-color:#24344F;}
 .sound-bars{display:inline-flex; gap:2px; align-items:flex-end; height:12px; margin-left:8px; vertical-align:middle;}
 .sound-bars i{width:3px; height:5px; background:#7DCF8A; display:block; animation:bars .7s ease-in-out infinite;}
 .sound-bars i:nth-child(2){animation-delay:.12s;}

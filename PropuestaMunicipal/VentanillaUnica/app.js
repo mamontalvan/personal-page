@@ -134,7 +134,6 @@ const state={
   form:defaultForm(),
   uploads:emptyDocs(),
   chat:welcomeChat(),
-  helpChat:[],
   timeline:[],
   catalogQuery:'',
   catalogCat:'Todas',
@@ -498,7 +497,6 @@ function startFlow(id){
   state.form=defaultForm(id);
   state.uploads=emptyDocs(id);
   state.chat=welcomeChat(id);
-  state.helpChat=[];
   state.timeline=[['09/09/2026','Trámite iniciado en Ventanilla Única']];
   state.catalogMsg=null;
   state.section='tramites';
@@ -755,7 +753,6 @@ function pedirAyuda(){
     if(seq!==salaSeq)return;
     state.salaPhase='asesor';
     state.asesorHabla=true;
-    state.helpChat=[{role:'bot',text:'Buenos días, María Fernanda. Soy Patricia Cueva, de Rentas. Ya estoy con usted en la sala y tengo su expediente en pantalla: la IA encontró que el número predial de la solicitud es '+predioDeclarado()+' y el del comprobante es '+predioComprobante()+'. Dígame cuál es el correcto y lo resolvemos juntas.'}];
     addEvent('Lcda. Patricia Cueva en sala, con el expediente completo');
     const item=misTramites.find(x=>x.flow==='exoneracion');
     if(item)item.timeline=state.timeline.slice();
@@ -942,7 +939,6 @@ function zoomJoiningView(){
 function zoomRoomView(){
   const fl=flow();
   const habla=state.asesorHabla;
-  const msgs=(state.helpChat||[]).map(m=>msgHtml(m)).join('');
   return `<div class="zoom">
     <div class="zoom-bar">
       <span>Municipio de Loja · ${esc(ASESOR.sala)}</span>
@@ -964,21 +960,6 @@ function zoomRoomView(){
           <div class="zoom-tag"><b>María Fernanda Torres</b> <span>(tú)${state.zoomMic?'':' · silenciada'}</span></div>
         </div>
       </div>
-      <aside class="zoom-side">
-        <div class="zoom-exp">
-          <span class="lbl">Expediente en pantalla</span>
-          <p class="mono">${fl.expediente}</p>
-          <p>Predio solicitud <b>${esc(predioDeclarado())}</b> · comprobante <b>${esc(predioComprobante())}</b></p>
-        </div>
-        <div class="zoom-chat">
-          <strong>Chat de la reunión</strong>
-          <div class="chatbot-msgs" id="chatMsgs">${msgs}</div>
-          <div class="chatbot-form">
-            <input id="chatIn" class="input" placeholder="Hablar con Patricia…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendAsesorChat()}">
-            <button class="btn primary" onclick="sendAsesorChat()">Enviar</button>
-          </div>
-        </div>
-      </aside>
     </div>
     <div class="zoom-dock">
       <button class="zoom-ctrl ${state.zoomMic?'on':''}" onclick="toggleZoom('mic')">${state.zoomMic?'Micrófono':'Silenciado'}</button>
@@ -1078,32 +1059,6 @@ function sendChat(){
   botSay(replyTo(text),700);
 }
 
-function sendAsesorChat(){
-  const input=document.getElementById('chatIn');
-  if(!input)return;
-  const text=input.value.trim();
-  if(!text)return;
-  input.value='';
-  state.helpChat.push({role:'user',text});
-  state.asesorHabla=true;
-  content();
-  setTimeout(()=>{
-    state.helpChat.push({role:'bot',text:asesorReply(text)});
-    content();
-    setTimeout(()=>{state.asesorHabla=false;content();},3200);
-  },900);
-}
-
-function asesorReply(text){
-  const t=text.toLowerCase();
-  if(/hola|buenos|buenas/.test(t)) return 'Buenos días. Ya tengo su expediente en pantalla. La observación es concreta: solicitud '+predioDeclarado()+' versus comprobante '+predioComprobante()+'.';
-  if(/solicitud|formulario|declar|0405|correcto el predio|el mío|el mio/.test(t)) return 'Si el número correcto es el de la solicitud ('+predioDeclarado()+'), el comprobante pertenece a otro predio. Necesitamos el impuesto predial vigente de ese número. Cuando lo tenga, se reanuda la revisión.';
-  if(/comprobante|recibo|predial|0418|adjunté mal|adjunte mal|equivoc/.test(t)) return 'Entendido: es un error de documento. El comprobante leído corresponde al predio '+predioComprobante()+'. Reemplace ese archivo por el predial de '+predioDeclarado()+' y el Revisor Documental Inteligente podrá volver a cruzar.';
-  if(/expediente|contexto|ve|tiene/.test(t)) return 'Sí. Al transferirla me llegó el ticket '+flow().ticket+', la solicitud, los tres anexos, el cruce de la IA y la línea de tiempo. No tiene que repetir su historia.';
-  if(/gracias|listo|ok/.test(t)) return 'Con gusto. Quedo en la sala si necesita que le indique cómo corregir el número o cómo volver a cargar el comprobante. Esta atención es una simulación.';
-  return 'La diferencia está entre el número predial de la solicitud ('+predioDeclarado()+') y el extraído del comprobante ('+predioComprobante()+'). Dígame cuál es el predio que desea exonerar y le indico el siguiente paso.';
-}
-
 function replyTo(text){
   const t=text.toLowerCase();
   const fl=flow()||FLOWS.avaluo;
@@ -1159,7 +1114,6 @@ function logout(){
   state.form=defaultForm();
   state.uploads=emptyDocs();
   state.chat=welcomeChat();
-  state.helpChat=[];
   state.paid=false;
   state.reviewed=false;
   state.reviewing=false;
