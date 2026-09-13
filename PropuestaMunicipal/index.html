@@ -528,7 +528,25 @@
             </div>
         </div>
 
-        <!-- Slide 4: Caso 2 - Permiso de Construcción de Obra Mayor -->
+        <!-- Slide 4: Caso 2 - Adjudicación Preferencial -->
+        <div class="slide slide-caso">
+            <div class="slide-header">
+                <h2>Ciudadano solicitando Adjudicación Preferencial de un local</h2>
+                <span class="tag">Caso Real</span>
+            </div>
+            <div class="slide-content">
+                <p class="caso-intro">Tras el fallecimiento de su madre, adjudicataria de un local del centro comercial, el hijo único pide que se lo adjudiquen. Junta de Remates solicita certificados a Trabajo Social y al Administrador de Mercados: 11 meses después, el ciudadano sigue en el aire.</p>
+                <div class="sc-sim">
+                    <div class="sc-sim-header">
+                        <span class="sc-sim-title">Simulación del recorrido ciudadano</span>
+                        <span id="simStatusCasoAdj" class="sc-sim-status">Iniciando simulación...</span>
+                    </div>
+                    <canvas id="simCanvasCasoAdj"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Caso 3 - Permiso de Construcción de Obra Mayor -->
         <div class="slide slide-caso">
             <div class="slide-header">
                 <h2>Ciudadano solicitando un Permiso de Construcción de Obra Mayor</h2>
@@ -546,7 +564,7 @@
             </div>
         </div>
 
-        <!-- Slide 5: Problemática Ciudadana - SIMERT -->
+        <!-- Slide 6: Problemática Ciudadana - SIMERT -->
         <div class="slide">
             <div class="slide-header">
                 <h2>Problemática Ciudadana</h2>
@@ -557,7 +575,7 @@
             </div>
         </div>
 
-        <!-- Slide 6: Ciudadano haciendo uso del SIMERT -->
+        <!-- Slide 7: Ciudadano haciendo uso del SIMERT -->
         <div class="slide slide-simert">
             <div class="slide-header">
                 <h2>Ciudadano haciendo uso del SIMERT</h2>
@@ -644,7 +662,7 @@
             </div>
         </div>
 
-        <!-- Slide 7: Problemática Ciudadana - Transporte Público -->
+        <!-- Slide 8: Problemática Ciudadana - Transporte Público -->
         <div class="slide">
             <div class="slide-header">
                 <h2>Problemática Ciudadana - Transporte Público</h2>
@@ -661,7 +679,7 @@
             </div>
         </div>
 
-        <!-- Slide 8: Problemática Ciudadana - Transparencia -->
+        <!-- Slide 9: Problemática Ciudadana - Transparencia -->
         <div class="slide">
             <div class="slide-header">
                 <h2>Problemática Ciudadana - Transparencia</h2>
@@ -672,7 +690,7 @@
             </div>
         </div>
 
-        <!-- Slide 9: El Reto y la Oportunidad -->
+        <!-- Slide 10: El Reto y la Oportunidad -->
         <div class="slide">
             <div class="slide-header">
                 <h2>El Reto Actual de Loja</h2>
@@ -712,7 +730,7 @@
             </div>
         </div>
 
-        <!-- Slide 10: Proyecto 1 - Ventanilla Única -->
+        <!-- Slide 11: Proyecto 1 - Ventanilla Única -->
         <div class="slide">
             <div class="slide-header">
                 <h2>1. Ventanilla Única Interoperable e Inteligente</h2>
@@ -747,7 +765,7 @@
             </div>
         </div>
 
-        <!-- Slide 11: Proyecto 2 - SIMERT Inteligente -->
+        <!-- Slide 12: Proyecto 2 - SIMERT Inteligente -->
         <div class="slide">
             <div class="slide-header">
                 <h2>2. SIMERT Digital e Inteligente</h2>
@@ -776,7 +794,7 @@
             </div>
         </div>
 
-        <!-- Slide 12: Proyecto 3 - Boleto Digital de Transporte -->
+        <!-- Slide 13: Proyecto 3 - Boleto Digital de Transporte -->
         <div class="slide">
             <div class="slide-header">
                 <h2>3. Recaudo Digital para Transporte Público</h2>
@@ -805,7 +823,7 @@
             </div>
         </div>
 
-        <!-- Slide 13: Proyecto 4 - Datos Abiertos -->
+        <!-- Slide 14: Proyecto 4 - Datos Abiertos -->
         <div class="slide">
             <div class="slide-header">
                 <h2>4. Datos Abiertos y Transparencia</h2>
@@ -834,7 +852,7 @@
             </div>
         </div>
 
-        <!-- Slide 14: Hoja de Ruta - Primeros 100 Días -->
+        <!-- Slide 15: Hoja de Ruta - Primeros 100 Días -->
         <div class="slide">
             <div class="slide-header">
                 <h2>Hoja de Ruta e Impacto Político</h2>
@@ -870,7 +888,7 @@
             </div>
         </div>
 
-        <!-- Slide 15: Cierre -->
+        <!-- Slide 16: Cierre -->
         <div class="slide slide-cover">
             <div class="badge">Loja Ciudad Inteligente</div>
             <h1>Una Loja Moderna, Eficiente y Transparente</h1>
@@ -889,7 +907,7 @@
     <!-- Navegación -->
     <div class="controls">
         <button onclick="prevSlide()">❮ Anterior</button>
-        <span class="slide-number" id="slideNum">Slide 1 / 15</span>
+        <span class="slide-number" id="slideNum">Slide 1 / 16</span>
         <button onclick="nextSlide()">Siguiente ❯</button>
     </div>
 
@@ -1001,6 +1019,9 @@
                 ctx.setLineDash([5, 5]);
                 drawPath(config.mainPath, "#94A3B8");
                 drawPath(config.reworkPath, "rgba(139, 0, 0, 0.45)");
+                (config.extraPaths || []).forEach((path) => {
+                    drawPath(path, path.color || "rgba(139, 0, 0, 0.45)");
+                });
                 ctx.setLineDash([]);
 
                 nodes.forEach((node) => {
@@ -1020,10 +1041,14 @@
                     nameLines.forEach((line, i) => {
                         ctx.fillText(line, node.x, node.y + config.labelOffset + i * config.lineHeight);
                     });
-                    if (node.days) {
+                    if (node.badge || node.days) {
                         ctx.fillStyle = "#8B0000";
                         ctx.font = config.daysFont;
-                        ctx.fillText(config.daysLabel(node.days), node.x, node.y + config.labelOffset + nameLines.length * config.lineHeight + 3);
+                        ctx.fillText(
+                            node.badge || config.daysLabel(node.days),
+                            node.x,
+                            node.y + config.labelOffset + nameLines.length * config.lineHeight + 3
+                        );
                     }
                 });
 
@@ -1039,7 +1064,7 @@
 
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.fillStyle = "#003366";
-                drawMetric(ctx, 16, canvas.height - 18, `⏱️ ${config.timeLabel}:`, `${citizen.daysAccumulated} días`);
+                drawMetric(ctx, 16, canvas.height - 18, `⏱️ ${config.timeLabel}:`, `${citizen.daysAccumulated} ${config.timeUnit || "días"}`);
             }
 
             function resetCitizen() {
@@ -1167,6 +1192,52 @@
                 return `⏳ Esperando respuesta en ${node.name.replace("\n", " ")}... (+${node.days} días)`;
             },
             finishedText: (days) => `❌ TRÁMITE COMPLETADO: ${days} DÍAS Y RE-TRABAJOS. El ciudadano terminó exhausto.`
+        });
+
+        createSimulation({
+            canvasId: 'simCanvasCasoAdj',
+            statusId: 'simStatusCasoAdj',
+            designWidth: 960,
+            designHeight: 520,
+            lineWidth: 4,
+            nodeRadius: 36,
+            citizenRadius: 24,
+            iconFont: "28px sans-serif",
+            iconOffset: 10,
+            citizenFont: "26px sans-serif",
+            citizenIconOffset: 9,
+            labelFont: "bold 16px Segoe UI, sans-serif",
+            daysFont: "bold 16px Segoe UI, sans-serif",
+            labelOffset: 58,
+            lineHeight: 20,
+            daysLabel: (days) => days === 1 ? `+1 mes` : `+${days} meses`,
+            timeUnit: "meses",
+            speed: 2,
+            ticksPerDay: 18,
+            ticksPerWait: 18,
+            energyDrain: 8,
+            timeLabel: "Tiempo Transcurrido",
+            nodes: [
+                { id: 0, name: "Ciudadano\n(hijo único)", x: 90, y: 80, color: "#0EA5E9", icon: "🧍" },
+                { id: 1, name: "Ingreso del\ntrámite", x: 340, y: 80, color: "#64748B", days: 1, icon: "📋" },
+                { id: 2, name: "Junta de Remates\nsolicita certificados", x: 700, y: 80, color: "#8B5CF6", days: 1, icon: "⚖️" },
+                { id: 3, name: "Trabajo Social\n(certificado)", x: 250, y: 250, color: "#F59E0B", days: 5, icon: "🫂", badge: "SIN RESPUESTA" },
+                { id: 4, name: "Admin. Mercados\n(certificado)", x: 780, y: 250, color: "#06B6D4", days: 3, icon: "🏪", badge: "SIN RESPUESTA" },
+                { id: 5, name: "Consulta de status\n11 meses después", x: 515, y: 400, color: "#F43F5E", days: 1, icon: "❓", badge: "EN EL AIRE" }
+            ],
+            route: [0, 1, 2, 3, 4, 5],
+            mainPath: [0, 1, 2],
+            reworkPath: [2, 3, 5],
+            extraPaths: [[2, 4, 5]],
+            statusText: (index, node) => {
+                if (index === 1) return `📋 El hijo único ingresa el trámite de Adjudicación Preferencial del local de su madre...`;
+                if (index === 2) return `⚖️ Junta de Remates recibe el expediente y solicita certificados a Trabajo Social y al Administrador de Mercados...`;
+                if (index === 3) return `⏳ Trabajo Social: certificado solicitado. Pasan los meses y no hay respuesta.`;
+                if (index === 4) return `⏳ Administrador de Mercados: certificado solicitado. El ciudadano pide el status... sigue sin emitirse.`;
+                if (index === 5) return `❓ 11 meses después pide el status de ambos certificados. Junta de Remates no puede responder: faltan los informes.`;
+                return `⏳ En ${node.name.replace("\n", " ")}...`;
+            },
+            finishedText: (months) => `❌ ${months} MESES SIN RESPUESTA. El ciudadano sigue en el aire: nadie le ha contestado.`
         });
 
         createSimulation({
