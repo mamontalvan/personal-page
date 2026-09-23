@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Afluencia de transporte interprovincial e interparroquial — Loja Datos Abiertos (Prototipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#A32638; --blue:#3D6E93; --gold:#D9A526; --gold-dark:#A87A17;
+    --cream:#FAF6EC; --paper:#FFFFFF; --ink:#242220; --ink-soft:#605B52; --line:#E4DCC8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--cream); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.55;}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 32px;}
+  button{font-family:inherit;}
+
+  .flagbar{display:flex; height:6px;}
+  .flagbar span{flex:1;}
+  .flagbar span:nth-child(1),.flagbar span:nth-child(5){background:var(--red);}
+  .flagbar span:nth-child(2),.flagbar span:nth-child(4){background:var(--blue); flex:0.5;}
+  .flagbar span:nth-child(3){background:var(--gold);}
+  .protobadge{background:var(--ink); color:#F3EEDD; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; padding:8px;}
+  .protobadge b{color:var(--gold);}
+
+  header{background:var(--paper); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 32px; max-width:1100px; margin:0 auto; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:17px;}
+  .brand .crest{width:26px; height:26px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand .crest svg{width:14px; height:14px;}
+  .navlinks{display:flex; gap:22px; list-style:none;}
+  .navlinks a{font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .navlinks a:hover{color:var(--red);}
+
+  .crumbs{padding:18px 0; font-size:13px; color:var(--ink-soft);}
+  .crumbs a:hover{color:var(--red);}
+  .crumbs span{margin:0 6px;}
+
+  .dshead{padding:6px 0 34px; border-bottom:1px solid var(--line);}
+  .dshead .org{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--blue); text-transform:uppercase; letter-spacing:0.04em;}
+  .dshead h1{font-size:clamp(22px,3.2vw,30px); margin:10px 0 14px;}
+  .dshead p.desc{color:var(--ink-soft); max-width:720px; font-size:15px;}
+  .dstags{display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .dstags span{background:var(--paper); border:1px solid var(--line); padding:5px 12px; font-size:12.5px; border-radius:14px; color:var(--ink-soft);}
+  .dsmeta{display:flex; gap:26px; margin-top:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft);}
+  .dsmeta b{color:var(--ink); font-weight:500;}
+
+  .layout{display:grid; grid-template-columns:1fr 300px; gap:40px; padding:40px 0 70px;}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;}}
+
+  .resources h2{font-size:17px; margin-bottom:16px;}
+  .res-item{display:flex; align-items:center; justify-content:space-between; background:var(--paper); border:1px solid var(--line); padding:16px 18px; margin-bottom:10px; gap:12px; flex-wrap:wrap;}
+  .res-item .l{display:flex; align-items:center; gap:12px;}
+  .res-item .fmt{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 9px; border-radius:3px; background:var(--cream); color:var(--gold-dark); font-weight:500;}
+  .res-item .fmt.api{background:#DDEAF3; color:var(--blue);}
+  .res-item .name{font-size:14.5px; font-weight:500;}
+  .res-item .actions a,.res-item .actions button{font-size:12.5px; color:var(--red); margin-left:14px; background:none; border:none; cursor:pointer; padding:0;}
+  .res-item .actions a:hover,.res-item .actions button:hover{text-decoration:underline;}
+
+  .preview{margin-top:34px;}
+  .preview h2{font-size:17px; margin-bottom:8px;}
+  .preview .hint{font-size:13px; color:var(--ink-soft); margin-bottom:16px; max-width:680px;}
+
+  .filters{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .filters select,.filters input{
+    font-family:'Inter',sans-serif; font-size:13.5px; padding:8px 10px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); min-width:160px;
+  }
+  .filters select:focus,.filters input:focus{outline:none; border-color:var(--blue);}
+  .filters input{flex:1; min-width:180px;}
+
+  .tabs{display:flex; gap:0; border:1px solid var(--line); background:var(--paper); margin-bottom:0; width:fit-content; max-width:100%;}
+  .tabs button{
+    background:var(--paper); border:none; border-right:1px solid var(--line); padding:10px 16px;
+    font-size:13px; font-weight:500; color:var(--ink-soft); cursor:pointer;
+  }
+  .tabs button:last-child{border-right:none;}
+  .tabs button.active{background:var(--ink); color:#F3EEDD;}
+  .tabs button:hover:not(.active){color:var(--red);}
+
+  .preview-body{border:1px solid var(--line); border-top:none; background:var(--paper);}
+  .tablewrap{overflow-x:auto;}
+  table.pv{width:100%; border-collapse:collapse; font-size:13px; min-width:760px;}
+  table.pv th{text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); letter-spacing:0.03em; background:var(--cream);}
+  table.pv td{padding:11px 14px; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.pv tr:last-child td{border-bottom:none;}
+  table.pv tbody tr{cursor:pointer;}
+  table.pv tbody tr:hover td{background:#F7F2E6;}
+  table.pv tbody tr.sel td{background:#E9EFF5;}
+  .empty{padding:22px 16px; color:var(--ink-soft); font-size:13.5px; font-style:italic;}
+
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:3px 9px; border-radius:10px; white-space:nowrap;}
+  .pill.inter{background:#DDEAF3; color:var(--blue);}
+  .pill.comu{background:#E4EFE7; color:#2C6B44;}
+  .pill.term{background:#FBEAD3; color:var(--gold-dark);}
+  .pill.parada{background:var(--cream); color:var(--ink-soft); border:1px solid var(--line);}
+  .pill.dest{background:#F3E4E4; color:var(--red);}
+
+  .lvl{display:inline-flex; align-items:center; gap:8px; white-space:nowrap;}
+  .lvl .track{width:64px; height:6px; background:var(--line); position:relative;}
+  .lvl .track i{position:absolute; top:0; left:0; height:100%; background:var(--blue);}
+  .lvl.alta .track i{background:var(--red);}
+  .lvl.media .track i{background:var(--gold);}
+
+  .detail{margin-top:16px; border:1px solid var(--line); background:var(--paper);}
+  .detail-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line); background:var(--cream); flex-wrap:wrap;}
+  .detail-head h3{font-size:18px;}
+  .detail-head .meta{font-size:13px; color:var(--ink-soft); margin-top:6px;}
+  .detail-head .meta b{color:var(--ink); font-weight:500;}
+  .btn-clear{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); padding:6px 11px; border-radius:3px; cursor:pointer;}
+  .btn-clear:hover{border-color:var(--blue); color:var(--blue);}
+  .detail-grid{display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  @media(max-width:720px){.detail-grid{grid-template-columns:1fr;}}
+  .detail-col{padding:16px 18px;}
+  .detail-col + .detail-col{border-left:1px solid var(--line);}
+  @media(max-width:720px){.detail-col + .detail-col{border-left:none; border-top:1px solid var(--line);}}
+  .detail-col h4{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:12px;}
+  .hours{display:flex; flex-wrap:wrap; gap:8px;}
+  .hour{font-family:'IBM Plex Mono',monospace; font-size:12px; background:var(--cream); border:1px solid var(--line); padding:6px 9px;}
+  .hour b{display:block; font-weight:500; color:var(--ink);}
+  .hour span{color:var(--ink-soft); font-size:10.5px;}
+
+  .stops{list-style:none;}
+  .stops li{display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:start; position:relative; padding:0 0 14px;}
+  .stops li:last-child{padding-bottom:0;}
+  .stops .dot{width:10px; height:10px; border-radius:50%; background:var(--blue); margin-top:4px; position:relative; z-index:1;}
+  .stops li:first-child .dot{background:var(--gold);}
+  .stops li:last-child .dot{background:var(--red); border-radius:2px;}
+  .stops li:not(:last-child)::before{content:""; position:absolute; left:4px; top:14px; bottom:0; width:2px; background:var(--line);}
+  .stops .nm{font-size:13.5px; font-weight:500;}
+  .stops .sub{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+  .stops .t{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+
+  .api{margin-top:38px;}
+  .api h2{font-size:17px; margin-bottom:6px;}
+  .api .hint{font-size:13px; color:var(--ink-soft); margin-bottom:16px; max-width:660px;}
+  .apibox{border:1px solid var(--line); background:var(--paper);}
+  .endpoint{display:flex; align-items:center; gap:10px; padding:13px 16px; background:var(--cream); border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .endpoint .verb{font-family:'IBM Plex Mono',monospace; font-size:11px; background:#2C6B44; color:#fff; padding:4px 9px; border-radius:3px;}
+  .endpoint code{font-family:'IBM Plex Mono',monospace; font-size:12.5px; flex:1; min-width:200px; word-break:break-all;}
+  .btn-mini{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); padding:6px 11px; border-radius:3px; cursor:pointer;}
+  .btn-mini:hover{border-color:var(--blue); color:var(--blue);}
+  .params{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; padding:16px;}
+  .params label{display:flex; flex-direction:column; gap:5px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft);}
+  .params select,.params input{font-family:'Inter',sans-serif; font-size:13.5px; padding:8px 10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); min-width:158px;}
+  .params select:focus,.params input:focus{outline:none; border-color:var(--blue);}
+  .btn-run{background:var(--red); color:#fff; border:none; padding:10px 20px; font-size:13.5px; font-weight:500; border-radius:3px; cursor:pointer;}
+  .btn-run:hover{background:#7A1C29;}
+  .btn-run[disabled]{opacity:0.55; cursor:progress;}
+  .resline{display:flex; gap:18px; flex-wrap:wrap; align-items:center; padding:10px 16px; border-top:1px solid var(--line); background:var(--cream); font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
+  .resline .st{color:#2C6B44;}
+  .resline .st.load{color:var(--gold-dark);}
+  .resline .grow{flex:1;}
+  pre.json{margin:0; padding:16px; background:#211F1C; color:#E9E3D5; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.62; overflow:auto; max-height:430px;}
+  pre.json .jk{color:#8FC3E6;}
+  pre.json .jstr{color:#DCC178;}
+  pre.json .jn{color:#C99BE0;}
+  pre.json .jb{color:#7FC49A;}
+  .apidocs{margin-top:16px; border:1px solid var(--line); background:var(--paper);}
+  .apidocs .row{display:grid; grid-template-columns:240px 1fr; gap:16px; padding:12px 16px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-soft);}
+  .apidocs .row:first-child{border-top:none;}
+  .apidocs code{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--red);}
+  @media(max-width:640px){.apidocs .row{grid-template-columns:1fr; gap:4px;}}
+
+  aside{align-self:start;}
+  .infobox{background:var(--paper); border:1px solid var(--line); padding:20px;}
+  .infobox h3{font-size:13px; font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:14px;}
+  .infobox table{width:100%; font-size:13px;}
+  .infobox td{padding:8px 0; border-top:1px solid var(--line); vertical-align:top;}
+  .infobox tr:first-child td{border-top:none;}
+  .infobox td:first-child{color:var(--ink-soft); width:44%;}
+  .infobox td:last-child{color:var(--ink); text-align:right;}
+  .infobox + .infobox{margin-top:14px;}
+
+  footer{background:var(--paper); border-top:1px solid var(--line); padding:26px 0; font-size:12.5px; color:var(--ink-soft); text-align:center;}
+
+  @media(max-width:640px){
+    .wrap{padding:0 20px;}
+    nav{padding:14px 20px;}
+    .tabs{width:100%;}
+    .tabs button{flex:1; padding:10px 8px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="flagbar"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="protobadge">PROTOTIPO — <b>datos de prueba</b>, sin conexión a bases de datos reales.</div>
+
+<header>
+  <nav>
+    <a class="brand" href="index.html">
+      <div class="crest"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20 L9 10 L13 15 L18 5 L22 12" stroke="#D9A526" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      Loja Datos Abiertos
+    </a>
+    <ul class="navlinks">
+      <li><a href="index.html#datasets">Conjuntos de datos</a></li>
+      <li><a href="index.html#organismos">Direcciones municipales</a></li>
+      <li><a href="index.html#acerca">Acerca de</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs">
+    <a href="index.html">Inicio</a><span>/</span>
+    <a href="index.html#datasets">Conjuntos de datos</a><span>/</span>
+    Afluencia de transporte interprovincial e interparroquial
+  </div>
+
+  <div class="dshead">
+    <span class="org">Publicado por: Dirección de Movilidad y Transporte — Municipio de Loja</span>
+    <h1>Afluencia de transporte interprovincial e interparroquial comunitario</h1>
+    <p class="desc">Rutas, paradas, horarios de salida y afluencia diaria estimada de buses interprovinciales y de transporte interparroquial comunitario con origen o destino en el cantón Loja. Pensado para planificar viajes, dimensionar la Terminal Terrestre y cruzar demanda con servicios parroquiales.</p>
+    <div class="dstags">
+      <span>Movilidad</span><span>Transporte</span><span>Parroquias</span><span>Municipio de Loja</span>
+    </div>
+    <div class="dsmeta">
+      <div>Vistas: <b>186</b></div>
+      <div>Frecuencia de actualización: <b>Mensual</b></div>
+      <div>Última actualización: <b>08 sep 2026</b></div>
+      <div>Licencia: <b>CC-BY 4.0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="resources">
+        <h2>Recursos de datos (4)</h2>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">rutas_afluencia.csv</span></div>
+          <div class="actions"><a href="#preview">Vista previa</a><button type="button" data-dl="rutas">Descargar</button></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">horarios.csv</span></div>
+          <div class="actions"><a href="#preview" data-tab="horarios">Vista previa</a><button type="button" data-dl="horarios">Descargar</button></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt">CSV</span><span class="name">paradas.csv</span></div>
+          <div class="actions"><a href="#preview" data-tab="paradas">Vista previa</a><button type="button" data-dl="paradas">Descargar</button></div>
+        </div>
+        <div class="res-item">
+          <div class="l"><span class="fmt api">API</span><span class="name">/api/v1/transporte-afluencia</span></div>
+          <div class="actions"><a href="#api">Probar consulta</a><a href="#api">Documentación</a></div>
+        </div>
+      </div>
+
+      <div class="preview" id="preview">
+        <h2>Vista previa del conjunto</h2>
+        <p class="hint">Abajo ya está abierta la ruta Loja – Cuenca, con sus horarios y paradas. Cambia de ruta haciendo clic en la tabla. Los volúmenes de afluencia son estimaciones ficticias de un día laborable típico (pasajeros/día, ambos sentidos).</p>
+
+        <div class="filters">
+          <select id="f-tipo-prev" aria-label="Tipo de servicio">
+            <option value="">Todos los tipos</option>
+            <option value="Interprovincial">Interprovincial</option>
+            <option value="Interparroquial comunitario">Interparroquial comunitario</option>
+          </select>
+          <input type="search" id="f-q" placeholder="Buscar destino, operador o parada" aria-label="Buscar">
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button type="button" class="active" data-tab="rutas" role="tab">Rutas y afluencia</button>
+          <button type="button" data-tab="horarios" role="tab">Horarios</button>
+          <button type="button" data-tab="paradas" role="tab">Paradas</button>
+        </div>
+
+        <div class="preview-body">
+          <div class="tablewrap" id="table-rutas">
+            <table class="pv">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Tipo</th><th>Ruta</th><th>Operador</th>
+                  <th>Duración</th><th>Frecuencia</th><th>Afluencia / día</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-rutas">
+              <tr>
+                <td class="mono">TI-01</td>
+                <td><span class="pill inter">Interprovincial</span></td>
+                <td><b>Loja – Cuenca</b></td>
+                <td>Cooperativa Loja</td>
+                <td>4 h</td>
+                <td>Cada 45 min</td>
+                <td>1.860 pax</td>
+              </tr>
+              <tr>
+                <td class="mono">TC-01</td>
+                <td><span class="pill comu">Comunitario</span></td>
+                <td><b>Loja – Vilcabamba</b></td>
+                <td>Cooperativa Vilcabamba</td>
+                <td>1 h 10 min</td>
+                <td>Cada 20 min</td>
+                <td>980 pax</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+          <div class="tablewrap" id="table-horarios" hidden>
+            <table class="pv">
+              <thead>
+                <tr><th>ID ruta</th><th>Ruta</th><th>Salida</th><th>Llegada</th><th>Sentido</th><th>Unidad</th><th>Cupos</th></tr>
+              </thead>
+              <tbody id="tbody-horarios"></tbody>
+            </table>
+          </div>
+          <div class="tablewrap" id="table-paradas" hidden>
+            <table class="pv">
+              <thead>
+                <tr><th>ID ruta</th><th>Orden</th><th>Parada</th><th>Tipo</th><th>Min desde origen</th><th>Parroquia / ciudad</th></tr>
+              </thead>
+              <tbody id="tbody-paradas"></tbody>
+            </table>
+          </div>
+          <p class="empty" id="empty-msg" hidden>Ninguna ruta coincide con el filtro.</p>
+        </div>
+
+        <div class="detail" id="detail">
+          <div class="detail-head">
+            <div>
+              <h3 id="d-title">Loja – Cuenca</h3>
+              <p class="meta" id="d-meta">Interprovincial · Cooperativa Loja · horarios cada 45 min · paradas: Terminal Loja, Catamayo, Saraguro, Cuenca</p>
+            </div>
+            <button type="button" class="btn-clear" id="d-clear">Quitar selección</button>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-col">
+              <h4>Horarios de salida (ida)</h4>
+              <div class="hours" id="d-hours">
+                <div class="hour"><b>04:30</b><span>llega 08:30</span></div>
+                <div class="hour"><b>05:15</b><span>llega 09:15</span></div>
+                <div class="hour"><b>06:00</b><span>llega 10:00</span></div>
+                <div class="hour"><b>06:45</b><span>llega 10:45</span></div>
+              </div>
+            </div>
+            <div class="detail-col">
+              <h4>Secuencia de paradas</h4>
+              <ol class="stops" id="d-stops">
+                <li><span class="dot"></span><div><div class="nm">Terminal Terrestre Loja</div><div class="sub">Loja · Terminal</div></div><span class="t">+0 min</span></li>
+                <li><span class="dot"></span><div><div class="nm">Catamayo (paradero)</div><div class="sub">Catamayo · Parada</div></div><span class="t">+30 min</span></li>
+                <li><span class="dot"></span><div><div class="nm">Saraguro (parque central)</div><div class="sub">Saraguro · Parada</div></div><span class="t">+110 min</span></li>
+                <li><span class="dot"></span><div><div class="nm">Terminal Terrestre Cuenca</div><div class="sub">Cuenca · Destino</div></div><span class="t">+240 min</span></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="api" id="api">
+        <h2>API — consulta en vivo</h2>
+        <p class="hint">Así consultaría una app de viajes las rutas, paradas y afluencia. En este prototipo la respuesta se genera en el navegador con datos de prueba: no hay servidor detrás, pero la estructura es la que tendría la API real.</p>
+
+        <div class="apibox">
+          <div class="endpoint">
+            <span class="verb">GET</span>
+            <code id="api-url">https://datos.loja.gob.ec/api/v1/transporte-afluencia</code>
+            <button class="btn-mini" id="api-copy-url" type="button">Copiar URL</button>
+          </div>
+
+          <div class="params">
+            <label>tipo
+              <select id="f-tipo">
+                <option value="">(todos)</option>
+                <option value="Interprovincial">Interprovincial</option>
+                <option value="Interparroquial comunitario">Interparroquial comunitario</option>
+              </select>
+            </label>
+            <label>destino
+              <select id="f-destino">
+                <option value="">(todos)</option>
+              </select>
+            </label>
+            <label>incluir
+              <select id="f-incluir">
+                <option value="resumen">resumen</option>
+                <option value="horarios">horarios</option>
+                <option value="paradas">paradas</option>
+                <option value="completo">completo</option>
+              </select>
+            </label>
+            <label>limit
+              <input type="number" id="f-limit" min="1" max="20" value="4">
+            </label>
+            <button class="btn-run" id="api-run" type="button">Ejecutar consulta</button>
+          </div>
+
+          <div class="resline">
+            <span class="st" id="api-status">200 OK</span>
+            <span id="api-meta"></span>
+            <span class="grow"></span>
+            <button class="btn-mini" id="api-copy-json" type="button">Copiar JSON</button>
+            <button class="btn-mini" id="api-download" type="button">Descargar .json</button>
+          </div>
+          <pre class="json" id="api-out"></pre>
+        </div>
+
+        <div class="apidocs">
+          <div class="row"><code>GET /api/v1/transporte-afluencia</code><span>Lista rutas con afluencia, operador, frecuencia y duración.</span></div>
+          <div class="row"><code>GET /api/v1/transporte-afluencia/{id}</code><span>Devuelve una ruta por identificador, por ejemplo <code>TI-01</code> o <code>TC-02</code>.</span></div>
+          <div class="row"><code>?tipo=</code><span>Filtra por <code>Interprovincial</code> o <code>Interparroquial comunitario</code>.</span></div>
+          <div class="row"><code>?destino=</code><span>Filtra por ciudad o parroquia de destino.</span></div>
+          <div class="row"><code>?incluir=</code><span><code>resumen</code> (por defecto), <code>horarios</code>, <code>paradas</code> o <code>completo</code>.</span></div>
+          <div class="row"><code>?limit=</code><span>Número máximo de rutas devueltas (1–20).</span></div>
+          <div class="row"><code>Formato</code><span>JSON (UTF-8). Horarios en zona horaria de Ecuador (UTC-5). Afluencia en pasajeros/día. Licencia CC-BY 4.0.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="infobox">
+        <h3>Información adicional</h3>
+        <table>
+          <tr><td>Contacto</td><td>movilidad@loja.gob.ec</td></tr>
+          <tr><td>Formato</td><td>CSV, API JSON</td></tr>
+          <tr><td>Cobertura geográfica</td><td>Cantón Loja y corredores interprovinciales</td></tr>
+          <tr><td>Fecha de creación</td><td>2026-09-08</td></tr>
+          <tr><td>Cobertura temporal</td><td>sep 2026 (día tipo)</td></tr>
+          <tr><td>Idioma</td><td>Español</td></tr>
+        </table>
+      </div>
+      <div class="infobox">
+        <h3>Notas del prototipo</h3>
+        <table>
+          <tr><td>Rutas</td><td id="stat-rutas">—</td></tr>
+          <tr><td>Horarios</td><td id="stat-horarios">—</td></tr>
+          <tr><td>Paradas</td><td id="stat-paradas">—</td></tr>
+          <tr><td>Unidad de afluencia</td><td>pax / día</td></tr>
+        </table>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>Prototipo estático con datos de prueba · Municipio de Loja</footer>
+
+<script>
+(function(){
+  function toMin(hhmm){
+    var p = hhmm.split(':');
+    return Number(p[0]) * 60 + Number(p[1]);
+  }
+  function fromMin(m){
+    m = ((m % 1440) + 1440) % 1440;
+    return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2);
+  }
+  function series(start, end, step){
+    var out = [], t = toMin(start), e = toMin(end);
+    while(t <= e){ out.push(fromMin(t)); t += step; }
+    return out;
+  }
+  function durLabel(min){
+    var h = Math.floor(min / 60), m = min % 60;
+    if(!h) return m + ' min';
+    if(!m) return h + ' h';
+    return h + ' h ' + m + ' min';
+  }
+
+  var ROUTES = [
+    {
+      id_ruta:'TI-01', tipo:'Interprovincial', origen:'Loja', destino:'Cuenca',
+      operador:'Cooperativa Loja', distancia_km:215, duracion_min:240,
+      frecuencia:'Cada 45 min', tarifa_usd:8.50, afluencia_diaria:1860,
+      pico_manana:410, pico_tarde:520, ocupacion_pct:78, cupos:45,
+      salidas: series('04:30','20:00',45),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo (paradero)', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'El Tambo', lugar:'Loja', tipo:'Parada', min:70},
+        {nombre:'Saraguro (parque central)', lugar:'Saraguro', tipo:'Parada', min:110},
+        {nombre:'Oña', lugar:'Oña', tipo:'Parada', min:155},
+        {nombre:'Girón', lugar:'Girón', tipo:'Parada', min:195},
+        {nombre:'Terminal Terrestre Cuenca', lugar:'Cuenca', tipo:'Destino', min:240}
+      ]
+    },
+    {
+      id_ruta:'TI-02', tipo:'Interprovincial', origen:'Loja', destino:'Quito',
+      operador:'Cooperativa Loja', distancia_km:647, duracion_min:720,
+      frecuencia:'6 salidas/día', tarifa_usd:22.00, afluencia_diaria:420,
+      pico_manana:40, pico_tarde:180, ocupacion_pct:82, cupos:45,
+      salidas:['16:00','17:30','18:45','19:30','20:15','21:00'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'Saraguro', lugar:'Saraguro', tipo:'Parada', min:110},
+        {nombre:'Terminal Terrestre Cuenca (paso)', lugar:'Cuenca', tipo:'Parada', min:250},
+        {nombre:'Azogues', lugar:'Azogues', tipo:'Parada', min:290},
+        {nombre:'Cañar', lugar:'Cañar', tipo:'Parada', min:340},
+        {nombre:'Riobamba', lugar:'Riobamba', tipo:'Parada', min:470},
+        {nombre:'Ambato', lugar:'Ambato', tipo:'Parada', min:560},
+        {nombre:'Latacunga', lugar:'Latacunga', tipo:'Parada', min:620},
+        {nombre:'Terminal Quitumbe', lugar:'Quito', tipo:'Destino', min:720}
+      ]
+    },
+    {
+      id_ruta:'TI-03', tipo:'Interprovincial', origen:'Loja', destino:'Guayaquil',
+      operador:'Cooperativa Sur Oriente', distancia_km:418, duracion_min:480,
+      frecuencia:'8 salidas/día', tarifa_usd:16.00, afluencia_diaria:610,
+      pico_manana:95, pico_tarde:160, ocupacion_pct:74, cupos:45,
+      salidas:['06:00','08:30','11:00','14:00','16:30','19:00','21:00','22:30'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'Piñas', lugar:'Piñas', tipo:'Parada', min:170},
+        {nombre:'Pasaje', lugar:'Pasaje', tipo:'Parada', min:250},
+        {nombre:'Machala (paso)', lugar:'Machala', tipo:'Parada', min:280},
+        {nombre:'Naranjal', lugar:'Naranjal', tipo:'Parada', min:370},
+        {nombre:'Durán', lugar:'Durán', tipo:'Parada', min:450},
+        {nombre:'Terminal Terrestre Guayaquil', lugar:'Guayaquil', tipo:'Destino', min:480}
+      ]
+    },
+    {
+      id_ruta:'TI-04', tipo:'Interprovincial', origen:'Loja', destino:'Machala',
+      operador:'Cooperativa Cariamanga', distancia_km:238, duracion_min:300,
+      frecuencia:'Cada 60 min', tarifa_usd:9.00, afluencia_diaria:980,
+      pico_manana:210, pico_tarde:240, ocupacion_pct:71, cupos:40,
+      salidas: series('05:00','19:00',60),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'El Tablón', lugar:'Catamayo', tipo:'Parada', min:70},
+        {nombre:'Chaguarpamba', lugar:'Chaguarpamba', tipo:'Parada', min:130},
+        {nombre:'Balsas', lugar:'Balsas', tipo:'Parada', min:185},
+        {nombre:'Piñas', lugar:'Piñas', tipo:'Parada', min:220},
+        {nombre:'Santa Rosa', lugar:'Santa Rosa', tipo:'Parada', min:260},
+        {nombre:'Terminal Terrestre Machala', lugar:'Machala', tipo:'Destino', min:300}
+      ]
+    },
+    {
+      id_ruta:'TI-05', tipo:'Interprovincial', origen:'Loja', destino:'Zamora',
+      operador:'Cooperativa Zamora', distancia_km:60, duracion_min:80,
+      frecuencia:'Cada 30 min', tarifa_usd:2.50, afluencia_diaria:1420,
+      pico_manana:310, pico_tarde:340, ocupacion_pct:69, cupos:35,
+      salidas: series('05:00','20:00',30),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'El Plateado', lugar:'Loja', tipo:'Parada', min:18},
+        {nombre:'Sabanilla', lugar:'Zamora', tipo:'Parada', min:45},
+        {nombre:'Terminal Terrestre Zamora', lugar:'Zamora', tipo:'Destino', min:80}
+      ]
+    },
+    {
+      id_ruta:'TI-06', tipo:'Interprovincial', origen:'Loja', destino:'Macará',
+      operador:'Cooperativa Unión Cariamanga', distancia_km:191, duracion_min:240,
+      frecuencia:'5 salidas/día', tarifa_usd:7.50, afluencia_diaria:280,
+      pico_manana:70, pico_tarde:85, ocupacion_pct:64, cupos:40,
+      salidas:['05:30','08:00','11:00','14:30','17:00'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'Gonzanamá', lugar:'Gonzanamá', tipo:'Parada', min:95},
+        {nombre:'Cariamanga', lugar:'Calvas', tipo:'Parada', min:145},
+        {nombre:'Sozoranga', lugar:'Sozoranga', tipo:'Parada', min:195},
+        {nombre:'Terminal Macará', lugar:'Macará', tipo:'Destino', min:240}
+      ]
+    },
+    {
+      id_ruta:'TI-07', tipo:'Interprovincial', origen:'Loja', destino:'Huaquillas',
+      operador:'Cooperativa CIFA', distancia_km:286, duracion_min:360,
+      frecuencia:'4 salidas/día', tarifa_usd:11.00, afluencia_diaria:190,
+      pico_manana:55, pico_tarde:40, ocupacion_pct:61, cupos:42,
+      salidas:['06:00','10:00','14:00','21:00'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'Piñas', lugar:'Piñas', tipo:'Parada', min:170},
+        {nombre:'Santa Rosa', lugar:'Santa Rosa', tipo:'Parada', min:250},
+        {nombre:'Arenillas', lugar:'Arenillas', tipo:'Parada', min:310},
+        {nombre:'CEBAF Huaquillas', lugar:'Huaquillas', tipo:'Destino', min:360}
+      ]
+    },
+    {
+      id_ruta:'TI-08', tipo:'Interprovincial', origen:'Loja', destino:'Piñas',
+      operador:'Cooperativa Piñas', distancia_km:165, duracion_min:210,
+      frecuencia:'6 salidas/día', tarifa_usd:6.00, afluencia_diaria:340,
+      pico_manana:80, pico_tarde:95, ocupacion_pct:66, cupos:38,
+      salidas:['06:00','08:00','10:30','13:00','15:30','18:00'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'Loja', tipo:'Terminal', min:0},
+        {nombre:'Catamayo', lugar:'Catamayo', tipo:'Parada', min:30},
+        {nombre:'El Tablón', lugar:'Catamayo', tipo:'Parada', min:70},
+        {nombre:'Chaguarpamba', lugar:'Chaguarpamba', tipo:'Parada', min:130},
+        {nombre:'Balsas', lugar:'Balsas', tipo:'Parada', min:175},
+        {nombre:'Terminal Piñas', lugar:'Piñas', tipo:'Destino', min:210}
+      ]
+    },
+    {
+      id_ruta:'TC-01', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Vilcabamba',
+      operador:'Cooperativa Vilcabamba', distancia_km:42, duracion_min:70,
+      frecuencia:'Cada 20 min', tarifa_usd:1.25, afluencia_diaria:980,
+      pico_manana:220, pico_tarde:250, ocupacion_pct:73, cupos:28,
+      salidas: series('05:20','19:40',20),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Motupe', lugar:'Sucre', tipo:'Parada', min:18},
+        {nombre:'Parque Central Malacatos', lugar:'Malacatos', tipo:'Parada', min:45},
+        {nombre:'Cruce San Pedro', lugar:'San Pedro de Vilcabamba', tipo:'Parada', min:58},
+        {nombre:'Terminal parroquial Vilcabamba', lugar:'Vilcabamba', tipo:'Destino', min:70}
+      ]
+    },
+    {
+      id_ruta:'TC-02', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Malacatos',
+      operador:'Cooperativa Malacatos', distancia_km:32, duracion_min:50,
+      frecuencia:'Cada 15 min', tarifa_usd:0.90, afluencia_diaria:1240,
+      pico_manana:290, pico_tarde:310, ocupacion_pct:81, cupos:26,
+      salidas: series('05:00','20:00',15),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Motupe', lugar:'Sucre', tipo:'Parada', min:18},
+        {nombre:'Las Palmas', lugar:'Malacatos', tipo:'Parada', min:38},
+        {nombre:'Parque Central Malacatos', lugar:'Malacatos', tipo:'Destino', min:50}
+      ]
+    },
+    {
+      id_ruta:'TC-03', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Yangana',
+      operador:'Cooperativa Valle Sagrado', distancia_km:55, duracion_min:90,
+      frecuencia:'Cada 45 min', tarifa_usd:1.75, afluencia_diaria:210,
+      pico_manana:55, pico_tarde:48, ocupacion_pct:58, cupos:26,
+      salidas: series('05:30','18:30',45),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Motupe', lugar:'Sucre', tipo:'Parada', min:18},
+        {nombre:'Malacatos', lugar:'Malacatos', tipo:'Parada', min:45},
+        {nombre:'Vilcabamba', lugar:'Vilcabamba', tipo:'Parada', min:70},
+        {nombre:'Yangana centro', lugar:'Yangana', tipo:'Destino', min:90}
+      ]
+    },
+    {
+      id_ruta:'TC-04', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Quinara',
+      operador:'Cooperativa Quinara', distancia_km:48, duracion_min:80,
+      frecuencia:'8 salidas/día', tarifa_usd:1.50, afluencia_diaria:95,
+      pico_manana:28, pico_tarde:22, ocupacion_pct:52, cupos:22,
+      salidas:['05:45','07:15','09:00','11:00','13:00','15:00','16:45','18:15'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Malacatos', lugar:'Malacatos', tipo:'Parada', min:45},
+        {nombre:'Vilcabamba', lugar:'Vilcabamba', tipo:'Parada', min:70},
+        {nombre:'Quinara centro', lugar:'Quinara', tipo:'Destino', min:80}
+      ]
+    },
+    {
+      id_ruta:'TC-05', tipo:'Interparroquial comunitario', origen:'Loja', destino:'San Pedro de Vilcabamba',
+      operador:'Cooperativa San Pedro', distancia_km:38, duracion_min:60,
+      frecuencia:'Cada 40 min', tarifa_usd:1.10, afluencia_diaria:160,
+      pico_manana:42, pico_tarde:38, ocupacion_pct:55, cupos:22,
+      salidas: series('06:00','18:40',40),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Motupe', lugar:'Sucre', tipo:'Parada', min:18},
+        {nombre:'Malacatos', lugar:'Malacatos', tipo:'Parada', min:45},
+        {nombre:'Plaza San Pedro', lugar:'San Pedro de Vilcabamba', tipo:'Destino', min:60}
+      ]
+    },
+    {
+      id_ruta:'TC-06', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Chuquiribamba',
+      operador:'Cooperativa Chuquiribamba', distancia_km:28, duracion_min:55,
+      frecuencia:'Cada 30 min', tarifa_usd:0.85, afluencia_diaria:320,
+      pico_manana:85, pico_tarde:78, ocupacion_pct:67, cupos:24,
+      salidas: series('05:30','19:00',30),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Cruce Taquil', lugar:'Taquil', tipo:'Parada', min:22},
+        {nombre:'Chantaco', lugar:'Chantaco', tipo:'Parada', min:38},
+        {nombre:'Chuquiribamba centro', lugar:'Chuquiribamba', tipo:'Destino', min:55}
+      ]
+    },
+    {
+      id_ruta:'TC-07', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Gualel',
+      operador:'Cooperativa Gualel', distancia_km:35, duracion_min:70,
+      frecuencia:'6 salidas/día', tarifa_usd:1.00, afluencia_diaria:85,
+      pico_manana:24, pico_tarde:20, ocupacion_pct:49, cupos:20,
+      salidas:['06:00','08:30','11:00','13:30','16:00','18:00'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Taquil', lugar:'Taquil', tipo:'Parada', min:25},
+        {nombre:'Chuquiribamba', lugar:'Chuquiribamba', tipo:'Parada', min:50},
+        {nombre:'Gualel centro', lugar:'Gualel', tipo:'Destino', min:70}
+      ]
+    },
+    {
+      id_ruta:'TC-08', tipo:'Interparroquial comunitario', origen:'Loja', destino:'El Cisne',
+      operador:'Cooperativa El Cisne', distancia_km:70, duracion_min:110,
+      frecuencia:'Cada 60 min', tarifa_usd:2.00, afluencia_diaria:410,
+      pico_manana:70, pico_tarde:95, ocupacion_pct:76, cupos:30,
+      salidas: series('05:00','18:00',60),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Taquil', lugar:'Taquil', tipo:'Parada', min:25},
+        {nombre:'Chuquiribamba', lugar:'Chuquiribamba', tipo:'Parada', min:50},
+        {nombre:'Gualel', lugar:'Gualel', tipo:'Parada', min:70},
+        {nombre:'Santuario El Cisne', lugar:'El Cisne', tipo:'Destino', min:110}
+      ]
+    },
+    {
+      id_ruta:'TC-09', tipo:'Interparroquial comunitario', origen:'Loja', destino:'San Lucas',
+      operador:'Cooperativa San Lucas', distancia_km:45, duracion_min:75,
+      frecuencia:'Cada 40 min', tarifa_usd:1.20, afluencia_diaria:180,
+      pico_manana:48, pico_tarde:44, ocupacion_pct:60, cupos:24,
+      salidas: series('05:40','18:40',40),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Cruce Jimbilla', lugar:'Jimbilla', tipo:'Parada', min:28},
+        {nombre:'San Lucas centro', lugar:'San Lucas', tipo:'Destino', min:75}
+      ]
+    },
+    {
+      id_ruta:'TC-10', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Taquil',
+      operador:'Cooperativa Taquil', distancia_km:18, duracion_min:35,
+      frecuencia:'Cada 25 min', tarifa_usd:0.50, afluencia_diaria:240,
+      pico_manana:68, pico_tarde:62, ocupacion_pct:64, cupos:20,
+      salidas: series('05:30','19:30',25),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Barrio Celi Román', lugar:'San Sebastián', tipo:'Parada', min:12},
+        {nombre:'Taquil centro', lugar:'Taquil', tipo:'Destino', min:35}
+      ]
+    },
+    {
+      id_ruta:'TC-11', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Jimbilla',
+      operador:'Cooperativa Jimbilla', distancia_km:22, duracion_min:40,
+      frecuencia:'Cada 30 min', tarifa_usd:0.60, afluencia_diaria:150,
+      pico_manana:40, pico_tarde:36, ocupacion_pct:57, cupos:20,
+      salidas: series('06:00','19:00',30),
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Zamora Huayco', lugar:'San Sebastián', tipo:'Parada', min:16},
+        {nombre:'Jimbilla centro', lugar:'Jimbilla', tipo:'Destino', min:40}
+      ]
+    },
+    {
+      id_ruta:'TC-12', tipo:'Interparroquial comunitario', origen:'Loja', destino:'Santiago',
+      operador:'Cooperativa Santiago', distancia_km:52, duracion_min:85,
+      frecuencia:'5 salidas/día', tarifa_usd:1.40, afluencia_diaria:70,
+      pico_manana:22, pico_tarde:18, ocupacion_pct:47, cupos:20,
+      salidas:['06:15','09:00','12:00','15:00','17:30'],
+      paradas:[
+        {nombre:'Terminal Terrestre Loja', lugar:'El Sagrario', tipo:'Terminal', min:0},
+        {nombre:'Cruce San Lucas', lugar:'San Lucas', tipo:'Parada', min:50},
+        {nombre:'Santiago centro', lugar:'Santiago', tipo:'Destino', min:85}
+      ]
+    }
+  ];
+
+  function horariosDe(r){
+    return r.salidas.map(function(s, i){
+      return {
+        id_ruta: r.id_ruta,
+        ruta: r.origen + ' – ' + r.destino,
+        salida: s,
+        llegada: fromMin(toMin(s) + r.duracion_min),
+        sentido: 'Ida',
+        unidad: (r.tipo === 'Interprovincial' ? 'Bus ' : 'Ranchera ') + (i + 1),
+        cupos: r.cupos
+      };
+    });
+  }
+  function paradasDe(r){
+    return r.paradas.map(function(p, i){
+      return {
+        id_ruta: r.id_ruta,
+        orden: i + 1,
+        nombre: p.nombre,
+        tipo: p.tipo,
+        min_desde_origen: p.min,
+        lugar: p.lugar
+      };
+    });
+  }
+
+  var BASE = 'https://datos.loja.gob.ec/api/v1/transporte-afluencia';
+  var el = function(id){ return document.getElementById(id); };
+  var selectedId = 'TI-01';
+  var currentTab = 'rutas';
+  var payload = null;
+
+  var destinos = [];
+  ROUTES.forEach(function(r){
+    if(destinos.indexOf(r.destino) === -1) destinos.push(r.destino);
+  });
+  destinos.sort().forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    el('f-destino').appendChild(opt);
+  });
+
+  var nH = 0, nP = 0;
+  ROUTES.forEach(function(r){ nH += r.salidas.length; nP += r.paradas.length; });
+  el('stat-rutas').textContent = ROUTES.length;
+  el('stat-horarios').textContent = nH;
+  el('stat-paradas').textContent = nP;
+
+  function filteredRoutes(){
+    var tipo = el('f-tipo-prev').value;
+    var q = (el('f-q').value || '').trim().toLowerCase();
+    return ROUTES.filter(function(r){
+      if(tipo && r.tipo !== tipo) return false;
+      if(!q) return true;
+      var blob = [r.id_ruta, r.tipo, r.origen, r.destino, r.operador]
+        .concat(r.paradas.map(function(p){ return p.nombre + ' ' + p.lugar; }))
+        .join(' ').toLowerCase();
+      return blob.indexOf(q) !== -1;
+    });
+  }
+
+  function fmtPax(n){
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function occClass(pct){
+    if(pct >= 75) return 'alta';
+    if(pct >= 65) return 'media';
+    return '';
+  }
+  function pillTipo(tipo){
+    var cls = tipo === 'Interprovincial' ? 'inter' : 'comu';
+    var label = tipo === 'Interprovincial' ? 'Interprovincial' : 'Comunitario';
+    return '<span class="pill ' + cls + '">' + label + '</span>';
+  }
+  function pillStop(tipo){
+    var cls = tipo === 'Terminal' ? 'term' : tipo === 'Destino' ? 'dest' : 'parada';
+    return '<span class="pill ' + cls + '">' + tipo + '</span>';
+  }
+
+  function renderRutas(rows){
+    el('tbody-rutas').innerHTML = rows.map(function(r){
+      return '<tr data-id="' + r.id_ruta + '"' + (r.id_ruta === selectedId ? ' class="sel"' : '') + '>' +
+        '<td class="mono">' + r.id_ruta + '</td>' +
+        '<td>' + pillTipo(r.tipo) + '</td>' +
+        '<td><b>' + r.origen + ' – ' + r.destino + '</b></td>' +
+        '<td>' + r.operador + '</td>' +
+        '<td>' + durLabel(r.duracion_min) + '</td>' +
+        '<td>' + r.frecuencia + '</td>' +
+        '<td><span class="lvl ' + occClass(r.ocupacion_pct) + '"><span class="track"><i style="width:' + r.ocupacion_pct + '%"></i></span> ' + fmtPax(r.afluencia_diaria) + ' pax</span></td>' +
+      '</tr>';
+    }).join('');
+  }
+  function renderHorarios(rows){
+    var list = [];
+    rows.forEach(function(r){
+      if(selectedId && r.id_ruta !== selectedId) return;
+      horariosDe(r).forEach(function(h){ list.push(h); });
+    });
+    if(list.length > 80) list = list.slice(0, 80);
+    el('tbody-horarios').innerHTML = list.map(function(h){
+      return '<tr data-id="' + h.id_ruta + '"' + (h.id_ruta === selectedId ? ' class="sel"' : '') + '>' +
+        '<td class="mono">' + h.id_ruta + '</td><td>' + h.ruta + '</td>' +
+        '<td class="mono">' + h.salida + '</td><td class="mono">' + h.llegada + '</td>' +
+        '<td>' + h.sentido + '</td><td>' + h.unidad + '</td><td>' + h.cupos + '</td></tr>';
+    }).join('');
+  }
+  function renderParadas(rows){
+    var list = [];
+    rows.forEach(function(r){
+      if(selectedId && r.id_ruta !== selectedId) return;
+      paradasDe(r).forEach(function(p){ list.push(p); });
+    });
+    el('tbody-paradas').innerHTML = list.map(function(p){
+      return '<tr data-id="' + p.id_ruta + '"' + (p.id_ruta === selectedId ? ' class="sel"' : '') + '>' +
+        '<td class="mono">' + p.id_ruta + '</td><td>' + p.orden + '</td>' +
+        '<td>' + p.nombre + '</td><td>' + pillStop(p.tipo) + '</td>' +
+        '<td class="mono">+' + p.min_desde_origen + ' min</td><td>' + p.lugar + '</td></tr>';
+    }).join('');
+  }
+
+  function renderDetail(){
+    var r = ROUTES.filter(function(x){ return x.id_ruta === selectedId; })[0];
+    if(!r){ el('detail').hidden = true; return; }
+    el('detail').hidden = false;
+    el('d-title').textContent = r.origen + ' – ' + r.destino;
+    el('d-meta').innerHTML =
+      pillTipo(r.tipo) + ' · <b>' + r.operador + '</b> · ' + r.distancia_km + ' km · tarifa USD ' + r.tarifa_usd.toFixed(2) +
+      '<br>Afluencia <b>' + fmtPax(r.afluencia_diaria) + ' pax/día</b> · pico mañana ' + fmtPax(r.pico_manana) +
+      ' · pico tarde ' + fmtPax(r.pico_tarde) + ' · ocupación ' + r.ocupacion_pct + '%';
+    el('d-hours').innerHTML = horariosDe(r).map(function(h){
+      return '<div class="hour"><b>' + h.salida + '</b><span>llega ' + h.llegada + '</span></div>';
+    }).join('');
+    el('d-stops').innerHTML = r.paradas.map(function(p){
+      return '<li><span class="dot"></span><div><div class="nm">' + p.nombre + '</div><div class="sub">' + p.lugar + ' · ' + p.tipo + '</div></div><span class="t">+' + p.min + ' min</span></li>';
+    }).join('');
+  }
+
+  function render(){
+    var rows = filteredRoutes();
+    el('empty-msg').hidden = rows.length > 0;
+    renderRutas(rows);
+    renderHorarios(rows);
+    renderParadas(rows);
+    renderDetail();
+  }
+
+  function showTab(tab){
+    currentTab = tab;
+    document.querySelectorAll('.tabs button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+    el('table-rutas').hidden = tab !== 'rutas';
+    el('table-horarios').hidden = tab !== 'horarios';
+    el('table-paradas').hidden = tab !== 'paradas';
+  }
+
+  function selectId(id){
+    selectedId = id;
+    render();
+    if(id) el('detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  el('tbody-rutas').addEventListener('click', function(ev){
+    var tr = ev.target.closest('tr');
+    if(tr && tr.getAttribute('data-id')) selectId(tr.getAttribute('data-id'));
+  });
+  el('tbody-horarios').addEventListener('click', function(ev){
+    var tr = ev.target.closest('tr');
+    if(tr && tr.getAttribute('data-id')) selectId(tr.getAttribute('data-id'));
+  });
+  el('tbody-paradas').addEventListener('click', function(ev){
+    var tr = ev.target.closest('tr');
+    if(tr && tr.getAttribute('data-id')) selectId(tr.getAttribute('data-id'));
+  });
+  el('d-clear').addEventListener('click', function(){ selectedId = null; render(); });
+  el('f-tipo-prev').addEventListener('change', function(){ selectedId = null; render(); });
+  el('f-q').addEventListener('input', render);
+  document.querySelectorAll('.tabs button').forEach(function(b){
+    b.addEventListener('click', function(){ showTab(b.getAttribute('data-tab')); });
+  });
+  document.querySelectorAll('[data-tab]').forEach(function(a){
+    if(a.tagName !== 'A') return;
+    a.addEventListener('click', function(){ showTab(a.getAttribute('data-tab')); });
+  });
+
+  function csvEscape(v){
+    v = String(v == null ? '' : v);
+    if(/[",\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
+    return v;
+  }
+  function toCsv(headers, rows){
+    return headers.join(',') + '\n' + rows.map(function(row){
+      return headers.map(function(h){ return csvEscape(row[h]); }).join(',');
+    }).join('\n');
+  }
+  function download(name, text){
+    var blob = new Blob([text], {type:'text/csv;charset=utf-8'});
+    var href = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = href; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    window.setTimeout(function(){ URL.revokeObjectURL(href); }, 1000);
+  }
+  document.querySelectorAll('[data-dl]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var kind = btn.getAttribute('data-dl');
+      if(kind === 'rutas'){
+        download('rutas_afluencia.csv', toCsv(
+          ['id_ruta','tipo','origen','destino','operador','distancia_km','duracion_min','frecuencia','tarifa_usd','afluencia_diaria','pico_manana','pico_tarde','ocupacion_pct'],
+          ROUTES
+        ));
+      } else if(kind === 'horarios'){
+        var hs = [];
+        ROUTES.forEach(function(r){ horariosDe(r).forEach(function(h){ hs.push(h); }); });
+        download('horarios.csv', toCsv(['id_ruta','ruta','salida','llegada','sentido','unidad','cupos'], hs));
+      } else {
+        var ps = [];
+        ROUTES.forEach(function(r){ paradasDe(r).forEach(function(p){ ps.push(p); }); });
+        download('paradas.csv', toCsv(['id_ruta','orden','nombre','tipo','min_desde_origen','lugar'], ps));
+      }
+    });
+  });
+
+  function apiParams(){
+    var p = {};
+    if(el('f-tipo').value) p.tipo = el('f-tipo').value;
+    if(el('f-destino').value) p.destino = el('f-destino').value;
+    if(el('f-incluir').value) p.incluir = el('f-incluir').value;
+    if(el('f-limit').value) p.limit = Number(el('f-limit').value);
+    return p;
+  }
+  function apiUrl(p){
+    var qs = Object.keys(p).map(function(k){ return k + '=' + encodeURIComponent(p[k]); }).join('&');
+    return BASE + (qs ? '?' + qs : '');
+  }
+  function highlight(obj){
+    var txt = JSON.stringify(obj, null, 2)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return txt.replace(/("(?:\\.|[^"\\])*"\s*:?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?)/g, function(m){
+      var cls = 'jn';
+      if(m.charAt(0) === '"') cls = /:\s*$/.test(m) ? 'jk' : 'jstr';
+      else if(/^(true|false|null)$/.test(m)) cls = 'jb';
+      return '<span class="' + cls + '">' + m + '</span>';
+    });
+  }
+  function refreshUrl(){ el('api-url').textContent = apiUrl(apiParams()); }
+
+  function shape(r, incluir){
+    var o = {
+      id_ruta: r.id_ruta, tipo: r.tipo, origen: r.origen, destino: r.destino,
+      operador: r.operador, distancia_km: r.distancia_km, duracion_min: r.duracion_min,
+      frecuencia: r.frecuencia, tarifa_usd: r.tarifa_usd,
+      afluencia_diaria: r.afluencia_diaria, pico_manana: r.pico_manana,
+      pico_tarde: r.pico_tarde, ocupacion_pct: r.ocupacion_pct
+    };
+    if(incluir === 'horarios' || incluir === 'completo') o.horarios = horariosDe(r);
+    if(incluir === 'paradas' || incluir === 'completo') o.paradas = paradasDe(r);
+    return o;
+  }
+
+  function runApi(){
+    var p = apiParams();
+    refreshUrl();
+    el('api-run').setAttribute('disabled', 'disabled');
+    el('api-status').textContent = 'Consultando…';
+    el('api-status').className = 'st load';
+    el('api-meta').textContent = '';
+    var started = Date.now();
+    window.setTimeout(function(){
+      var rows = ROUTES.filter(function(r){
+        return (!p.tipo || r.tipo === p.tipo) && (!p.destino || r.destino === p.destino);
+      });
+      var coincidencias = rows.length;
+      if(p.limit) rows = rows.slice(0, p.limit);
+      payload = {
+        endpoint: '/api/v1/transporte-afluencia',
+        generado: new Date().toISOString(),
+        licencia: 'CC-BY 4.0',
+        nota: 'Datos ficticios de prototipo. Afluencia en pasajeros por día laborable típico.',
+        parametros: p,
+        total_dataset: ROUTES.length,
+        coincidencias: coincidencias,
+        devueltos: rows.length,
+        resultados: rows.map(function(r){ return shape(r, p.incluir || 'resumen'); })
+      };
+      el('api-out').innerHTML = highlight(payload);
+      el('api-status').textContent = '200 OK';
+      el('api-status').className = 'st';
+      el('api-meta').textContent = rows.length + ' de ' + coincidencias + ' rutas · ' +
+        (Date.now() - started) + ' ms · respuesta simulada en el navegador';
+      el('api-run').removeAttribute('disabled');
+    }, 180 + Math.random() * 260);
+  }
+
+  function copy(text, btn){
+    var label = btn.textContent;
+    var done = function(){
+      btn.textContent = 'Copiado';
+      window.setTimeout(function(){ btn.textContent = label; }, 1400);
+    };
+    var manual = function(){
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){ btn.textContent = 'No se pudo copiar'; }
+      document.body.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, manual);
+    } else { manual(); }
+  }
+
+  el('api-run').addEventListener('click', runApi);
+  ['f-tipo','f-destino','f-incluir','f-limit'].forEach(function(id){
+    el(id).addEventListener('change', refreshUrl);
+    el(id).addEventListener('input', refreshUrl);
+  });
+  el('api-copy-url').addEventListener('click', function(){ copy(apiUrl(apiParams()), this); });
+  el('api-copy-json').addEventListener('click', function(){
+    if(payload) copy(JSON.stringify(payload, null, 2), this);
+  });
+  el('api-download').addEventListener('click', function(){
+    if(!payload) return;
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var href = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = href; a.download = 'transporte_afluencia.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    window.setTimeout(function(){ URL.revokeObjectURL(href); }, 1000);
+  });
+
+  render();
+  runApi();
+})();
+</script>
+
+</body>
+</html>
