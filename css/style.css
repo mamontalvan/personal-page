@@ -399,6 +399,27 @@ h2 {
   color: var(--text);
 }
 
+.how-i-work-list {
+  display: grid;
+  gap: 1.35rem;
+  max-width: 46rem;
+}
+
+.how-i-work-item dt {
+  font-family: var(--serif-cond);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.how-i-work-item dd {
+  text-align: justify;
+  color: var(--text);
+}
+
 .highlight-line {
   color: var(--primary);
   font-weight: 600;
