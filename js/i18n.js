@@ -84,6 +84,7 @@ const translations = {
     "exp.plsql.l1": "Supported academic management system data migration at UTPL.",
     "exp.plsql.date": "Feb 2012 — Aug 2012",
     "cert.title": "Certifications",
+    "cert.aws.mentorship.alt": "Certificate of Completion — AWS She Builds Mentorship Program 2025, awarded to Mayra Montalván",
     "cert.aws.mentorship.date": "📆 2025 · 12-week program",
     "cert.aws.ccp.date": "📆 Sep 2023 — Sep 2026",
     "cert.devops.date": "📆 May 2023",
@@ -176,11 +177,12 @@ const translations = {
     "exp.plsql.l1": "Apoyé la migración de datos del sistema de gestión académica de la UTPL.",
     "exp.plsql.date": "Feb 2012 — Ago 2012",
     "cert.title": "Certificaciones",
+    "cert.aws.mentorship.alt": "Certificado de finalización — AWS She Builds Mentorship Program 2025, otorgado a Mayra Montalván",
     "cert.aws.mentorship.date": "📆 2025 · programa de 12 semanas",
     "cert.aws.ccp.date": "📆 Sep 2023 — Sep 2026",
     "cert.devops.date": "📆 May 2023",
     "cert.view": "🏆 Ver credencial",
-    "cert.langs": "<strong>Español</strong> — Nativo &nbsp;·&nbsp; <strong>Inglés</strong> — Competencia profesional de trabajo",
+    "cert.langs": "<strong>Español</strong> — Nativa &nbsp;·&nbsp; <strong>Inglés</strong> — Competencia profesional de trabajo",
     "footer.html": "&copy; 2026 Mayra Alejandra Montalván. Código en <a href=\"https://github.com/mamontalvan\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>."
   }
 };
@@ -223,6 +225,11 @@ const applyLanguage = (lang) => {
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
     const value = dict[el.getAttribute("data-i18n-aria")];
     if (value != null) el.setAttribute("aria-label", value);
+  });
+
+  document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
+    const value = dict[el.getAttribute("data-i18n-alt")];
+    if (value != null) el.setAttribute("alt", value);
   });
 
   document.querySelectorAll(".lang-btn").forEach((btn) => {
